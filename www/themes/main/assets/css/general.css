@@ -1,0 +1,225 @@
+/*** jQuery UI modfications ***/
+
+.ui-widget-overlay {
+	background-image: none;
+	background-color: #000000;
+	opacity: 0.5;
+}
+.ui-dialog {
+	box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+	border-top-left-radius: 8px;
+	border-top-right-radius: 8px;
+	border-bottom-left-radius: 8px;
+	border-bottom-right-radius: 8px;
+}
+.ui-dialog .ui-dialog-titlebar {
+	border-radius: 0;
+	border-top: none;
+	border-right: none;
+	border-bottom: 1px solid #e5e5e5;
+	border-left: none;
+	background: none;
+}
+.ui-dialog .ui-dialog-titlebar .ui-dialog-titlebar-close {
+	background: none;
+	border: none;
+}
+.ui-dialog .ui-dialog-title {
+	cursor: default;
+	font-size: 18px;
+	font-weight: normal;
+}
+.ui-dialog .ui-dialog-buttonpane {
+	border-top: 1px solid #e5e5e5;
+	margin: 0;
+	padding: 3px 1px 0 1px;
+}
+
+/*** Bootstrap modifications ***/
+
+.navbar-static-top {
+	z-index: 0;
+}
+.dropdown-header {
+	cursor: default;
+}
+
+/*** General ***/
+
+.container[role="main"] {
+	margin-top: 10px;
+}
+.container[role="main"] > h1,h2,h3,h4,h5,h6:nth-child(1) {
+	margin-top: 5px;
+}
+.container > .alert {
+	margin-bottom: 10px;
+}
+.dialog_top {
+	margin-top: 27px;
+}
+
+/*** Forms ***/
+
+form .alert {
+	float: left;
+	clear: both;
+	cursor: default;
+	margin: 7px 0 0 0;
+	padding: 2px 6px;
+	width: 100%;
+	display: none;
+}
+form > ._row {
+	float: left;
+	clear: both;
+	width: 100%;
+	margin-top: 7px;
+}
+form > ._row:nth-child(1) {
+	margin-top: 0;
+}
+form > ._row._hidden {
+	display: none;
+}
+form label {
+	margin: 7px 0 0 0;
+	font-weight: normal;
+}
+form .input-group span.glyphicon {
+	cursor: default;
+}
+
+/*** Main menu ***/
+
+#main_menu {
+	margin-bottom: 0;
+}
+.navbar-inverse .navbar-brand.navbar_brand_static {
+	cursor: default;
+	color: #669900;
+}
+.navbar-inverse .navbar-brand.navbar_brand_static:hover {
+	color: #669900;
+}
+#main_menu ul.login_items {
+	float: right;
+}
+#main_menu ul.login_items li.active > a {
+	color: #999999;
+	background: none;
+	box-shadow: none;
+}
+#main_menu ul.login_items li.active > a:hover {
+	color: #ffffff;
+}
+#main_menu #login_menu_item {
+	cursor: pointer;
+}
+#main_menu #profile_menu_item {
+	cursor: default;
+}
+#main_menu #profile_menu_item ._icon {
+	float: right;
+	color: #339933;
+	border: none;
+	background: none;
+	font-size: 18px;
+	margin: 8px 10px 0 0;
+}
+#main_menu #profile_menu_item ._email {
+	float: right;
+	color: #339933;
+	font-size: 12px;
+	margin: 16px 20px 0 0;
+}
+#main_menu .separator_menu_item a {
+	padding: 15px 0;
+	cursor: default;
+}
+#main_menu .separator_menu_item a:hover {
+	color: #999999;
+}
+#main_menu #register_menu_item {
+	cursor: pointer;
+}
+
+/*** Login ***/
+
+#user_login_form {
+}
+#user_login_form._not_modal {
+}
+#user_login_form._not_modal > ._row,
+#user_login_form._not_modal > .alert {
+	width: 280px;
+}
+#user_login_form._not_modal > ._row._submit {
+	display: inherit;
+}
+#user_login_form input[type="submit"] {
+	float: right;
+	margin: 0;
+}
+#user_login_form input[type="checkbox"] {
+	float: left;
+	width: auto;
+	position: inherit;
+	margin: 4px 0 0 0;
+}
+#user_login_form label {
+	float: left;
+	font-weight: normal;
+	margin: 0 0 0 7px;
+}
+
+/*** Register ***/
+
+#user_register_form {
+}
+#user_register_form > ._row,
+#user_register_form > .alert {
+	width: 400px;
+}
+#user_register_form label {
+	float: left;
+	min-width: 110px;
+}
+#user_register_form input[type="text"],
+#user_register_form input[type="password"] {
+	float: right;
+	width: 250px;
+}
+#user_register_form ._captcha {
+	float: right;
+	width: 250px;
+	margin: 0;
+}
+#user_register_form ._captcha > ._controls {
+	float: left;
+}
+#user_register_form ._captcha > ._controls > img {
+	float: left;
+	border: 1px dotted #dddddd;
+	border-radius: 4px;
+}
+#user_register_form ._captcha > ._controls > a {
+	float: left;
+	clear: both;
+	font-size: 10px;
+	text-decoration: none;
+}
+#user_register_form ._captcha > ._input {
+	float: right;
+}
+#user_register_form ._captcha > ._input input[type="text"] {
+	float: right;
+	width: 120px;
+	margin: 9px 0 0 0;
+}
+#user_register_form input[type="submit"] {
+	float: right;
+	margin: 0;
+}
+
+
