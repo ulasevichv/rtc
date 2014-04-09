@@ -1,6 +1,7 @@
-assets/*
-!assets/.gitignore
-protected/runtime/*
-!protected/runtime/.gitignore
-protected/data/*.db
-themes/classic/views/
+GitBash.lnk
+.idea/
+www/assets/
+www/protected/config/main.custom.php
+www/protected/config/console.custom.php
+www/protected/runtime/
+www/protected/tmp/
