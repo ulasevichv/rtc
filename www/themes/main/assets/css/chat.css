@@ -1,0 +1,23 @@
+/*** General ***/
+
+.chatRoot {
+	width: 100%;
+	position: relative;
+}
+#groups {
+	float: left;
+	background: #cccccc;
+	width: 200px;
+	height: 200px;
+}
+#messages {
+	background: #ffffff;
+	height: 200px;
+	margin: 0 200px;
+}
+#users {
+	float: right;
+	background: #cccccc;
+	width: 200px;
+	height: 200px;
+}

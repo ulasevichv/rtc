@@ -48,9 +48,19 @@ $form = $this->beginWidget('CActiveForm', array(
 	
 	<div class="alert alert-danger"></div>
 	
-	<div class="_row _hidden">
-		<?php echo CHtml::submitButton('#'); ?>
-	</div>
+	<?php if (Yii::app()->request->isAjaxRequest): ?>
+		
+		<div class="_row _hidden">
+			<?php echo CHtml::submitButton('#'); ?>
+		</div>
+		
+	<?php else: ?>
+		
+		<div class="_row">
+			<?php echo CHtml::submitButton(Yii::t('general', 'Login'), array('class' => 'btn btn-primary')); ?>
+		</div>
+		
+	<?php endif; ?>
 	
 <?php $this->endWidget(); ?>
 
