@@ -1,13 +1,24 @@
 /*** Fixes ***/
 
+html {
+	/*min-height: 100%;*/
+	height: 100%;
+}
+body {
+	/*min-height: 100%;*/
+	height: 100%;
+}
+#main_menu {
+	position: absolute;
+	z-index: 1;
+	width: 100%;
+}
 body > div.container[role="main"] {
 	margin-top: 0;
+	/*min-height: 100%;*/
+	height: 100%;
+	padding-top: 50px;
 }
-.navbar-static-top {
-	z-index: 1; /* Hiding chat shadow */
-}
-
-/**/
 
 /*** General ***/
 
@@ -24,8 +35,11 @@ body > div.container[role="main"] {
 	border-radius: 8px;
 	box-shadow: 0 0 10px 1px #888888;
 	overflow: hidden;
+	height: 100%;
 }
 .chatRoot > .header {
+	position: absolute;
+	width: 100%;
 	background: linear-gradient(to bottom, #f1f1f1 0px, #bab9ba 100%) repeat scroll 0 0 rgba(0, 0, 0, 0);
 	text-align: center;
 	cursor: default;
@@ -37,12 +51,20 @@ body > div.container[role="main"] {
 	/*border-top-right-radius: 8px;*/
 	padding: 1px 0 2px 0;
 }
+.chatRoot > .sections {
+	height: 100%;
+	padding-top: 20px;
+}
+
+/*** Groups ***/
+
 #groups {
 	float: left;
 	background: #30384a;
 	/*border-right: 2px solid #a5a5a5;*/
 	width: 200px;
-	height: 200px;
+	height: 100%;
+	overflow-y: auto;
 }
 #groups > .group {
 	float: left;
@@ -77,14 +99,84 @@ body > div.container[role="main"] {
 	color: #f0f0f0;
 	margin: 0 0 0 3px;
 }
-#messages {
+
+/*** Chat ***/
+
+#chat {
+	position: relative;
 	background: #ffffff;
-	height: 200px;
+	height: 100%;
 	margin: 0 200px;
+	margin-top: 4px;
 }
+#messages {
+	background-color: #ccff00;
+}
+#messages > .message {
+	float: left;
+	/*clear: both;*/
+	width: 100%;
+}
+#messages > .message > .from {
+	float: left;
+	width: 160px;
+	color: #40556a;
+	cursor: default;
+	text-align: right;
+	padding: 1px 5px 3px 5px;
+}
+#messages > .message.outgoing > .from {
+	border-right: 1px solid #bed6eb;
+	border-top: 1px solid #bed6eb;
+	background-color: #e4ecf6;
+}
+#messages > .message.incoming > .from {
+	border-right: 1px solid #e1e1e1;
+	border-top: 1px solid #e1e1e1;
+	background-color: #f7f7f7;
+}
+/*#messages > .message > .from .txt {*/
+	/*display: inline-block;*/
+	/*float: right;*/
+/*}*/
+#messages > .message > .text {
+	cursor: default;
+}
+#messages > .message > .time {
+	cursor: default;
+}
+#sending {
+	position: absolute;
+	bottom: 0;
+	width: 100%;
+	background-color: #e0e0e0;
+	border-top: #cccccc;
+	padding: 5px 0 7px 5px;
+}
+#sending > .controls {
+	position: relative;
+	vertical-align: middle;
+	width: 100%;
+}
+#inputMessage {
+	border: 1px solid #999999;
+	resize: vertical;
+	min-height: 43px;
+	max-height: 145px;
+	height: 43px;
+	padding: 0 4px;
+	vertical-align: middle;
+	margin: auto 0;
+}
+#btnSend {
+	margin: auto 0 auto 1px;
+}
+
+/*** Users ***/
+
 #users {
 	float: right;
 	background: #cccccc;
 	width: 200px;
-	height: 200px;
+	height: 100%;
 }
