@@ -1,14 +1,81 @@
+/*** Fixes ***/
+
+body > div.container[role="main"] {
+	margin-top: 0;
+}
+.navbar-static-top {
+	z-index: 1; /* Hiding chat shadow */
+}
+
+/**/
+
 /*** General ***/
 
 .chatRoot {
 	width: 100%;
 	position: relative;
+	font-family: 'Roboto',sans-serif;
+	font-size: 14px;
+	/*font-family: 'Roboto Condensed',sans-serif;*/
+	/*font-family: 'Helvetica Neue',sans-serif;*/
+	/*border-top-left-radius: 8px;*/
+	/*border-top-right-radius: 8px;*/
+	border: 1px solid #aaaaaa;
+	border-radius: 8px;
+	box-shadow: 0 0 10px 1px #888888;
+	overflow: hidden;
+}
+.chatRoot > .header {
+	background: linear-gradient(to bottom, #f1f1f1 0px, #bab9ba 100%) repeat scroll 0 0 rgba(0, 0, 0, 0);
+	text-align: center;
+	cursor: default;
+	font-size: 14px;
+	color: #333333;
+	/*text-shadow: 0.5px 0.5px 2px #ffffff;*/
+	border-bottom: 1px solid #676767;
+	/*border-top-left-radius: 8px;*/
+	/*border-top-right-radius: 8px;*/
+	padding: 1px 0 2px 0;
 }
 #groups {
 	float: left;
-	background: #cccccc;
+	background: #30384a;
+	/*border-right: 2px solid #a5a5a5;*/
 	width: 200px;
 	height: 200px;
+}
+#groups > .group {
+	float: left;
+	clear: both;
+	width: 100%;
+	font-size: 14px;
+	border-top: 1px solid #404758;
+	border-bottom: 1px solid #232a38;
+	cursor: pointer;
+	padding: 4px 10px;
+}
+#groups > .group:hover {
+	background: #384154;
+}
+#groups > .group[opened] {
+	background: #232a38;
+	border-top: 1px solid #232a38;
+}
+#groups > .group:hover > .text {
+	color: #ffffff;
+}
+#groups > .group > .icon {
+	float: left;
+	background: url("../images/chat/users-16.png") no-repeat scroll 0 0 transparent;
+	background-size: 16px 16px;
+	width: 16px;
+	height: 16px;
+	margin: 2px 0 0 0;
+}
+#groups > .group > .text {
+	float: left;
+	color: #f0f0f0;
+	margin: 0 0 0 3px;
 }
 #messages {
 	background: #ffffff;
