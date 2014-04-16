@@ -55,10 +55,12 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 	
 	var allUsers = [
 		{ id : 1, email : 'ulasevich@tut.by', fullName : 'Victor Ulasevich', online : true },
-		{ id : 2, email : 'putin@kremlin.ru', fullName : 'Vladimir Putin', online: false }
+		{ id : 2, email : 'putin@kremlin.ru', fullName : 'Vladimir Putin', online: false },
+		{ id : 3, email : 'test@nomail.ru', fullName : 'Test User', online: true }
 	];
 	
 	var openedGroup = null;
+	var chatSize = null;
 	var sendingDivSize = null;
 	
 	function getGroupById(id)
@@ -85,6 +87,13 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 		return null;
 	}
 	
+	function getChatSize()
+	{
+		var jChat = $('#chat');
+		
+		return { x : jChat.width(), y : jChat.height() };
+	}
+	
 	function getSendingDivSize()
 	{
 		var jSending = $('#sending');
@@ -96,9 +105,10 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 	{
 		initialCall = (typeof(initialCall) != 'undefined' ? initialCall : false);
 		
+		var newChatSize = getChatSize();
 		var newSendingDivSize = getSendingDivSize();
 		
-		if (newSendingDivSize.x != sendingDivSize.x || initialCall)
+		if (initialCall || newSendingDivSize.x != sendingDivSize.x)
 		{
 			var jInputMessage = $('#inputMessage');
 			var jBtnSend = $('#btnSend');
@@ -106,6 +116,15 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 			jInputMessage.css('width', (newSendingDivSize.x - parseInt(jBtnSend.width()) - 35) + 'px');
 		}
 		
+		if (initialCall || newChatSize.y != chatSize.y)
+		{
+			var jMessages = $('#messages');
+			var jSending = $('#sending');
+			
+			jMessages.css('height', (newChatSize.y - parseInt(jSending.height()) - 13) + 'px');
+		}
+		
+		chatSize = newChatSize;
 		sendingDivSize = newSendingDivSize;
 	}
 	
@@ -200,8 +219,6 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 		allUsers.forEach(function(user, i)
 		{
 			var onlineStatus = (user.online ? 'online' : 'offline');
-			
-//			var tooltipText = '".Yii::t('general', 'Email').": ' + user.email + '&lt;br/&gt;' + '".Yii::t('general', 'Status').": ';
 			
 			feed.push('<div class=\"user ' + onlineStatus + '\" userId=\"' + user.id + '\">');
 			feed.push(	'<div class=\"icon\"></div>');
