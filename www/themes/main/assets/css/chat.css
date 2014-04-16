@@ -1,11 +1,9 @@
-/*** Fixes ***/
+/*** Global customizations ***/
 
 html {
-	/*min-height: 100%;*/
 	height: 100%;
 }
 body {
-	/*min-height: 100%;*/
 	height: 100%;
 }
 #main_menu {
@@ -15,7 +13,6 @@ body {
 }
 body > div.container[role="main"] {
 	margin-top: 0;
-	/*min-height: 100%;*/
 	height: 100%;
 	padding-top: 50px;
 }
@@ -26,11 +23,10 @@ body > div.container[role="main"] {
 	width: 100%;
 	position: relative;
 	font-family: 'Roboto',sans-serif;
-	font-size: 14px;
 	/*font-family: 'Roboto Condensed',sans-serif;*/
 	/*font-family: 'Helvetica Neue',sans-serif;*/
-	/*border-top-left-radius: 8px;*/
-	/*border-top-right-radius: 8px;*/
+	/*font-family: 'Inconsolata',sans-serif;*/
+	font-size: 14px;
 	border: 1px solid #aaaaaa;
 	border-radius: 8px;
 	box-shadow: 0 0 10px 1px #888888;
@@ -45,10 +41,7 @@ body > div.container[role="main"] {
 	cursor: default;
 	font-size: 14px;
 	color: #333333;
-	/*text-shadow: 0.5px 0.5px 2px #ffffff;*/
 	border-bottom: 1px solid #676767;
-	/*border-top-left-radius: 8px;*/
-	/*border-top-right-radius: 8px;*/
 	padding: 1px 0 2px 0;
 }
 .chatRoot > .sections {
@@ -61,7 +54,6 @@ body > div.container[role="main"] {
 #groups {
 	float: left;
 	background: #30384a;
-	/*border-right: 2px solid #a5a5a5;*/
 	width: 200px;
 	height: 100%;
 	overflow-y: auto;
@@ -88,7 +80,7 @@ body > div.container[role="main"] {
 }
 #groups > .group > .icon {
 	float: left;
-	background: url("../images/chat/users-16.png") no-repeat scroll 0 0 transparent;
+	background: url("../images/chat/usergroup.png") no-repeat scroll 0 0 transparent;
 	background-size: 16px 16px;
 	width: 16px;
 	height: 16px;
@@ -113,12 +105,21 @@ body > div.container[role="main"] {
 	background-color: #ccff00;
 }
 #messages > .message {
+	display: table;
+	position: relative;
 	float: left;
-	/*clear: both;*/
 	width: 100%;
 }
+#messages > div.message:nth-of-type(1) > .from,
+#messages > div.message:nth-of-type(1) > .text,
+#messages > div.message:nth-of-type(1) > .time {
+	border-top: none;
+}
+#messages > .message:nth-last-of-type(1) {
+	border-bottom: 1px solid #e1e1e1;
+}
 #messages > .message > .from {
-	float: left;
+	display: table-cell;
 	width: 160px;
 	color: #40556a;
 	cursor: default;
@@ -134,24 +135,45 @@ body > div.container[role="main"] {
 	border-right: 1px solid #e1e1e1;
 	border-top: 1px solid #e1e1e1;
 	background-color: #f7f7f7;
+	color: #747474;
 }
-/*#messages > .message > .from .txt {*/
-	/*display: inline-block;*/
-	/*float: right;*/
-/*}*/
 #messages > .message > .text {
+	display: table-cell;
 	cursor: default;
+	padding: 1px 5px 3px 5px;
+}
+#messages > .message.outgoing > .text {
+	border-top: 1px solid #bed6eb;
+	background-color: #f3f7fb;
+}
+#messages > .message.incoming > .text {
+	border-top: 1px solid #e1e1e1;
+	background-color: #ffffff;
 }
 #messages > .message > .time {
+	display: table-cell;
+	font-size: 10px;
+	color: #999999;
 	cursor: default;
+	width: 110px;
+	text-align: right;
+	padding: 0 5px 0 0;
+}
+#messages > .message.outgoing > .time {
+	border-top: 1px solid #bed6eb;
+	background-color: #f3f7fb;
+}
+#messages > .message.incoming > .time {
+	border-top: 1px solid #e1e1e1;
+	background-color: #ffffff;
 }
 #sending {
 	position: absolute;
 	bottom: 0;
 	width: 100%;
 	background-color: #e0e0e0;
-	border-top: #cccccc;
-	padding: 5px 0 7px 5px;
+	border-top: 1px solid #c1c1c1;
+	padding: 4px 0 8px 5px;
 }
 #sending > .controls {
 	position: relative;
@@ -163,7 +185,7 @@ body > div.container[role="main"] {
 	resize: vertical;
 	min-height: 43px;
 	max-height: 145px;
-	height: 43px;
+	height: 64px;
 	padding: 0 4px;
 	vertical-align: middle;
 	margin: auto 0;
@@ -176,7 +198,39 @@ body > div.container[role="main"] {
 
 #users {
 	float: right;
-	background: #cccccc;
+	background-color: #ffffff;
+	border-left: 1px solid #c1c1c1;
 	width: 200px;
 	height: 100%;
+}
+#users > .user {
+	float: left;
+	clear: both;
+	width: 100%;
+	padding: 1px 10px;
+	cursor: pointer;
+}
+#users > .user:nth-child(1) {
+	margin-top: 3px;
+}
+#users > .user:hover {
+	background-color: #f0f0f0;
+}
+#users > .user > .icon {
+	float: left;
+	background-size: 16px 16px;
+	width: 16px;
+	height: 16px;
+	margin: 3px 0 0 0;
+}
+#users > .user.online > .icon {
+	background: url("../images/chat/circle_green.png") no-repeat scroll 0 0 transparent;
+}
+#users > .user.offline > .icon {
+	background: url("../images/chat/circle_grey.png") no-repeat scroll 0 0 transparent;
+}
+#users > .user > .text {
+	float: left;
+	color: #333333;
+	margin: 0 0 0 2px;
 }

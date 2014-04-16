@@ -2,11 +2,15 @@
 $baseUrl = Yii::app()->theme->baseUrl;
 
 Yii::app()->clientScript->registerCssFile($baseUrl.'/assets/css/chat.css');
-Yii::app()->clientScript->registerCssFile('http://fonts.googleapis.com/css?family=Roboto:400,700');
+
+Yii::app()->clientScript->registerCssFile('http://fonts.googleapis.com/css?family=Roboto:400&subset=latin,cyrillic');
+//Yii::app()->clientScript->registerCssFile('http://fonts.googleapis.com/css?family=Roboto:400,700');
 //Yii::app()->clientScript->registerCssFile('http://fonts.googleapis.com/css?family=Roboto+Condensed:400,700');
+//Yii::app()->clientScript->registerCssFile('http://fonts.googleapis.com/css?family=Inconsolata:400');
+
+Yii::app()->clientScript->registerScriptFile($baseUrl.'/assets/js/MethodsForStrings.js');
 
 //echo 'userId: '.Yii::app()->user->id;
-
 ?>
 
 <div class="chatRoot">
@@ -34,7 +38,7 @@ Yii::app()->clientScript->registerCssFile('http://fonts.googleapis.com/css?famil
 <?php
 Yii::app()->clientScript->registerScript(uniqid(), "
 	
-	var groups = [
+	var allGroups = [
 		{ id : 1, name : 'Marketing', numUsersOnline : 3 },
 		{ id : 2, name : 'Sellers', numUsersOnline : 0 },
 		{ id : 3, name : 'Teqniksoft', numUsersOnline: 1 },
@@ -42,11 +46,16 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 		{ id : 5, name : 'Sysadmins', numUsersOnline: 6 }
 	];
 	
-	var messages = [
+	var allMessages = [
 		{ time : '2014-04-15 16:25:02', from : 'Vladimir Putin', text : 'Hello' },
 		{ time : '2014-04-15 16:27:14', from : 'Vladimir Putin', text : 'Hey, Victor, are you there?' },
-		{ time : '2014-04-15 16:27:25', from : 'Victor Ulasevich', text : 'Yeah, how are you? How\'s the situation with Crimea?' },
+		{ time : '2014-04-15 16:27:25', from : 'Victor Ulasevich', text : 'Yeah, how are you?<br/>How\'s the situation with Crimea?' },
 		{ time : '2014-04-15 16:27:44', from : 'Vladimir Putin', text : 'All good, all good...' }
+	];
+	
+	var allUsers = [
+		{ id : 1, email : 'ulasevich@tut.by', fullName : 'Victor Ulasevich', online : true },
+		{ id : 2, email : 'putin@kremlin.ru', fullName : 'Vladimir Putin', online: false }
 	];
 	
 	var openedGroup = null;
@@ -54,9 +63,9 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 	
 	function getGroupById(id)
 	{
-		for (var i = 0; i < groups.length; i++)
+		for (var i = 0; i < allGroups.length; i++)
 		{
-			var group = groups[i];
+			var group = allGroups[i];
 			
 			if (group.id == id) return group;
 		}
@@ -64,18 +73,16 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 		return null;
 	}
 	
-	function updateChat()
+	function getUserById(id)
 	{
-		var jHeader = $('.chatRoot > .header');
+		for (var i = 0; i < allUsers.length; i++)
+		{
+			var user = allUsers[i];
+			
+			if (user.id == id) return user;
+		}
 		
-		if (openedGroup == null)
-		{
-			jHeader.html('".Yii::t('general', 'Chat')."');
-		}
-		else
-		{
-			jHeader.html('".Yii::t('general', 'Chat')."' + ' (' + openedGroup.name + ')');
-		}
+		return null;
 	}
 	
 	function getSendingDivSize()
@@ -102,52 +109,181 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 		sendingDivSize = newSendingDivSize;
 	}
 	
+	function refreshGroups()
+	{
+		var feed = [];
+		
+		allGroups.forEach(function(group, i)
+		{
+			feed.push('<div class=\"group\" id=\"' + group.id + '\">');
+			feed.push(	'<div class=\"icon\"></div>');
+			feed.push(	'<div class=\"text\">');
+			feed.push(		group.name);
+			feed.push(	'</div>');
+			feed.push('</div>');
+		});
+		
+		$('#groups').html(feed.join(''));
+	}
+	
+	function updateChatTitle()
+	{
+		var jHeader = $('.chatRoot > .header');
+		
+		if (openedGroup == null)
+		{
+			jHeader.html('".Yii::t('general', 'Chat')."');
+		}
+		else
+		{
+			jHeader.html('".Yii::t('general', 'Chat')."' + ' (' + openedGroup.name + ')');
+		}
+	}
+	
+	function addChatMessages(messages)
+	{
+		var feed = [];
+		
+		messages.forEach(function(message, i)
+		{
+			var blockType = (message.from == 'Victor Ulasevich' ? 'outgoing' : 'incoming');
+			
+			feed.push('<div class=\"message ' + blockType + '\">');
+			feed.push(	'<div class=\"from\">');
+			feed.push(		message.from);
+			feed.push(	'</div>');
+			feed.push(	'<div class=\"text\">');
+			feed.push(		message.text);
+			feed.push(	'</div>');
+			feed.push(	'<div class=\"time\">');
+			feed.push(		message.time);
+			feed.push(	'</div>');
+			feed.push('</div>');
+		});
+		
+		var jMessages = $('#messages');
+		
+		jMessages.html(jMessages.html() + feed.join(''));
+	}
+	
+	function sendChatMessage()
+	{
+		var jInputMessage = $('#inputMessage');
+		
+		var msg = jInputMessage.val();
+		
+		if (msg != '')
+		{
+			var currentDateTime = new Date();
+			
+			var dateTimeStr = dateToString(currentDateTime);
+			
+			msg = MethodsForStrings.escapeHtml(msg);
+			msg = msg.replace('\\n', '<br/>');
+			
+			var newMessage = {
+				time : dateTimeStr,
+				from : 'Victor Ulasevich',
+				text : msg
+			};
+			
+			addChatMessages([newMessage]);
+			
+			jInputMessage.val('');
+		}
+	}
+	
+	function refreshUsers()
+	{
+		var feed = [];
+		
+		allUsers.forEach(function(user, i)
+		{
+			var onlineStatus = (user.online ? 'online' : 'offline');
+			
+//			var tooltipText = '".Yii::t('general', 'Email').": ' + user.email + '&lt;br/&gt;' + '".Yii::t('general', 'Status').": ';
+			
+			feed.push('<div class=\"user ' + onlineStatus + '\" userId=\"' + user.id + '\">');
+			feed.push(	'<div class=\"icon\"></div>');
+			feed.push(	'<div class=\"text\">');
+			feed.push(		user.fullName);
+			feed.push(	'</div>');
+			feed.push('</div>');
+		});
+		
+		$('#users').html(feed.join(''));
+	}
+	
+	function dateToString(date, showTimestamp)
+	{
+		showTimestamp = (typeof showTimestamp !== 'undefined' ? showTimestamp : false);
+		
+		if (typeof date === 'number')
+		{
+			date = new Date(date);
+		}
+		
+		var result = date.getFullYear() + '-' +
+			intToPadString(1 + date.getMonth(), 2) + '-' +
+			intToPadString(date.getDate(), 2) + ' ' +
+			intToPadString(date.getHours(), 2) + ':' +
+			intToPadString(date.getMinutes(), 2) + ':' +
+			intToPadString(date.getSeconds(), 2);// + '.' +
+			//intToPadString(date.getMilliseconds(), 3);
+		
+		if (showTimestamp) result += ' (' + Math.floor(date.getTime() / 1000) + '.' + date.getMilliseconds() + ')';
+		
+		return result;
+	}
+	
+	function intToPadString(intValue, numDigitsRequired)
+	{
+		var strValue = intValue.toString();
+		
+		var numMissingDigits = numDigitsRequired - strValue.length;
+		
+		if (numMissingDigits <= 0) return strValue;
+		
+		var str = '';
+		
+		for (var i = 0; i < numMissingDigits; i++)
+		{
+			str += '0';
+		}
+		
+		return str + strValue;
+	}
+	
 ", CClientScript::POS_HEAD);
 
 Yii::app()->clientScript->registerScript(uniqid(), "
 	
-	var feed = [];
-	
-	groups.forEach(function(group, i)
-	{
-		feed.push('<div class=\"group\" id=\"' + group.id + '\">');
-		feed.push(	'<div class=\"icon\"></div>');
-		feed.push(	'<div class=\"text\">');
-		feed.push(		group.name);
-		feed.push(	'</div>');
-		feed.push('</div>');
-	});
-	
-	$('#groups').html(feed.join(''));
-	
-	feed = [];
-	
-	messages.forEach(function(message, i)
-	{
-		var blockType = (message.from == 'Victor Ulasevich' ? 'outgoing' : 'incoming');
-		
-		feed.push('<div class=\"message ' + blockType + '\">');
-		feed.push(	'<div class=\"from\">');
-//		feed.push(		'<div class=\"txt\">');
-		feed.push(			message.from);
-//		feed.push(		'</div>');
-		feed.push(	'</div>');
-		feed.push(	'<div class=\"text\">');
-		feed.push(		message.text);
-		feed.push(	'</div>');
-		feed.push(	'<div class=\"time\">');
-		feed.push(		message.time);
-		feed.push(	'</div>');
-		feed.push('</div>');
-	});
-	
-	$('#messages').html(feed.join(''));
-	
 	sendingDivSize = getSendingDivSize();
 	onWindowResize(true);
-	updateChat();
+	refreshGroups();
+	updateChatTitle();
+	addChatMessages(allMessages);
+	refreshUsers();
 	
-	$('#groups').on('click', '> .group', function()
+	$(document).tooltip(
+	{
+		items : '#users > .user',
+		content: function() {
+			var element = $(this);
+			var user = getUserById(parseInt($(this).attr('userId')));
+			
+			var onlineStatusStr = (user.online ? '".Yii::t('general', 'Online')."' : '".Yii::t('general', 'Offline')."');
+			
+			return '".Yii::t('general', 'Email').": ' + user.email + '<br/>' + '".Yii::t('general', 'Status').": ' + onlineStatusStr;
+		}
+	});
+	
+	$(window).resize(function()
+	{
+		onWindowResize();
+	});
+	
+	$('#groups').on('click', '> .group', function(e)
 	{
 		var wasOpened = ($(this).attr('opened') != null);
 		
@@ -165,12 +301,20 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 			openedGroup = null;
 		}
 		
-		updateChat();
+		updateChatTitle();
 	});
 	
-	$(window).resize(function()
+	$('#btnSend').on('click', function(e)
 	{
-		onWindowResize();
+		sendChatMessage();
+	});
+	
+	$('#inputMessage').keydown(function (e)
+	{
+		if ((e.keyCode == 10 || e.keyCode == 13) && e.ctrlKey)
+		{
+			sendChatMessage();
+		}
 	});
 	
 ", CClientScript::POS_READY);
