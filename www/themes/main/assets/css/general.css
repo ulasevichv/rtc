@@ -43,6 +43,9 @@
 .dropdown-header {
 	cursor: default;
 }
+.navbar-inverse .navbar-brand.navbar_brand_static {
+	margin-top: -2px;
+}
 
 /*** General ***/
 

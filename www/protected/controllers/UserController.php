@@ -75,12 +75,12 @@ class UserController extends Controller
 				if ($error == '')
 				{
 					// Sending email.
-
+					
 					$email = new Email();
-
+					
 					$email->to = $model->email;
 					$email->subject = 'Q-aces registration';
-
+					
 					$email->sendFromTemplate('registration', array('model' => $model));
 					
 					// Redirecting.

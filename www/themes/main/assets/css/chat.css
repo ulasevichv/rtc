@@ -1,0 +1,237 @@
+/*** Global customizations ***/
+
+html {
+	height: 100%;
+}
+body {
+	height: 100%;
+}
+#main_menu {
+	position: absolute;
+	z-index: 1;
+	width: 100%;
+}
+body > div.container[role="main"] {
+	margin-top: 0;
+	height: 100%;
+	padding-top: 50px;
+}
+
+/*** General ***/
+
+.chatRoot {
+	width: 100%;
+	position: relative;
+	font-family: 'Roboto',sans-serif;
+	/*font-family: 'Roboto Condensed',sans-serif;*/
+	/*font-family: 'Helvetica Neue',sans-serif;*/
+	/*font-family: 'Inconsolata',sans-serif;*/
+	font-size: 14px;
+	border: 1px solid #aaaaaa;
+	border-radius: 8px;
+	box-shadow: 0 0 10px 1px #888888;
+	overflow: hidden;
+	height: 100%;
+}
+.chatRoot > .header {
+	position: absolute;
+	width: 100%;
+	background: linear-gradient(to bottom, #f1f1f1 0px, #bab9ba 100%) repeat scroll 0 0 rgba(0, 0, 0, 0);
+	text-align: center;
+	cursor: default;
+	font-size: 14px;
+	color: #333333;
+	border-bottom: 1px solid #676767;
+	padding: 1px 0 2px 0;
+}
+.chatRoot > .sections {
+	height: 100%;
+	padding-top: 20px;
+}
+
+/*** Groups ***/
+
+#groups {
+	float: left;
+	background: #30384a;
+	width: 200px;
+	height: 100%;
+	overflow-y: auto;
+}
+#groups > .group {
+	float: left;
+	clear: both;
+	width: 100%;
+	font-size: 14px;
+	border-top: 1px solid #404758;
+	border-bottom: 1px solid #232a38;
+	cursor: pointer;
+	padding: 4px 10px;
+}
+#groups > .group:hover {
+	background: #384154;
+}
+#groups > .group[opened] {
+	background: #232a38;
+	border-top: 1px solid #232a38;
+}
+#groups > .group:hover > .text {
+	color: #ffffff;
+}
+#groups > .group > .icon {
+	float: left;
+	background: url("../images/chat/usergroup.png") no-repeat scroll 0 0 transparent;
+	background-size: 16px 16px;
+	width: 16px;
+	height: 16px;
+	margin: 2px 0 0 0;
+}
+#groups > .group > .text {
+	float: left;
+	color: #f0f0f0;
+	margin: 0 0 0 3px;
+}
+
+/*** Chat ***/
+
+#chat {
+	position: relative;
+	background: #ffffff;
+	height: 100%;
+	margin: 0 200px;
+	margin-top: 4px;
+}
+#messages {
+	overflow-y: auto;
+}
+#messages > .message {
+	display: table;
+	position: relative;
+	float: left;
+	width: 100%;
+}
+#messages > div.message:nth-of-type(1) > .from,
+#messages > div.message:nth-of-type(1) > .text,
+#messages > div.message:nth-of-type(1) > .time {
+	border-top: none;
+}
+#messages > .message:nth-last-of-type(1) {
+	border-bottom: 1px solid #e1e1e1;
+}
+#messages > .message > .from {
+	display: table-cell;
+	width: 160px;
+	color: #40556a;
+	cursor: default;
+	text-align: right;
+	padding: 1px 5px 3px 5px;
+}
+#messages > .message.outgoing > .from {
+	border-right: 1px solid #bed6eb;
+	border-top: 1px solid #bed6eb;
+	background-color: #e4ecf6;
+}
+#messages > .message.incoming > .from {
+	border-right: 1px solid #e1e1e1;
+	border-top: 1px solid #e1e1e1;
+	background-color: #f7f7f7;
+	color: #747474;
+}
+#messages > .message > .text {
+	display: table-cell;
+	cursor: default;
+	padding: 1px 5px 3px 5px;
+}
+#messages > .message.outgoing > .text {
+	border-top: 1px solid #bed6eb;
+	background-color: #f3f7fb;
+}
+#messages > .message.incoming > .text {
+	border-top: 1px solid #e1e1e1;
+	background-color: #ffffff;
+}
+#messages > .message > .time {
+	display: table-cell;
+	font-size: 10px;
+	color: #999999;
+	cursor: default;
+	width: 110px;
+	text-align: right;
+	padding: 0 5px 0 0;
+}
+#messages > .message.outgoing > .time {
+	border-top: 1px solid #bed6eb;
+	background-color: #f3f7fb;
+}
+#messages > .message.incoming > .time {
+	border-top: 1px solid #e1e1e1;
+	background-color: #ffffff;
+}
+#sending {
+	position: absolute;
+	bottom: 0;
+	width: 100%;
+	background-color: #e0e0e0;
+	border-top: 1px solid #c1c1c1;
+	padding: 4px 0 8px 5px;
+}
+#sending > .controls {
+	position: relative;
+	vertical-align: middle;
+	width: 100%;
+}
+#inputMessage {
+	border: 1px solid #999999;
+	resize: vertical;
+	min-height: 43px;
+	max-height: 145px;
+	height: 64px;
+	padding: 0 4px;
+	vertical-align: middle;
+	margin: auto 0;
+}
+#btnSend {
+	margin: auto 0 auto 1px;
+}
+
+/*** Users ***/
+
+#users {
+	float: right;
+	background-color: #ffffff;
+	border-left: 1px solid #c1c1c1;
+	width: 200px;
+	height: 100%;
+	overflow-y: auto;
+}
+#users > .user {
+	float: left;
+	clear: both;
+	width: 100%;
+	padding: 1px 10px;
+	cursor: pointer;
+}
+#users > .user:nth-child(1) {
+	margin-top: 3px;
+}
+#users > .user:hover {
+	background-color: #f0f0f0;
+}
+#users > .user > .icon {
+	float: left;
+	background-size: 16px 16px;
+	width: 16px;
+	height: 16px;
+	margin: 3px 0 0 0;
+}
+#users > .user.online > .icon {
+	background: url("../images/chat/circle_green.png") no-repeat scroll 0 0 transparent;
+}
+#users > .user.offline > .icon {
+	background: url("../images/chat/circle_grey.png") no-repeat scroll 0 0 transparent;
+}
+#users > .user > .text {
+	float: left;
+	color: #333333;
+	margin: 0 0 0 2px;
+}
