@@ -21,4 +21,9 @@ class SiteController extends Controller
 				$this->render('error', $error);
 		}
 	}
+	
+	public function actionMsg()
+	{
+		$this->render('msg');
+	}
 }
