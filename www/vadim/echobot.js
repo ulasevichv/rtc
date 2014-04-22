@@ -25,10 +25,54 @@ function onConnect(status)
 
 	connection.addHandler(onMessage, null, 'message', null, null,  null); 
 	connection.send($pres().tree());
+//    connection.xmlInput = onXmlInput;
+    iq = $iq({type: 'get'}).c('query', {xmlns: 'jabber:iq:roster'});
+    connection.sendIQ(iq, your_roster_callback_function);
+
 
     }
 }
+function your_roster_callback_function(iq){
+    $(iq).find('item').each(function(){
+        var jid = $(this).attr('jid'); // The jabber_id of your contact
+//        $('#contacts').a
+        // You can probably put them in a unordered list and and use their jids as ids.
+    });
+    connection.addHandler(on_presence, null, "presence");
+    connection.send($pres());
 
+}
+//
+//
+//function onXmlInput(data) {
+//    Strophe.forEachChild(data, "presence", function(child) {
+//        var from = child.getAttribute('from');
+//
+//        from = from.substring(0, from.indexOf('@'));
+//        //'type' will contain "unavailable" when offline and no attribute 'type' when online
+//        if (!child.hasAttribute('type')) {
+//            console.log(from)
+//        } else {
+//            console.log(from);
+//        }
+//    });
+//}
+function on_presence(presence){
+    var presence_type = $(presence).attr('type'); // unavailable, subscribed, etc...
+    var from = $(presence).attr('from'); // the jabber_id of the contact
+    if (presence_type != 'error'){
+        if (presence_type === 'unavailable'){
+            // Mark contact as offline
+        }else{
+            var show = $(presence).find("show").text(); // this is what gives away, dnd, etc.
+            if (show === 'chat' || show === ''){
+                // Mark contact as online
+            }else{
+                // etc...
+            }
+        }
+    }
+}
 function groupChat() {
     connection.muc.init(connection);
     var d = $pres({"from":"vadim@192.237.219.76","to":"myroom@conference.192.237.219.76/vadim"})
@@ -60,6 +104,10 @@ function onMessage(msg) {
     // we must return true to keep the handler alive.  
     // returning false would remove it after it finishes.
     return true;
+}
+function getUsersList() {
+
+
 }
 
 //function sendMessage(message) {
