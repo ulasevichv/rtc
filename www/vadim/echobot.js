@@ -23,25 +23,19 @@ function onConnect(status)
 	log('ECHOBOT: Send a message to ' + connection.jid + 
 	    ' to talk to me.');
 
-	connection.addHandler(onMessage, null, 'message', null, null,  null); 
+	connection.addHandler(onMessage, null, 'message', null, null,  null);
 	connection.send($pres().tree());
 //    connection.xmlInput = onXmlInput;
     iq = $iq({type: 'get'}).c('query', {xmlns: 'jabber:iq:roster'});
-    connection.sendIQ(iq, your_roster_callback_function);
+//    connection.sendIQ(iq, your_roster_callback_function);
+        connection.sendIQ(iq, RosterObj.on_roster);
+        connection.addHandler(RosterObj.on_roster_changed,
+            "jabber:iq:roster", "iq", "set");
 
 
     }
 }
-function your_roster_callback_function(iq){
-    $(iq).find('item').each(function(){
-        var jid = $(this).attr('jid'); // The jabber_id of your contact
-//        $('#contacts').a
-        // You can probably put them in a unordered list and and use their jids as ids.
-    });
-    connection.addHandler(on_presence, null, "presence");
-    connection.send($pres());
 
-}
 //
 //
 //function onXmlInput(data) {
@@ -57,22 +51,7 @@ function your_roster_callback_function(iq){
 //        }
 //    });
 //}
-function on_presence(presence){
-    var presence_type = $(presence).attr('type'); // unavailable, subscribed, etc...
-    var from = $(presence).attr('from'); // the jabber_id of the contact
-    if (presence_type != 'error'){
-        if (presence_type === 'unavailable'){
-            // Mark contact as offline
-        }else{
-            var show = $(presence).find("show").text(); // this is what gives away, dnd, etc.
-            if (show === 'chat' || show === ''){
-                // Mark contact as online
-            }else{
-                // etc...
-            }
-        }
-    }
-}
+
 function groupChat() {
     connection.muc.init(connection);
     var d = $pres({"from":"vadim@192.237.219.76","to":"myroom@conference.192.237.219.76/vadim"})
@@ -83,6 +62,7 @@ function groupChat() {
 }
 
 function onMessage(msg) {
+    console.log('message');
     var to = msg.getAttribute('to');
     var from = msg.getAttribute('from');
     var type = msg.getAttribute('type');
@@ -138,6 +118,7 @@ function sendMessage() {
 
 $(document).ready(function () {
     connection = new Strophe.Connection(BOSH_SERVICE);
+    RosterObj.connection = connection;
 
     // Uncomment the following lines to spy on the wire traffic.
     //connection.rawInput = function (data) { log('RECV: ' + data); };
@@ -162,5 +143,22 @@ $(document).ready(function () {
     });
     $('#send').bind('click', function () {
         sendMessage();
-    })
+    });
+    $('.roster-contact').live('click', function () {
+        var jid = $(this).find(".roster-jid").text();
+        var name = $(this).find(".roster-name").text();
+        var jid_id = Gab.jid_to_id(jid);
+
+//        if ($('#chat-' + jid_id).length === 0) {
+//            $('#chat-area').tabs('add', '#chat-' + jid_id, name);
+//            $('#chat-' + jid_id).append(
+//                "<div class='chat-messages'></div>" +
+//                    "<input type='text' class='chat-input'>");
+//            $('#chat-' + jid_id).data('jid', jid);
+//        }
+//        $('#chat-area').tabs('select', '#chat-' + jid_id);
+//
+//        $('#chat-' + jid_id + ' input').focus();
+    });
+
 });
