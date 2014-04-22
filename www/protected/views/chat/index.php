@@ -10,7 +10,29 @@ Yii::app()->clientScript->registerCssFile('http://fonts.googleapis.com/css?famil
 
 Yii::app()->clientScript->registerScriptFile($baseUrl.'/assets/js/MethodsForStrings.js');
 
-//echo 'userId: '.Yii::app()->user->id;
+Yii::app()->clientScript->registerScriptFile($baseUrl.'/assets/js/strophe.js');
+Yii::app()->clientScript->registerScriptFile($baseUrl.'/assets/js/strophe.chatstates.js');
+Yii::app()->clientScript->registerScriptFile($baseUrl.'/assets/js/strophe.muc.js');
+
+$xmppServerAddress = Yii::app()->params->xmppServerIP;
+$boshServerAddress = 'http://'.Yii::app()->params->xmppServerIP.'/http-bind';
+
+$xmppUser = null;
+
+foreach (Yii::app()->params->xmppUsers as $user)
+{
+	if ($user->email == Yii::app()->user->email)
+	{
+		$xmppUser = $user;
+		break;
+	}
+}
+
+if (!isset($xmppUser))
+{
+	Yii::app()->user->setFlash('error', Yii::t('general', 'OpenFire user is not found. Chatting is not possible.'));
+	return;
+}
 ?>
 
 <div class="chatRoot">
@@ -18,10 +40,8 @@ Yii::app()->clientScript->registerScriptFile($baseUrl.'/assets/js/MethodsForStri
 	</div>
 	<div class="sections">
 		<div id="groups">
-			Groups
 		</div>
 		<div id="users">
-			Users
 		</div>
 		<div id="chat">
 			<div id="messages"></div>
@@ -39,18 +59,18 @@ Yii::app()->clientScript->registerScriptFile($baseUrl.'/assets/js/MethodsForStri
 Yii::app()->clientScript->registerScript(uniqid(), "
 	
 	var allGroups = [
-		{ id : 1, name : 'Marketing', numUsersOnline : 3 },
-		{ id : 2, name : 'Sellers', numUsersOnline : 0 },
-		{ id : 3, name : 'Teqniksoft', numUsersOnline: 1 },
-		{ id : 4, name : 'Teqspring', numUsersOnline: 0 },
-		{ id : 5, name : 'Sysadmins', numUsersOnline: 6 }
+//		{ id : 1, name : 'Marketing', numUsersOnline : 3 },
+//		{ id : 2, name : 'Sellers', numUsersOnline : 0 },
+//		{ id : 3, name : 'Teqniksoft', numUsersOnline: 1 },
+//		{ id : 4, name : 'Teqspring', numUsersOnline: 0 },
+//		{ id : 5, name : 'Sysadmins', numUsersOnline: 6 }
 	];
 	
 	var allMessages = [
-		{ time : '2014-04-15 16:25:02', from : 'Vladimir Putin', text : 'Hello' },
-		{ time : '2014-04-15 16:27:14', from : 'Vladimir Putin', text : 'Hey, Victor, are you there?' },
-		{ time : '2014-04-15 16:27:25', from : 'Victor Ulasevich', text : 'Yeah, how are you?<br/>How\'s the situation with Crimea?' },
-		{ time : '2014-04-15 16:27:44', from : 'Vladimir Putin', text : 'All good, all good...' }
+//		{ time : '2014-04-15 16:25:02', from : 'Vladimir Putin', text : 'Hello' },
+//		{ time : '2014-04-15 16:27:14', from : 'Vladimir Putin', text : 'Hey, Victor, are you there?' },
+//		{ time : '2014-04-15 16:27:25', from : 'Victor Ulasevich', text : 'Yeah, how are you?<br/>How\'s the situation with Crimea?' },
+//		{ time : '2014-04-15 16:27:44', from : 'Vladimir Putin', text : 'All good, all good...' }
 	];
 	
 	var allUsers = [
@@ -62,6 +82,8 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 	var openedGroup = null;
 	var chatSize = null;
 	var sendingDivSize = null;
+	
+	var connection = null;
 	
 	function getGroupById(id)
 	{
@@ -126,6 +148,39 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 		
 		chatSize = newChatSize;
 		sendingDivSize = newSendingDivSize;
+	}
+	
+	function blockControls()
+	{
+		changeControlsAvailability(false);
+	}
+	
+	function unblockControls()
+	{
+		changeControlsAvailability(true);
+	}
+	
+	function changeControlsAvailability(value)
+	{
+		var jControls = [
+			$('#inputMessage'),
+			$('#btnSend')
+		];
+			
+		if (value)
+		{
+			jControls.forEach(function(jControl, i)
+			{
+				jControl.removeAttr('disabled');
+			});
+		}
+		else
+		{
+			jControls.forEach(function(jControl, i)
+			{
+				jControl.attr('disabled', '');
+			});
+		}
 	}
 	
 	function refreshGroups()
@@ -271,6 +326,32 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 		return str + strValue;
 	}
 	
+	function connectToXmppServer()
+	{
+		connection  = new Strophe.Connection('".$boshServerAddress."');
+		
+		connection.connect('".$xmppUser->serverUserName.'@'.$xmppServerAddress."', '".$xmppUser->serverUserPass."', function(status)
+		{
+			if (status === Strophe.Status.CONNECTED)
+			{
+//				refreshUsers();
+				
+				
+//				connection.send(\$pres().tree());
+				
+//				iq = \$iq({type: 'get'}).c('query', {xmlns: 'jabber:iq:roster'});
+////		  		connection.sendIQ(iq, your_roster_callback_function);
+//				connection.sendIQ(iq, RosterObj.on_roster);
+//				connection.addHandler(RosterObj.on_roster_changed,
+//					'jabber:iq:roster', 'iq', 'set');
+			}
+			else if (status === Strophe.Status.DISCONNECTED)
+			{
+				alert('".Yii::t('general', 'Unable to connect to server. Please, reload the page')."');
+			}
+		});
+	}
+	
 ", CClientScript::POS_HEAD);
 
 Yii::app()->clientScript->registerScript(uniqid(), "
@@ -280,7 +361,10 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 	refreshGroups();
 	updateChatTitle();
 	addChatMessages(allMessages);
-	refreshUsers();
+//	refreshUsers();
+	
+	blockControls();
+	connectToXmppServer();
 	
 	$(document).tooltip(
 	{
