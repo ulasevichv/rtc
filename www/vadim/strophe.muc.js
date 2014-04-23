@@ -47,6 +47,7 @@
     (XML DOM Element) extended_presence - Optional XML for extending presence
      */
     join: function(room, nick, msg_handler_cb, pres_handler_cb, roster_cb, password, history_attrs) {
+        console.log('muc joined');
       var msg, room_nick;
       room_nick = this.test_append_nick(room, nick);
       msg = $pres({
