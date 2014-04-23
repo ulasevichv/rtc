@@ -109,6 +109,12 @@ if (!empty(Yii::app()->user->id))
 		{
 			if (!confirm('".Yii::t('general', 'Are you sure you want to logout?')."')) return;
 			
+			if (typeof(xmppConnection) != 'undefined' && xmppConnection != null)
+			{
+				 xmppConnection.disconnect();
+				 xmppConnection = null;
+			}
+			
 			var form = document.createElement('form');
 			form.setAttribute('action', '".Yii::app()->controller->createUrl('user/logout')."');
 			form.setAttribute('method', 'post');

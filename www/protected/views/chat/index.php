@@ -11,11 +11,15 @@ Yii::app()->clientScript->registerCssFile('http://fonts.googleapis.com/css?famil
 Yii::app()->clientScript->registerScriptFile($baseUrl.'/assets/js/MethodsForStrings.js');
 
 Yii::app()->clientScript->registerScriptFile($baseUrl.'/assets/js/strophe.js');
-Yii::app()->clientScript->registerScriptFile($baseUrl.'/assets/js/strophe.chatstates.js');
+//Yii::app()->clientScript->registerScriptFile($baseUrl.'/assets/js/strophe.chatstates.js');
 Yii::app()->clientScript->registerScriptFile($baseUrl.'/assets/js/strophe.muc.js');
 
-$xmppServerAddress = Yii::app()->params->xmppServerIP;
-$boshServerAddress = 'http://'.Yii::app()->params->xmppServerIP.'/http-bind';
+
+//Yii::app()->clientScript->registerScriptFile($baseUrl.'/assets/js/flXHR.js');
+//Yii::app()->clientScript->registerScriptFile($baseUrl.'/assets/js/strophe.flxhr.js');
+
+$xmppAddress = Yii::app()->params->xmppServerIP;
+$boshAddress = 'http://'.Yii::app()->params->xmppServerIP.'/http-bind';
 
 $xmppUser = null;
 
@@ -30,7 +34,7 @@ foreach (Yii::app()->params->xmppUsers as $user)
 
 if (!isset($xmppUser))
 {
-	Yii::app()->user->setFlash('error', Yii::t('general', 'OpenFire user is not found. Chatting is not possible.'));
+	Yii::app()->user->setFlash('error', Yii::t('general', 'XMPP user is not found. Chatting is not possible.'));
 	return;
 }
 ?>
@@ -83,7 +87,12 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 	var chatSize = null;
 	var sendingDivSize = null;
 	
-	var connection = null;
+	var xmppConnection = null;
+	var xmppAddress = '".$xmppAddress."';
+	var boshAddress = '".$boshAddress."';
+	var currentUserJid = '".$xmppUser->serverUserName."' + '@' + xmppAddress;
+	var currentUserPass = '".$xmppUser->serverUserPass."';
+	var persistentRoomName = 'room01';
 	
 	function getGroupById(id)
 	{
@@ -264,6 +273,8 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 			addChatMessages([newMessage]);
 			
 			jInputMessage.val('');
+			
+			sendXmppMessage('daniel' + '@' + xmppAddress, msg);
 		}
 	}
 	
@@ -326,30 +337,114 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 		return str + strValue;
 	}
 	
+	
+	
+	
+	
+	
+	
+	
+	
 	function connectToXmppServer()
 	{
-		connection  = new Strophe.Connection('".$boshServerAddress."');
+		xmppConnection  = new Strophe.Connection(boshAddress);
 		
-		connection.connect('".$xmppUser->serverUserName.'@'.$xmppServerAddress."', '".$xmppUser->serverUserPass."', function(status)
+		console.log('Connecting \'' + currentUserJid + '\' (' + currentUserPass + ')');
+		
+		xmppConnection.connect(currentUserJid, currentUserPass, function(status)
 		{
 			if (status === Strophe.Status.CONNECTED)
 			{
+				console.log('connected');
+				
+				xmppConnection.muc.init(xmppConnection);
+				
+				xmppConnection.addHandler(handlePong, null, 'iq', null, 'ping1');
+				xmppConnection.addHandler(onMessage, null, 'message', null, null, null);
+				xmppConnection.send(\$pres().tree());
+				
+				sendPing();
+				
 //				refreshUsers();
-				
-				
-//				connection.send(\$pres().tree());
-				
-//				iq = \$iq({type: 'get'}).c('query', {xmlns: 'jabber:iq:roster'});
-////		  		connection.sendIQ(iq, your_roster_callback_function);
-//				connection.sendIQ(iq, RosterObj.on_roster);
-//				connection.addHandler(RosterObj.on_roster_changed,
-//					'jabber:iq:roster', 'iq', 'set');
 			}
 			else if (status === Strophe.Status.DISCONNECTED)
 			{
 				alert('".Yii::t('general', 'Unable to connect to server. Please, reload the page')."');
 			}
 		});
+	}
+	
+	function sendPing()
+	{
+		var domain = Strophe.getDomainFromJid(xmppConnection.jid);
+		
+		var ping = \$iq({
+			to: domain,
+			type: 'get',
+			id: 'ping1'}).c('ping', {xmlns: 'urn:xmpp:ping'});
+		
+		console.log('Sending ping to ' + domain + '.');
+		
+		xmppConnection.send(ping);
+	}
+	
+	function handlePong(iq)
+	{
+		console.log('Received pong from server in ' + '---' + 'ms.');
+		
+		unblockControls();
+		
+
+		
+//		console.log('rooms:');
+//		console.log(xmppConnection.muc.listRooms());
+		
+		xmppConnection.muc.join(persistentRoomName + '@conference' + xmppAddress, Strophe.getNodeFromJid(currentUserJid), function() {}, function() {}, function() {});
+		
+		var d = \$pres({
+			'from': currentUserJid,
+			'to': persistentRoomName + '@conference' + xmppAddress + '/' + Strophe.getNodeFromJid(currentUserJid)
+			})
+			.c('x', {'xmlns': 'http://jabber.org/protocol/muc'});
+		
+		xmppConnection.send(d.tree());
+		
+		return false;
+	}
+	
+	function sendXmppMessage(jid, text)
+	{
+		console.log('sendXmppMessage(\'' + jid + '\', \'' + text + '\')');
+		
+		var msg = \$msg({
+			to: jid,
+			type: 'chat'
+			})
+			.cnode(Strophe.xmlElement('body', text)).up()
+			.c('active', {xmlns: 'http://jabber.org/protocol/chatstates'});
+		
+		xmppConnection.send(msg);
+		
+		console.log('sent');
+	}
+	
+	function onMessage(msg)
+	{
+		console.log(msg);
+		
+		var to = msg.getAttribute('to');
+		var from = msg.getAttribute('from');
+		var type = msg.getAttribute('type');
+		var elems = msg.getElementsByTagName('body');
+		
+		if (type == 'chat' && elems.length > 0)
+		{
+			var body = elems[0];
+			
+			console.log('Received message from \'' + from + '\': \'' + Strophe.getText(body) + '\'');
+		}
+		
+		return true;
 	}
 	
 ", CClientScript::POS_HEAD);
