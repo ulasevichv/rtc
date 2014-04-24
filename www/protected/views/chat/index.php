@@ -44,6 +44,7 @@ $this->renderPartial('chat_js', array(
 
 $this->renderPartial('chat_gui_js', array(
 ));
+
 ?>
 
 <div class="chatRoot">
@@ -115,17 +116,7 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 		return null;
 	}
 	
-	function getUserById(id)
-	{
-		for (var i = 0; i < allUsers.length; i++)
-		{
-			var user = allUsers[i];
-			
-			if (user.id == id) return user;
-		}
-		
-		return null;
-	}
+	
 	
 	function getChatSize()
 	{
@@ -271,18 +262,7 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 	
 	Chat.connect();
 	
-	$(document).tooltip(
-	{
-		items : '#users > .user',
-		content: function() {
-			var element = $(this);
-			var user = getUserById(parseInt($(this).attr('userId')));
-			
-			var onlineStatusStr = (user.online ? '".Yii::t('general', 'Online')."' : '".Yii::t('general', 'Offline')."');
-			
-			return '".Yii::t('general', 'Email').": ' + user.email + '<br/>' + '".Yii::t('general', 'Status').": ' + onlineStatusStr;
-		}
-	});
+	
 	
 	$(window).resize(function()
 	{

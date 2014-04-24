@@ -97,13 +97,15 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 			
 			
 			
-			var iq = \$iq({type: 'get'}).c('query', {xmlns: 'jabber:iq:auth'});
-			Chat.conn.sendIQ(iq, Chat.onAuth);
+//			var iq = \$iq({type: 'get'}).c('query', {xmlns: 'jabber:iq:auth'});
+//			Chat.conn.sendIQ(iq, Chat.onAuth);
+			
+			
+			
 			
 			var iq = \$iq({type: 'get'}).c('query', {xmlns: 'jabber:iq:roster'});
-			
 			Chat.conn.sendIQ(iq, Chat.onRoster);
-			Chat.conn.addHandler(Chat.on_roster_changed, 'jabber:iq:roster', 'iq', 'set');
+			Chat.conn.addHandler(Chat.onRosterChanged, 'jabber:iq:roster', 'iq', 'set');
 			Chat.conn.addHandler(Chat.on_message, null, 'message', 'chat');
 			
 			
@@ -128,61 +130,73 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 		{
 			console.log('onRoster');
 			
+//			var to = ;
 			
+//			console.log(to);
+			
+			var currentUser = {
+				fullJid : $(iq).attr('to'),
+				bareJid : Chat.currentUser.jid,
+				nickname : Strophe.getNodeFromJid(Chat.currentUser.jid),
+				fullName : '".Yii::app()->user->fullName."',
+				online : false
+			};
+			
+			ChatGUI.addUser(currentUser);
 			
 			$(iq).find('item').each(function () {
-				var jid = $(this).attr('jid');
-				var userJid = Strophe.getNodeFromJid(jid);
-				var userName = $(this).attr('name') || jid;
+				var bareJid = $(this).attr('jid');
+				var nickname = Strophe.getNodeFromJid(bareJid);
+				var userName = $(this).attr('name') || bareJid;
 				
-				console.log(userName + '(' + userJid + ')');
+				console.log(userName + '(' + nickname + ')');
 				
 				var user = {
-					jid : userJid,
+					fullJid : '',
+					bareJid : bareJid,
+					nickname : nickname,
 					fullName : userName,
 					online : false
 				};
 				
 				ChatGUI.addUser(user);
 			});
+			
+			Chat.conn.addHandler(Chat.onPresence, null, 'presence');
+       		Chat.conn.send(\$pres());
+		},
+		
+		onPresence : function(presence)
+		{
+			var pType = $(presence).attr('type');
+			if (typeof(pType) == 'undefined') pType = 'available';
+			
+			var from = $(presence).attr('from');
+			var to = $(presence).attr('to');
+			var fullJid = from;
+			var bareJid = Strophe.getBareJidFromJid(fullJid);
+			var jidId = Strophe.getNodeFromJid(fullJid);
+			
+			console.log('onPresence: ' + pType + ', ' + fullJid + ', ' + bareJid + ', ' + jidId);
+			
+			if (bareJid == Chat.currentUser.jid && from != to) return true; // Status from previous session.
+			
+			if (pType !== 'error')
+			{
+				ChatGUI.updateUser(bareJid, fullJid, (pType == 'available'));
+			}
+			
+			return true;
 		},
 		
 		
-		
-		
-		
-		
-//		on_roster: function (iq) {
-//        $(iq).find('item').each(function () {
-//            var jid = $(this).attr('jid');
-//            var name = $(this).attr('name') || jid;
-//
-//            // transform jid into an id
-//            var jid_id = Gab.jid_to_id(jid);
-//
-//            var contact = $('<li id=\"' + jid_id + '\">' +
-//                            '<div class=\"roster-contact offline\">' +
-//                            '<div class=\"roster-name\">' +
-//                            name +
-//                            '</div><div class=\"roster-jid\">' +
-//                            jid +
-//                            '</div></div></li>');
-//
-//            Gab.insert_contact(contact);
-//        });
-//
-//        // set up presence handler and send initial presence
-//        Gab.connection.addHandler(Gab.on_presence, null, 'presence');
-//        Gab.connection.send(\$pres());
-//    },
-		
-		
-		on_roster_changed : function(iq)
+		onRosterChanged : function(iq)
 		{
 			console.log('on_roster_changed');
 			
 			return true;
 		},
+		
 		
 		
 //		on_roster_changed: function (iq) {
@@ -191,7 +205,7 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 //				var jid = $(this).attr('jid');
 //				var name = $(this).attr('name') || jid;
 //				var jid_id = Gab.jid_to_id(jid);
-//	
+//				
 //				if (sub === 'remove') {
 //					// contact is being removed
 //					$('#' + jid_id).remove();
@@ -206,7 +220,7 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 //						'</div><div class=\"roster-jid\">' +
 //						jid +
 //						'</div></div></li>';
-//	
+//					
 //					if ($('#' + jid_id).length > 0) {
 //						$('#' + jid_id).replaceWith(contact_html);
 //					} else {
@@ -214,7 +228,7 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 //					}
 //				}
 //			});
-//	
+//			
 //			return true;
 //		},
 		
