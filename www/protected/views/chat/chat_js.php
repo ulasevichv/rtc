@@ -57,36 +57,56 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 		{
 			console.log('Connected');
 			
-			Chat.conn.muc.init(Chat.conn);
+//			Chat.conn.muc.init(Chat.conn);
 //			Chat.conn.roster.init(Chat.conn);
-
-			RosterObj.connection = Chat.conn;
 			
 			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+//			RosterObj.connection = Chat.conn;
+			
+//			var iq = \$iq({type: 'get'}).c('query', {xmlns: 'jabber:iq:roster'});
+//			Chat.conn.sendIQ(iq, RosterObj.on_roster);
+//			Chat.conn.addHandler(RosterObj.on_roster_changed, 'jabber:iq:roster', 'iq', 'set');
+			
+			
+			
+			
+//			Chat.conn.addHandler(Chat.onMessage, null, 'message', null, null, null);
+//			
+//			Chat.conn.send(\$pres());
+//			
+//			// Chat.conn.addHandler(Chat.handlePong, null, 'iq', null, 'ping1');
+//			// Chat.sendPing();
+//			
+//			// refreshUsers();
+//			
+//			
+//			
+//			
+//			Chat.connectToRoom(Chat.persistentRoomName);
+			
+			
+			
+			
+			
+			var iq = \$iq({type: 'get'}).c('query', {xmlns: 'jabber:iq:auth'});
+			Chat.conn.sendIQ(iq, Chat.onAuth);
 			
 			var iq = \$iq({type: 'get'}).c('query', {xmlns: 'jabber:iq:roster'});
-			Chat.conn.sendIQ(iq, RosterObj.on_roster);
-			Chat.conn.addHandler(RosterObj.on_roster_changed, 'jabber:iq:roster', 'iq', 'set');
+			
+			Chat.conn.sendIQ(iq, Chat.onRoster);
+			Chat.conn.addHandler(Chat.on_roster_changed, 'jabber:iq:roster', 'iq', 'set');
+			Chat.conn.addHandler(Chat.on_message, null, 'message', 'chat');
 			
 			
-			
-			
-			
-			
-			
-			Chat.conn.addHandler(Chat.onMessage, null, 'message', null, null, null);
-			
-			Chat.conn.send(\$pres());
-			
-			// Chat.conn.addHandler(Chat.handlePong, null, 'iq', null, 'ping1');
-			// Chat.sendPing();
-			
-			// refreshUsers();
-			
-			
-			
-			
-			Chat.connectToRoom(Chat.persistentRoomName);
 			
 			
 			ChatGUI.unblockControls();
@@ -97,10 +117,124 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 			alert('".Yii::t('general', 'Unable to connect to server. Please, reload the page')."');
 		},
 		
+		onAuth : function(iq)
+		{
+			console.log('onAuth');
+			
+			
+		},
+		
+		onRoster : function(iq)
+		{
+			console.log('onRoster');
+			
+			
+			
+			$(iq).find('item').each(function () {
+				var jid = $(this).attr('jid');
+				var userJid = Strophe.getNodeFromJid(jid);
+				var userName = $(this).attr('name') || jid;
+				
+				console.log(userName + '(' + userJid + ')');
+				
+				var user = {
+					jid : userJid,
+					fullName : userName,
+					online : false
+				};
+				
+				ChatGUI.addUser(user);
+			});
+		},
+		
+		
+		
+		
+		
+		
+//		on_roster: function (iq) {
+//        $(iq).find('item').each(function () {
+//            var jid = $(this).attr('jid');
+//            var name = $(this).attr('name') || jid;
+//
+//            // transform jid into an id
+//            var jid_id = Gab.jid_to_id(jid);
+//
+//            var contact = $('<li id=\"' + jid_id + '\">' +
+//                            '<div class=\"roster-contact offline\">' +
+//                            '<div class=\"roster-name\">' +
+//                            name +
+//                            '</div><div class=\"roster-jid\">' +
+//                            jid +
+//                            '</div></div></li>');
+//
+//            Gab.insert_contact(contact);
+//        });
+//
+//        // set up presence handler and send initial presence
+//        Gab.connection.addHandler(Gab.on_presence, null, 'presence');
+//        Gab.connection.send(\$pres());
+//    },
+		
+		
+		on_roster_changed : function(iq)
+		{
+			console.log('on_roster_changed');
+			
+			return true;
+		},
+		
+		
+//		on_roster_changed: function (iq) {
+//			$(iq).find('item').each(function () {
+//				var sub = $(this).attr('subscription');
+//				var jid = $(this).attr('jid');
+//				var name = $(this).attr('name') || jid;
+//				var jid_id = Gab.jid_to_id(jid);
+//	
+//				if (sub === 'remove') {
+//					// contact is being removed
+//					$('#' + jid_id).remove();
+//				} else {
+//					// contact is being added or modified
+//					var contact_html = '<li id=\"' + jid_id + '\">' +
+//						'<div class=\"' + 
+//						($('#' + jid_id).attr('class') || 'roster-contact offline') +
+//						'\">' +
+//						'<div class=\"roster-name\">' +
+//						name +
+//						'</div><div class=\"roster-jid\">' +
+//						jid +
+//						'</div></div></li>';
+//	
+//					if ($('#' + jid_id).length > 0) {
+//						$('#' + jid_id).replaceWith(contact_html);
+//					} else {
+//						Gab.insert_contact($(contact_html));
+//					}
+//				}
+//			});
+//	
+//			return true;
+//		},
+		
+		on_message : function(message)
+		{
+			console.log('on_message');
+			
+			return true;
+		},
+		
+		
+		
+		
+		
+		
+		
+		
+		
 		sendPing : function()
 		{
-			
-			
 			console.log('Sending ping to ' + Chat.domain + '.');
 			
 			Chat.conn.send(\$iq({
@@ -161,10 +295,12 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 			// console.log('rooms:');
 			// console.log(xmppConnection.muc.listRooms());
 			
-//			Chat.conn.muc.join(roomName + '@conference.' + Chat.domain, Chat.currentUser.name, Chat.onRoomMsg, Chat.onRoomPresence, function() {});
-			Chat.conn.muc.join(roomName + '@conference.' + Chat.domain, Chat.currentUser.name, Chat.onRoomMsg, function() {}, function() {});
-			
 			Chat.conn.addHandler(Chat.on_presence, null, 'presence');
+			
+			Chat.conn.muc.join(roomName + '@conference.' + Chat.domain, Chat.currentUser.name, Chat.onRoomMsg, Chat.onRoomPresence, function() {});
+//			Chat.conn.muc.join(roomName + '@conference.' + Chat.domain, Chat.currentUser.name, Chat.onRoomMsg, function() {}, function() {});
+			
+			
 			
 //			Chat.conn.send(\$pres({
 //				// from: Chat.currentUser.jid,
@@ -174,7 +310,7 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 			
 			console.log('Connected to room');
 			
-			Chat.conn.muc.queryOccupants(roomName + '@conference.' + Chat.domain, Chat.onRoomQueryOccupants, null);
+//			Chat.conn.muc.queryOccupants(roomName + '@conference.' + Chat.domain, Chat.onRoomQueryOccupants, null);
 		},
 		
 		onRoomQueryOccupants : function(stanza)

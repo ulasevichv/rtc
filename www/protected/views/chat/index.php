@@ -10,9 +10,9 @@ Yii::app()->clientScript->registerScriptFile($baseUrl.'/assets/js/MethodsForStri
 
 Yii::app()->clientScript->registerScriptFile($baseUrl.'/assets/js/strophe.js');
 //Yii::app()->clientScript->registerScriptFile($baseUrl.'/assets/js/strophe.chatstates.js');
-Yii::app()->clientScript->registerScriptFile($baseUrl.'/assets/js/strophe.muc.js');
+//Yii::app()->clientScript->registerScriptFile($baseUrl.'/assets/js/strophe.muc.js');
 //Yii::app()->clientScript->registerScriptFile($baseUrl.'/assets/js/strophe.roster.js');
-Yii::app()->clientScript->registerScriptFile($baseUrl.'/assets/js/roster.js');
+//Yii::app()->clientScript->registerScriptFile($baseUrl.'/assets/js/roster.js');
 //Yii::app()->clientScript->registerScriptFile($baseUrl.'/assets/js/flXHR.js');
 //Yii::app()->clientScript->registerScriptFile($baseUrl.'/assets/js/strophe.flxhr.js');
 
@@ -256,25 +256,6 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 		}
 	}
 	
-	function refreshUsers()
-	{
-		var feed = [];
-		
-		allUsers.forEach(function(user, i)
-		{
-			var onlineStatus = (user.online ? 'online' : 'offline');
-			
-			feed.push('<div class=\"user ' + onlineStatus + '\" userId=\"' + user.id + '\">');
-			feed.push(	'<div class=\"icon\"></div>');
-			feed.push(	'<div class=\"text\">');
-			feed.push(		user.fullName);
-			feed.push(	'</div>');
-			feed.push('</div>');
-		});
-		
-		$('#users').html(feed.join(''));
-	}
-	
 ", CClientScript::POS_HEAD);
 
 Yii::app()->clientScript->registerScript(uniqid(), "
@@ -284,7 +265,7 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 	refreshGroups();
 	updateChatTitle();
 	addChatMessages(allMessages);
-//	refreshUsers();
+//	ChatGUI.refreshUsers();
 	
 	ChatGUI.blockControls();
 	
