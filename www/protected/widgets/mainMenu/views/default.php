@@ -109,10 +109,9 @@ if (!empty(Yii::app()->user->id))
 		{
 			if (!confirm('".Yii::t('general', 'Are you sure you want to logout?')."')) return;
 			
-			if (typeof(xmppConnection) != 'undefined' && xmppConnection != null)
+			if (typeof(Chat) != 'undefined')
 			{
-				 xmppConnection.disconnect();
-				 xmppConnection = null;
+				Chat.disconnect();
 			}
 			
 			var form = document.createElement('form');

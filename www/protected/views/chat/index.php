@@ -4,17 +4,13 @@ $baseUrl = Yii::app()->theme->baseUrl;
 Yii::app()->clientScript->registerCssFile($baseUrl.'/assets/css/chat.css');
 
 Yii::app()->clientScript->registerCssFile('http://fonts.googleapis.com/css?family=Roboto:400&subset=latin,cyrillic');
-//Yii::app()->clientScript->registerCssFile('http://fonts.googleapis.com/css?family=Roboto:400,700');
-//Yii::app()->clientScript->registerCssFile('http://fonts.googleapis.com/css?family=Roboto+Condensed:400,700');
-//Yii::app()->clientScript->registerCssFile('http://fonts.googleapis.com/css?family=Inconsolata:400');
 
+Yii::app()->clientScript->registerScriptFile($baseUrl.'/assets/js/MethodsForDateTime.js');
 Yii::app()->clientScript->registerScriptFile($baseUrl.'/assets/js/MethodsForStrings.js');
 
 Yii::app()->clientScript->registerScriptFile($baseUrl.'/assets/js/strophe.js');
 //Yii::app()->clientScript->registerScriptFile($baseUrl.'/assets/js/strophe.chatstates.js');
 Yii::app()->clientScript->registerScriptFile($baseUrl.'/assets/js/strophe.muc.js');
-
-
 //Yii::app()->clientScript->registerScriptFile($baseUrl.'/assets/js/flXHR.js');
 //Yii::app()->clientScript->registerScriptFile($baseUrl.'/assets/js/strophe.flxhr.js');
 
@@ -37,6 +33,15 @@ if (!isset($xmppUser))
 	Yii::app()->user->setFlash('error', Yii::t('general', 'XMPP user is not found. Chatting is not possible.'));
 	return;
 }
+
+$this->renderPartial('chat_js', array(
+	'xmppAddress' => $xmppAddress,
+	'boshAddress' => $boshAddress,
+	'xmppUser' => $xmppUser,
+));
+
+$this->renderPartial('chat_gui_js', array(
+));
 ?>
 
 <div class="chatRoot">
@@ -87,12 +92,14 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 	var chatSize = null;
 	var sendingDivSize = null;
 	
-	var xmppConnection = null;
-	var xmppAddress = '".$xmppAddress."';
-	var boshAddress = '".$boshAddress."';
-	var currentUserJid = '".$xmppUser->serverUserName."' + '@' + xmppAddress;
-	var currentUserPass = '".$xmppUser->serverUserPass."';
-	var persistentRoomName = 'room01';
+//	var xmppConnection = null;
+//	var xmppAddress = '".$xmppAddress."';
+//	var boshAddress = '".$boshAddress."';
+//	var currentUserJid = '".$xmppUser->serverUserName."' + '@' + xmppAddress;
+//	var currentUserPass = '".$xmppUser->serverUserPass."';
+//	var persistentRoomName = 'room01';
+	
+	
 	
 	function getGroupById(id)
 	{
@@ -159,38 +166,7 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 		sendingDivSize = newSendingDivSize;
 	}
 	
-	function blockControls()
-	{
-		changeControlsAvailability(false);
-	}
 	
-	function unblockControls()
-	{
-		changeControlsAvailability(true);
-	}
-	
-	function changeControlsAvailability(value)
-	{
-		var jControls = [
-			$('#inputMessage'),
-			$('#btnSend')
-		];
-			
-		if (value)
-		{
-			jControls.forEach(function(jControl, i)
-			{
-				jControl.removeAttr('disabled');
-			});
-		}
-		else
-		{
-			jControls.forEach(function(jControl, i)
-			{
-				jControl.attr('disabled', '');
-			});
-		}
-	}
 	
 	function refreshGroups()
 	{
@@ -259,7 +235,7 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 		{
 			var currentDateTime = new Date();
 			
-			var dateTimeStr = dateToString(currentDateTime);
+			var dateTimeStr = MethodsForDateTime.dateToString(currentDateTime);
 			
 			msg = MethodsForStrings.escapeHtml(msg);
 			msg = msg.replace('\\n', '<br/>');
@@ -274,7 +250,7 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 			
 			jInputMessage.val('');
 			
-			sendXmppMessage('daniel' + '@' + xmppAddress, msg);
+			Chat.sendMessage(Chat.predefinedRecipientName, '', msg);
 		}
 	}
 	
@@ -297,156 +273,6 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 		$('#users').html(feed.join(''));
 	}
 	
-	function dateToString(date, showTimestamp)
-	{
-		showTimestamp = (typeof showTimestamp !== 'undefined' ? showTimestamp : false);
-		
-		if (typeof date === 'number')
-		{
-			date = new Date(date);
-		}
-		
-		var result = date.getFullYear() + '-' +
-			intToPadString(1 + date.getMonth(), 2) + '-' +
-			intToPadString(date.getDate(), 2) + ' ' +
-			intToPadString(date.getHours(), 2) + ':' +
-			intToPadString(date.getMinutes(), 2) + ':' +
-			intToPadString(date.getSeconds(), 2);// + '.' +
-			//intToPadString(date.getMilliseconds(), 3);
-		
-		if (showTimestamp) result += ' (' + Math.floor(date.getTime() / 1000) + '.' + date.getMilliseconds() + ')';
-		
-		return result;
-	}
-	
-	function intToPadString(intValue, numDigitsRequired)
-	{
-		var strValue = intValue.toString();
-		
-		var numMissingDigits = numDigitsRequired - strValue.length;
-		
-		if (numMissingDigits <= 0) return strValue;
-		
-		var str = '';
-		
-		for (var i = 0; i < numMissingDigits; i++)
-		{
-			str += '0';
-		}
-		
-		return str + strValue;
-	}
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	function connectToXmppServer()
-	{
-		xmppConnection  = new Strophe.Connection(boshAddress);
-		
-		console.log('Connecting \'' + currentUserJid + '\' (' + currentUserPass + ')');
-		
-		xmppConnection.connect(currentUserJid, currentUserPass, function(status)
-		{
-			if (status === Strophe.Status.CONNECTED)
-			{
-				console.log('connected');
-				
-				xmppConnection.muc.init(xmppConnection);
-				
-				xmppConnection.addHandler(handlePong, null, 'iq', null, 'ping1');
-				xmppConnection.addHandler(onMessage, null, 'message', null, null, null);
-				xmppConnection.send(\$pres().tree());
-				
-				sendPing();
-				
-//				refreshUsers();
-			}
-			else if (status === Strophe.Status.DISCONNECTED)
-			{
-				alert('".Yii::t('general', 'Unable to connect to server. Please, reload the page')."');
-			}
-		});
-	}
-	
-	function sendPing()
-	{
-		var domain = Strophe.getDomainFromJid(xmppConnection.jid);
-		
-		var ping = \$iq({
-			to: domain,
-			type: 'get',
-			id: 'ping1'}).c('ping', {xmlns: 'urn:xmpp:ping'});
-		
-		console.log('Sending ping to ' + domain + '.');
-		
-		xmppConnection.send(ping);
-	}
-	
-	function handlePong(iq)
-	{
-		console.log('Received pong from server in ' + '---' + 'ms.');
-		
-		unblockControls();
-		
-
-		
-//		console.log('rooms:');
-//		console.log(xmppConnection.muc.listRooms());
-		
-		xmppConnection.muc.join(persistentRoomName + '@conference' + xmppAddress, Strophe.getNodeFromJid(currentUserJid), function() {}, function() {}, function() {});
-		
-		var d = \$pres({
-			'from': currentUserJid,
-			'to': persistentRoomName + '@conference' + xmppAddress + '/' + Strophe.getNodeFromJid(currentUserJid)
-			})
-			.c('x', {'xmlns': 'http://jabber.org/protocol/muc'});
-		
-		xmppConnection.send(d.tree());
-		
-		return false;
-	}
-	
-	function sendXmppMessage(jid, text)
-	{
-		console.log('sendXmppMessage(\'' + jid + '\', \'' + text + '\')');
-		
-		var msg = \$msg({
-			to: jid,
-			type: 'chat'
-			})
-			.cnode(Strophe.xmlElement('body', text)).up()
-			.c('active', {xmlns: 'http://jabber.org/protocol/chatstates'});
-		
-		xmppConnection.send(msg);
-		
-		console.log('sent');
-	}
-	
-	function onMessage(msg)
-	{
-		console.log(msg);
-		
-		var to = msg.getAttribute('to');
-		var from = msg.getAttribute('from');
-		var type = msg.getAttribute('type');
-		var elems = msg.getElementsByTagName('body');
-		
-		if (type == 'chat' && elems.length > 0)
-		{
-			var body = elems[0];
-			
-			console.log('Received message from \'' + from + '\': \'' + Strophe.getText(body) + '\'');
-		}
-		
-		return true;
-	}
-	
 ", CClientScript::POS_HEAD);
 
 Yii::app()->clientScript->registerScript(uniqid(), "
@@ -458,8 +284,9 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 	addChatMessages(allMessages);
 //	refreshUsers();
 	
-	blockControls();
-	connectToXmppServer();
+	ChatGUI.blockControls();
+	
+	Chat.connect();
 	
 	$(document).tooltip(
 	{
