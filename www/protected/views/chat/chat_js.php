@@ -58,6 +58,21 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 			console.log('Connected');
 			
 			Chat.conn.muc.init(Chat.conn);
+//			Chat.conn.roster.init(Chat.conn);
+
+			RosterObj.connection = Chat.conn;
+			
+			
+			
+			var iq = \$iq({type: 'get'}).c('query', {xmlns: 'jabber:iq:roster'});
+			Chat.conn.sendIQ(iq, RosterObj.on_roster);
+			Chat.conn.addHandler(RosterObj.on_roster_changed, 'jabber:iq:roster', 'iq', 'set');
+			
+			
+			
+			
+			
+			
 			
 			Chat.conn.addHandler(Chat.onMessage, null, 'message', null, null, null);
 			
@@ -146,15 +161,58 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 			// console.log('rooms:');
 			// console.log(xmppConnection.muc.listRooms());
 			
-			Chat.conn.muc.join(roomName + '@conference.' + Chat.domain, Chat.currentUser.name, function() {}, function() {}, function() {});
+//			Chat.conn.muc.join(roomName + '@conference.' + Chat.domain, Chat.currentUser.name, Chat.onRoomMsg, Chat.onRoomPresence, function() {});
+			Chat.conn.muc.join(roomName + '@conference.' + Chat.domain, Chat.currentUser.name, Chat.onRoomMsg, function() {}, function() {});
 			
-			Chat.conn.send(\$pres({
-				// from: Chat.currentUser.jid,
-				to: roomName + '@conference.' + Chat.domain + '/' + Chat.currentUser.name
-				}).c('x', {'xmlns': 'http://jabber.org/protocol/muc'})
-			);
+			Chat.conn.addHandler(Chat.on_presence, null, 'presence');
+			
+//			Chat.conn.send(\$pres({
+//				// from: Chat.currentUser.jid,
+//				to: roomName + '@conference.' + Chat.domain + '/' + Chat.currentUser.name
+//				}).c('x', {'xmlns': 'http://jabber.org/protocol/muc'})
+//			);
 			
 			console.log('Connected to room');
+			
+			Chat.conn.muc.queryOccupants(roomName + '@conference.' + Chat.domain, Chat.onRoomQueryOccupants, null);
+		},
+		
+		onRoomQueryOccupants : function(stanza)
+		{
+			console.log('onRoomQueryOccupants');
+			console.log(stanza);
+			
+			var jItems = $(stanza).find('item');
+			
+			console.log(jItems);
+			console.log(jItems.length);
+			
+			var occupantJids = [];
+			
+			for (var i = 0; i < jItems.length; i++)
+			{
+				occupantJids.push(jItems.eq(i).attr('jid'));
+			}
+			
+			console.log(occupantJids);
+		},
+		
+		onRoomMsg : function(stanza)
+		{
+			console.log('onRoomMsg');
+			console.log(stanza);
+		},
+		
+		onRoomPresence : function(stanza)
+		{
+			console.log('onRoomPresence');
+			console.log(stanza);
+		},
+		
+		on_presence : function(stanza)
+		{
+			console.log('on_presence');
+			console.log(stanza);
 		}
 	};
 	

@@ -11,6 +11,8 @@ Yii::app()->clientScript->registerScriptFile($baseUrl.'/assets/js/MethodsForStri
 Yii::app()->clientScript->registerScriptFile($baseUrl.'/assets/js/strophe.js');
 //Yii::app()->clientScript->registerScriptFile($baseUrl.'/assets/js/strophe.chatstates.js');
 Yii::app()->clientScript->registerScriptFile($baseUrl.'/assets/js/strophe.muc.js');
+//Yii::app()->clientScript->registerScriptFile($baseUrl.'/assets/js/strophe.roster.js');
+Yii::app()->clientScript->registerScriptFile($baseUrl.'/assets/js/roster.js');
 //Yii::app()->clientScript->registerScriptFile($baseUrl.'/assets/js/flXHR.js');
 //Yii::app()->clientScript->registerScriptFile($baseUrl.'/assets/js/strophe.flxhr.js');
 

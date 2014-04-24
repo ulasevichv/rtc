@@ -180,9 +180,8 @@ $(document).ready(function () {
         connection.muc.join(Rooms.room, connection.jid);
 
         } else {
-            Rooms.room = "tstroom@conference.192.237.219.76";
-            connection.muc.join("tstroom@conference.192.237.219.76",connection.jid);
-
+            Rooms.room = "room01@conference.192.237.219.76";
+            connection.muc.join("room01@conference.192.237.219.76",connection.jid);
         }
 
         Rooms.joined = true;
