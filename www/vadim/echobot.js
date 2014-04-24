@@ -56,7 +56,7 @@ function onConnect(status) {
 
 
 function onMessage(msg) {
-
+    console.log('onMessage call');
     var to = msg.getAttribute('to');
     var from = msg.getAttribute('from');
     var type = msg.getAttribute('type');
@@ -74,7 +74,36 @@ function onMessage(msg) {
 //
 //	log('ECHOBOT: I sent ' + from + ': ' + Strophe.getText(body));
     } else {
-        console.log(msg.getElementsByTagName('invite'));
+        //User invited
+        InviteReason = msg.getElementsByTagName('invite')[0].childNodes[0].innerHTML;
+        InviteFrom = msg.getElementsByTagName('invite')[0].getAttributeNode("from").nodeValue;
+//        console.log(msg.getElementsByTagName('invite').getElementsByTagName('from'));
+        if (msg.getElementsByTagName('invite') && to!=InviteFrom) {
+            if (confirm('Join group chat, invited from ' + InviteFrom + '. Reason - ' + InviteReason)) {
+                alert('connection');
+                Rooms.room = from;
+                Rooms.connection = connection;
+                console.log(from);
+                connection.muc.join(from, connection.jid);
+
+                Rooms.joined = true;
+                $(document).trigger('user_joined', connection.jid);
+
+                Rooms.connection.addHandler(Rooms.on_presence,
+                    null, "presence");
+                Rooms.connection.addHandler(Rooms.on_invite,
+                    null, "message",null,'invite');
+                Rooms.connection.addHandler(Rooms.on_public_message,
+                    null, "message", "groupchat");
+                Rooms.connection.addHandler(Rooms.on_private_message,
+                    null, "message", "chat");
+
+            } else {
+                alert('no');
+                return true;
+            }
+        }
+
     }
 
     // we must return true to keep the handler alive.  
@@ -138,16 +167,26 @@ $(document).ready(function () {
         sendMessage();
     });
     $('#sendRoom').bind('click', function () { //Creates room and invites test user
+        Rooms.joined = false;
+        Rooms.connection = connection;
+        Rooms.participants = [];
         var d = $pres({"from": "vadim@192.237.219.76", "to": $('#room').val() +"@conference.192.237.219.76/vadim"})
             .c("x", {"xmlns": "http://jabber.org/protocol/muc"});
+        if ($('#room').val()) {
         connection.send(d.tree());
         connection.muc.createInstantRoom($('#room').val() +"@conference.192.237.219.76/vadim");
-        console.log(connection.muc.listRooms());
         connection.muc.invite($('#room').val() +"@conference.192.237.219.76", 'test@192.237.219.76', 'her');
         Rooms.room = $('#room').val() +"@conference.192.237.219.76";
-        Rooms.joined = false;
-        Rooms.participants = [];
-        Rooms.connection = connection;
+        connection.muc.join(Rooms.room, connection.jid);
+
+        } else {
+            Rooms.room = "tstroom@conference.192.237.219.76";
+            connection.muc.join("tstroom@conference.192.237.219.76",connection.jid);
+
+        }
+
+        Rooms.joined = true;
+        $(document).trigger('user_joined', connection.jid);
 
         Rooms.connection.addHandler(Rooms.on_presence,
             null, "presence");
@@ -175,7 +214,6 @@ $(document).ready(function () {
 
 
     $('#input').keypress(function (ev) {
-
         if (ev.which === 13) {
             ev.preventDefault();
 
@@ -265,16 +303,16 @@ $(document).ready(function () {
         $('#leave').removeAttr('disabled');
         $('#room-name').text(Groupie.room);
 
-        Groupie.add_message("<div class='notice'>*** Room joined.</div>")
+        Rooms.add_message("<div class='notice'>*** Room joined.</div>")
     });
 
     $(document).bind('user_joined', function (ev, nick) {
-        Groupie.add_message("<div class='notice'>*** " + nick +
+        Rooms.add_message("<div class='notice'>*** " + nick +
             " joined.</div>");
     });
 
     $(document).bind('user_left', function (ev, nick) {
-        Groupie.add_message("<div class='notice'>*** " + nick +
+        Rooms.add_message("<div class='notice'>*** " + nick +
             " left.</div>");
     });
 

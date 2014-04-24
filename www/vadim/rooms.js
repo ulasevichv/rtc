@@ -13,7 +13,9 @@ var Rooms = {
         var from = $(presence).attr('from');
         var room = Strophe.getBareJidFromJid(from);
         // make sure this presence is for the right room
-
+        console.log(room);
+        console.log(Rooms.room);
+        console.log(room === Rooms.room);
         if (room === Rooms.room) {
             var nick = Strophe.getResourceFromJid(from);
 

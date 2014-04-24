@@ -8,7 +8,7 @@ var RosterObj = {
     },
 
     on_roster: function (iq) {
-
+        console.log('onrostercall');
         $(iq).find('item').each(function () {
             var jid = $(this).attr('jid');
             var name = $(this).attr('name') || jid;
