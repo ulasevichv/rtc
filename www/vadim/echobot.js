@@ -67,20 +67,27 @@ function onConnect(status) {
 //    });
 //}
 
-
+function getNameFromJid(jid) {
+    return Strophe.getBareJidFromJid(jid).split('@')[0]
+}
 function onMessage(msg) {
     console.log('onMessage call');
     var to = msg.getAttribute('to');
     var from = msg.getAttribute('from');
     var type = msg.getAttribute('type');
     var elems = msg.getElementsByTagName('body');
-
     if (type == "chat" && elems.length > 0) {
         var body = elems[0];
 
         log('ECHOBOT: I got a message from ' + from + ': ' +
             Strophe.getText(body));
+        name = getNameFromJid(from);
+        if ($('#chat-'+ name).length) {
 
+         } else {
+            $('#chats').append('<div id="chat-'+name+'"><div class="chat-area"></div><textarea></textarea><a href="javascript:void(0)" onclick="sendPrivateMessage(\''+ name +'\')">Send</a></div>')
+        }
+        $('#chat-'+ name + ' .chat-area').append('<div class="msg">'+ name + ': ' + Strophe.getText(body) +'</div>');
 //	var reply = $msg({to: from, from: to, type: 'chat'})
 //            .cnode(Strophe.copyElement(body));
 //	connection.send(reply.tree());
@@ -134,9 +141,14 @@ function onMessage(msg) {
 //    return;
 //}
 
-function sendMessage() {
+function sendMessage(name) {
     var message = $('#message').get(0).value;
-    var to = 'test@192.237.219.76';
+    if (name) {
+        var to = name + '@192.237.219.76';
+    } else {
+        var to = 'test@192.237.219.76';
+    }
+
     if (message && to) {
         var reply = $msg({
             to: to,
@@ -147,6 +159,29 @@ function sendMessage() {
 
         connection.send(reply);
 
+        log('I sent ' + to + ': ' + message);
+    }
+}
+
+function sendPrivateMessage(name) {
+    var message = $('#chat-'+name).find('textarea').val();
+    if (name) {
+        var to = name + '@192.237.219.76';
+    } else {
+        var to = 'test@192.237.219.76';
+    }
+
+    if (message && to) {
+        var reply = $msg({
+            to: to,
+            type: 'chat'
+        })
+            .cnode(Strophe.xmlElement('body', message)).up()
+            .c('active', {xmlns: "http://jabber.org/protocol/chatstates"});
+
+        connection.send(reply);
+        $('#chat-'+ name + ' .chat-area').append('<div class="msg">'+ name + ': ' + message +'</div>');
+        $('#chat-'+name).find('textarea').val('');
         log('I sent ' + to + ': ' + message);
     }
 }
@@ -222,8 +257,14 @@ $(document).ready(function () {
         var jid = $(this).find(".roster-jid").text();
         var name = $(this).find(".roster-name").text();
         var jid_id = RosterObj.jid_to_id(jid);
+        if ($('#chat-'+name).length) {
+            alert('we have this chat window');
+        } else {
+            $('#chats').append('<div id="chat-'+name+'"><div class="chat-area"></div><textarea></textarea><a href="javascript:void(0)" onclick="sendPrivateMessage(\''+ name +'\')">Send</a></div>')
+        }
 
     });
+
 
 
     $('#input').keypress(function (ev) {

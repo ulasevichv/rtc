@@ -1,0 +1,71 @@
+<?php
+return array(
+	'name' => 'RTC (local)',
+	'theme' => 'main',
+	'params' => array(
+		'adminEmail' => 'admin@nomail.com',
+		'adminEmailName' => 'EMPTY',
+		
+		'xmppServerIP' => '192.237.219.76',
+		'xmppUsers' => array(
+			(object) array('email' => 'ulasevichv@teqniksoft.com', 'serverUserName' => 'victor', 'serverUserPass' => '123456'),
+			(object) array('email' => 'vadim.dovgailo@teqspring.net', 'serverUserName' => 'vadim', 'serverUserPass' => 'zxasqw12'),
+			(object) array('email' => 'danielo@teqspring.com', 'serverUserName' => 'daniel', 'serverUserPass' => '123456'),
+		),
+	),
+	'components' => array(
+		'db' => array(
+			'connectionString' => 'mysql:host=localhost;dbname=rtc',
+			'emulatePrepare' => true,
+			'username' => 'root',
+			'password' => '',
+			'charset' => 'utf8',
+			'tablePrefix' => '',
+			'enableParamLogging' => true,
+			'enableProfiling' => true,
+		),
+		'assetManager' => array(
+			'linkAssets' => true,
+		),
+		'log' => array(
+			'class' => 'CLogRouter',
+			'routes' => array(
+				array(
+					'class' => 'CFileLogRoute',
+					'levels' => 'error, warning, info',
+					'categories' => '',
+					'logFile' => 'application.log',
+				),
+//				array(
+//					'class' => 'CFileLogRoute',
+//					'levels' => 'trace, profile',
+//					'categories' => '',
+//					'logFile' => 'application_trace.log',
+//				),
+			),
+		),
+		'user' => array(
+			'class' => 'application.components.WebUser',
+			'loginUrl' => 'user/login',
+			'allowAutoLogin' => true,
+			'autoUpdateFlash' => false,
+		),
+		'authManager' => array(
+			'class' => 'PhpAuthManager',
+			'defaultRoles' => array('Guest'),
+		),
+		'session' => array(
+			'class' => 'system.web.CCacheHttpSession',
+			'sessionName' => 'qaces_session',
+			'autoStart' => true,
+			'timeout' => 1800,
+		),
+		'cache' => array(
+			'class' => 'CFileCache',
+			'embedExpiry' => true,
+		),
+		'urlManager' => array(
+			'showScriptName' => false,
+		),
+	),
+);

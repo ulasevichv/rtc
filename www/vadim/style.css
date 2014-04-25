@@ -1,0 +1,25 @@
+#chats {
+    position: absolute;
+    min-width: 300px;
+    border: 1px solid #ccc;
+    right: 0;
+    top: 43px;
+    min-height: 300px;
+}
+.chat-area {
+    min-width: 280px;
+    min-height: 230px;
+}
+#log {
+    height: 200px;
+    overflow-y:auto ;
+}
+
+/*contacts */
+#roster-area .online {
+    color: green;
+    font-weight: bold;
+}
+#roster-area .offline {
+    color: darkred;
+}

@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
@@ -12,6 +14,7 @@
   <script type='text/javascript' src='js.js'></script>
   <script type='text/javascript' src='rooms.js'></script>
   <script src='https://swww.tokbox.com/webrtc/v2.0/js/TB.min.js'></script>
+  <link  href="style.css" type="text/css" rel="stylesheet" />
   <!--<script type='text/javascript' src='strophe.roster.js'></script>-->
 </head>
 <body>
@@ -27,10 +30,11 @@
     </form>
   </div>
   <hr />
-  <div id='log'></div>
   <div id='roster-area'>
       <ul></ul>
   </div>
+  <div id='log'></div>
+
 <div>
     <h1>Group chat</h1>
     <div id='login_dialog' class='hidden'>
@@ -60,6 +64,9 @@
             </ul>
         </div>
     </div>
+</div>
+<div id="chats">
+
 </div>
 </body>
 </html>
