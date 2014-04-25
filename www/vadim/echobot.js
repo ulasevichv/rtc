@@ -34,7 +34,20 @@ function onConnect(status) {
         connection.addHandler(RosterObj.on_roster_changed,
             "jabber:iq:roster", "iq", "set");
 
+        //OpenTok Init
+        var apiKey = "44742482";
+        var sessionId = "2_MX40NDc0MjQ4Mn5-VGh1IEFwciAyNCAyMjowNDozNiBQRFQgMjAxNH4wLjE5MzE4MjA1flB-";
+        var token = "T1==cGFydG5lcl9pZD00NDc0MjQ4MiZzZGtfdmVyc2lvbj10YnJ1YnktdGJyYi12MC45MS4yMDExLTAyLTE3JnNpZz1jN2VhMjEwNjg1MmQ2MzQzYjIyNDliNmMxY2I4ZWY1NDA5YzA4NGVlOnJvbGU9c3Vic2NyaWJlciZzZXNzaW9uX2lkPTJfTVg0ME5EYzBNalE0TW41LVZHaDFJRUZ3Y2lBeU5DQXlNam93TkRvek5pQlFSRlFnTWpBeE5INHdMakU1TXpFNE1qQTFmbEItJmNyZWF0ZV90aW1lPTEzOTg0MDIyOTYmbm9uY2U9MC4zOTE3NjY1MjExMTk0NDQmZXhwaXJlX3RpbWU9MTQwMDk5NDI3MiZjb25uZWN0aW9uX2RhdGE9";
 
+        // Initialize session, set up event listeners, and connect
+        var session = TB.initSession(sessionId);
+        session.addEventListener('sessionConnected', sessionConnectedHandler);
+        session.connect(apiKey, token);
+
+        function sessionConnectedHandler(event) {
+            var publisher = TB.initPublisher(apiKey, 'myPublisherDiv');
+            session.publish(publisher);
+        }
     }
 }
 
