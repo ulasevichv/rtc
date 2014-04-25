@@ -46,19 +46,19 @@ body > div.container[role="main"] {
 }
 .chatRoot > .sections {
 	height: 100%;
-	padding-top: 20px;
+	padding-top: 21px;
 }
 
-/*** Groups ***/
+/*** Rooms ***/
 
-#groups {
+#rooms {
 	float: left;
 	background: #30384a;
 	width: 200px;
 	height: 100%;
 	overflow-y: auto;
 }
-#groups > .group {
+#rooms > .room {
 	float: left;
 	clear: both;
 	width: 100%;
@@ -66,30 +66,94 @@ body > div.container[role="main"] {
 	border-top: 1px solid #404758;
 	border-bottom: 1px solid #232a38;
 	cursor: pointer;
-	padding: 4px 10px;
+	padding: 4px 0 4px 10px;
+	-webkit-touch-callout: none;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
 }
-#groups > .group:hover {
+#rooms > .room:hover {
 	background: #384154;
 }
-#groups > .group[opened] {
+/*#rooms > .room:nth-child(1) {*/
+	/*border-top: 1px solid #ff0000;*/
+/*}*/
+#rooms > .room[opened] {
 	background: #232a38;
 	border-top: 1px solid #232a38;
 }
-#groups > .group:hover > .text {
+#rooms > .room:hover > .text {
 	color: #ffffff;
 }
-#groups > .group > .icon {
+#rooms > .room > .icon {
 	float: left;
 	background: url("../images/chat/usergroup.png") no-repeat scroll 0 0 transparent;
-	background-size: 16px 16px;
+	background-size: 13px 15px;
 	width: 16px;
 	height: 16px;
+	margin: 3px 0 0 0;
+}
+#rooms > .room[unread] > .icon {
+	background: url("../images/chat/exclamation_mark_green.png") no-repeat scroll 0 0 transparent;
+	background-size: 16px 16px;
 	margin: 2px 0 0 0;
 }
-#groups > .group > .text {
+#rooms > .room > .text {
 	float: left;
 	color: #f0f0f0;
 	margin: 0 0 0 3px;
+}
+#rooms > .room > .btnClose {
+	float: right;
+	margin: 2px 4px 0 0;
+}
+
+	/*** Users ***/
+
+#users {
+	float: right;
+	background-color: #ffffff;
+	border-left: 1px solid #c1c1c1;
+	width: 200px;
+	height: 100%;
+	overflow-y: auto;
+}
+#users > .user {
+	float: left;
+	clear: both;
+	width: 100%;
+	padding: 1px 10px;
+	cursor: pointer;
+	-webkit-touch-callout: none;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}
+#users > .user:nth-child(1) {
+	margin-top: 3px;
+}
+#users > .user:hover {
+	background-color: #f0f0f0;
+}
+#users > .user > .icon {
+	float: left;
+	background: url("../images/chat/circle_grey.png") no-repeat scroll 0 0 transparent;
+	background-size: 13px 15px;
+	width: 16px;
+	height: 16px;
+	margin: 3px 0 0 0;
+}
+#users > .user.online > .icon {
+	background: url("../images/chat/circle_green.png") no-repeat scroll 0 0 transparent;
+}
+#users > .user > .text {
+	float: left;
+	color: #333333;
+	margin: 0 0 0 2px;
 }
 
 /*** Chat ***/
@@ -98,8 +162,7 @@ body > div.container[role="main"] {
 	position: relative;
 	background: #ffffff;
 	height: 100%;
-	margin: 0 200px;
-	margin-top: 4px;
+	margin: 3px 200px 0 200px;
 }
 #messages {
 	overflow-y: auto;
@@ -192,47 +255,4 @@ body > div.container[role="main"] {
 }
 #btnSend {
 	margin: auto 0 auto 1px;
-}
-
-/*** Users ***/
-
-#users {
-	float: right;
-	background-color: #ffffff;
-	border-left: 1px solid #c1c1c1;
-	width: 200px;
-	height: 100%;
-	overflow-y: auto;
-}
-#users > .user {
-	float: left;
-	clear: both;
-	width: 100%;
-	padding: 1px 10px;
-	cursor: pointer;
-}
-#users > .user:nth-child(1) {
-	margin-top: 3px;
-}
-#users > .user:hover {
-	background-color: #f0f0f0;
-}
-#users > .user > .icon {
-	float: left;
-	background: url("../images/chat/circle_grey.png") no-repeat scroll 0 0 transparent;
-	background-size: 13px 15px;
-	width: 16px;
-	height: 16px;
-	margin: 3px 0 0 0;
-}
-/*#users > .user.offline > .icon {*/
-	/**/
-/*}*/
-#users > .user.online > .icon {
-	background: url("../images/chat/circle_green.png") no-repeat scroll 0 0 transparent;
-}
-#users > .user > .text {
-	float: left;
-	color: #333333;
-	margin: 0 0 0 2px;
 }

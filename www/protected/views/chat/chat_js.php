@@ -8,10 +8,11 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 		currentUser : {
 			jid : '".$xmppUser->serverUserName."' + '@' + '".$xmppAddress."',
 			name : '".$xmppUser->serverUserName."',
-			password : '".$xmppUser->serverUserPass."'
+			password : '".$xmppUser->serverUserPass."',
+			fullName : '".Yii::app()->user->fullName."'
 		},
 		persistentRoomName : 'room01',
-		predefinedRecipientName : 'daniel',
+//		predefinedRecipientName : 'daniel',
 		
 		connect : function()
 		{
@@ -105,8 +106,8 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 			
 			var iq = \$iq({type: 'get'}).c('query', {xmlns: 'jabber:iq:roster'});
 			Chat.conn.sendIQ(iq, Chat.onRoster);
-			Chat.conn.addHandler(Chat.onRosterChanged, 'jabber:iq:roster', 'iq', 'set');
-			Chat.conn.addHandler(Chat.on_message, null, 'message', 'chat');
+			Chat.conn.addHandler(Chat.onRosterChange, 'jabber:iq:roster', 'iq', 'set');
+			Chat.conn.addHandler(Chat.onMessage, null, 'message', 'chat');
 			
 			
 			
@@ -119,26 +120,20 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 			alert('".Yii::t('general', 'Unable to connect to server. Please, reload the page')."');
 		},
 		
-		onAuth : function(iq)
-		{
-			console.log('onAuth');
-			
-			
-		},
+//		onAuth : function(iq)
+//		{
+//			console.log('onAuth');
+//		},
 		
 		onRoster : function(iq)
 		{
 			console.log('onRoster');
 			
-//			var to = ;
-			
-//			console.log(to);
-			
 			var currentUser = {
 				fullJid : $(iq).attr('to'),
 				bareJid : Chat.currentUser.jid,
 				nickname : Strophe.getNodeFromJid(Chat.currentUser.jid),
-				fullName : '".Yii::app()->user->fullName."',
+				fullName : Chat.currentUser.fullName,
 				online : false
 			};
 			
@@ -162,6 +157,9 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 				ChatGUI.addUser(user);
 			});
 			
+			ChatGUI.openedRoom = ChatGUI.getRoomById('dashboard');
+			ChatGUI.refreshRooms();
+			
 			Chat.conn.addHandler(Chat.onPresence, null, 'presence');
        		Chat.conn.send(\$pres());
 		},
@@ -179,38 +177,51 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 			
 			console.log('onPresence: ' + pType + ', ' + fullJid + ', ' + bareJid + ', ' + jidId);
 			
-			if (bareJid == Chat.currentUser.jid && from != to) return true; // Status from previous session.
+			if (bareJid == Chat.currentUser.jid && from != to) return true; // Unwanted status of current user from previous sessions.
 			
-			if (pType !== 'error')
+			var user = ChatGUI.getUserByBareJid(bareJid);
+			
+			if (user != null)
 			{
-				ChatGUI.updateUser(bareJid, fullJid, (pType == 'available'));
+				if (user.fullJid != '' && user.fullJid != fullJid)
+				{
+					console.log('!!!!!!!!!!! ' + user.fullJid + ' | ' + fullJid);
+					return true;
+				}
+				
+				if (pType !== 'error')
+				{
+					ChatGUI.updateUser(bareJid, fullJid, (pType == 'available'));
+				}
 			}
 			
 			return true;
 		},
 		
-		
-		onRosterChanged : function(iq)
+		onRosterChange : function(iq)
 		{
-			console.log('on_roster_changed');
+			console.log('onRosterChanged');
 			
-			return true;
-		},
-		
-		
-		
-//		on_roster_changed: function (iq) {
-//			$(iq).find('item').each(function () {
-//				var sub = $(this).attr('subscription');
-//				var jid = $(this).attr('jid');
-//				var name = $(this).attr('name') || jid;
-//				var jid_id = Gab.jid_to_id(jid);
-//				
-//				if (sub === 'remove') {
-//					// contact is being removed
-//					$('#' + jid_id).remove();
-//				} else {
-//					// contact is being added or modified
+			$(iq).find('item').each(function () {
+				var sub = $(this).attr('subscription');
+				var jid = $(this).attr('jid');
+				var name = $(this).attr('name') || jid;
+				var jidId = Strophe.getNodeFromJid(jid);
+				
+				console.log('onRosterChange: ' + sub + ', ' + jid + ', ' + name + ', ' + jidId);
+				
+				if (sub === 'remove')
+				{
+					// Contact is being removed.
+					
+					// Example code.
+					// $('#' + jid_id).remove();
+				}
+				else
+				{
+					// Contact is being added or modified.
+					
+					// Example code.
 //					var contact_html = '<li id=\"' + jid_id + '\">' +
 //						'<div class=\"' + 
 //						($('#' + jid_id).attr('class') || 'roster-contact offline') +
@@ -226,66 +237,77 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 //					} else {
 //						Gab.insert_contact($(contact_html));
 //					}
-//				}
-//			});
-//			
-//			return true;
-//		},
-		
-		on_message : function(message)
-		{
-			console.log('on_message');
+				}
+			});
 			
 			return true;
 		},
 		
-		
-		
-		
-		
-		
-		
-		
-		
-		sendPing : function()
+		sendMessage : function(recipientJid, text)
 		{
-			console.log('Sending ping to ' + Chat.domain + '.');
-			
-			Chat.conn.send(\$iq({
-				to: Chat.domain,
-				type: 'get',
-				id: 'ping1'
-				}).c('ping', {xmlns: 'urn:xmpp:ping'})
-			);
-		},
-		
-		handlePong : function(iq)
-		{
-			console.log('Received pong from server');
-			
-			return false;
-		},
-		
-		sendMessage : function(userName, resource, text)
-		{
-			var jid = Chat.domain;
-			
-			if (userName != '') jid = userName + '@' + jid;
-			if (resource != '') jid = jid + '/' + resource;
-			
-			console.log('sendXmppMessage(\'' + jid + '\', \'' + text + '\')');
+			console.log('sendMessage(' + recipientJid + ', ' + text +')');
 			
 			Chat.conn.send(\$msg({
-				to: jid,
-				type: 'chat'
-				}).cnode(Strophe.xmlElement('body', text)).up()
+				to : recipientJid,
+				type : 'chat',
+				}).c('body').t(text).up()
 				.c('active', {xmlns: 'http://jabber.org/protocol/chatstates'})
 			);
-			
-			console.log('sent');
 		},
 		
+//		sendMessage_old : function(userName, resource, text)
+//		{
+//			var jid = Chat.domain;
+//			
+//			if (userName != '') jid = userName + '@' + jid;
+//			if (resource != '') jid = jid + '/' + resource;
+//			
+//			console.log('sendXmppMessage(\'' + jid + '\', \'' + text + '\')');
+//			
+//			Chat.conn.send(\$msg({
+//				to: jid,
+//				type: 'chat'
+//				}).cnode(Strophe.xmlElement('body', text)).up()
+//				.c('active', {xmlns: 'http://jabber.org/protocol/chatstates'})
+//			);
+//			
+//			console.log('sent');
+//		},
+		
 		onMessage : function(msg)
+		{
+			var to = $(msg).attr('to');
+			var from = $(msg).attr('from');
+			var type = $(msg).attr('type');
+			var jBody = $(msg).find('body');
+			
+			console.log('onMessage: ' + from + ', ' + type);
+			
+			if (type == 'chat' && jBody.length != 0)
+			{
+				var text = jBody.text();
+				
+				console.log(text);
+				
+				var user = ChatGUI.getUserByBareJid(Strophe.getBareJidFromJid(from));
+				
+				if (user != null)
+				{
+					var newMessage = new InternalChatMessage(
+						MethodsForDateTime.dateToString(new Date()),
+						user.bareJid,
+						user.fullName,
+						text);
+					
+					// ChatGUI.addChatMessages([newMessage]);
+					ChatGUI.addChatMessage(newMessage);
+				}
+			}
+			
+			return true;
+		},
+		
+		onMessage_old : function(msg)
 		{
 			console.log(msg);
 			
@@ -325,6 +347,25 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 			console.log('Connected to room');
 			
 //			Chat.conn.muc.queryOccupants(roomName + '@conference.' + Chat.domain, Chat.onRoomQueryOccupants, null);
+		},
+		
+		sendPing : function()
+		{
+			console.log('Sending ping to ' + Chat.domain + '.');
+			
+			Chat.conn.send(\$iq({
+				to: Chat.domain,
+				type: 'get',
+				id: 'ping1'
+				}).c('ping', {xmlns: 'urn:xmpp:ping'})
+			);
+		},
+		
+		handlePong : function(iq)
+		{
+			console.log('Received pong from server');
+			
+			return false;
 		},
 		
 		onRoomQueryOccupants : function(stanza)
