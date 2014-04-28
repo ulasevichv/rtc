@@ -262,7 +262,8 @@ $(document).ready(function () {
 
 $(document).bind('connect', function (ev, data) {
     Groupie.connection = new Strophe.Connection(
-        'http://bosh.metajack.im:5280/xmpp-httpbind');
+//        'http://bosh.metajack.im:5280/xmpp-httpbind');
+        'http://192.237.219.76/http-bind');
 
     Groupie.connection.connect(
         data.jid, data.password,

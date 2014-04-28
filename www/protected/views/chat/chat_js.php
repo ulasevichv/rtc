@@ -34,7 +34,7 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 			Chat.conn.send(\$pres({
 				to : Chat.persistentRoomName + '@conference.' + Chat.domain + '/' + Chat.currentUser.name,
 				type : 'unavailable'
-				}).c('x', {'xmlns': 'http://jabber.org/protocol/muc'})
+				}).c('x', {xmlns: Strophe.NS.MUC})
 			);
 			
 			Chat.conn.disconnect();
@@ -58,13 +58,8 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 		{
 			console.log('Connected');
 			
-//			Chat.conn.muc.init(Chat.conn);
+			Chat.conn.muc.init(Chat.conn);
 //			Chat.conn.roster.init(Chat.conn);
-			
-			
-			
-			
-			
 			
 			
 			
@@ -73,9 +68,9 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 			
 //			RosterObj.connection = Chat.conn;
 			
-//			var iq = \$iq({type: 'get'}).c('query', {xmlns: 'jabber:iq:roster'});
+//			var iq = \$iq({type: 'get'}).c('query', {xmlns: Strophe.NS.ROSTER});
 //			Chat.conn.sendIQ(iq, RosterObj.on_roster);
-//			Chat.conn.addHandler(RosterObj.on_roster_changed, 'jabber:iq:roster', 'iq', 'set');
+//			Chat.conn.addHandler(RosterObj.on_roster_changed, Strophe.NS.ROSTER, 'iq', 'set');
 			
 			
 			
@@ -85,32 +80,16 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 //			Chat.conn.send(\$pres());
 //			
 //			// Chat.conn.addHandler(Chat.handlePong, null, 'iq', null, 'ping1');
-//			// Chat.sendPing();
 //			
 //			// refreshUsers();
-//			
-//			
-//			
-//			
-//			Chat.connectToRoom(Chat.persistentRoomName);
 			
 			
 			
 			
 			
-//			var iq = \$iq({type: 'get'}).c('query', {xmlns: 'jabber:iq:auth'});
-//			Chat.conn.sendIQ(iq, Chat.onAuth);
 			
-			
-			
-			
-			var iq = \$iq({type: 'get'}).c('query', {xmlns: 'jabber:iq:roster'});
-			Chat.conn.sendIQ(iq, Chat.onRoster);
-			Chat.conn.addHandler(Chat.onRosterChange, 'jabber:iq:roster', 'iq', 'set');
-			Chat.conn.addHandler(Chat.onMessage, null, 'message', 'chat');
-			
-			
-			
+			Chat.getRoster();
+			Chat.getRoomsList();
 			
 			ChatGUI.unblockControls();
 		},
@@ -124,6 +103,41 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 //		{
 //			console.log('onAuth');
 //		},
+		
+		getRoomsList : function()
+		{
+			Chat.conn.muc.listRooms('conference.' + Chat.domain, Chat.onRoomsList, Chat.onError);
+		},
+		
+		onRoomsList : function(iq)
+		{
+			console.log('onRoomsList');
+			
+			$(iq).find('item').each(function () {
+				var fullJid = $(this).attr('jid');
+				var roomName = Strophe.getNodeFromJid(fullJid);
+				var roomTextName = $(this).attr('name');
+				console.log(roomName + ', ' + roomTextName);
+			});
+			
+//			var newRoom = new InternalChatRoom(
+			
+//			Chat.conn.muc.join('room01' + '@conference.' + Chat.domain, Strophe.getNodeFromJid(Chat.currentUser.jid), Chat.onRoomMsg, Chat.onRoomPresence);
+			
+			Chat.connectToRoom(Chat.persistentRoomName);
+			
+			console.log(Chat.conn.muc.rooms);
+			
+			
+		},
+		
+		getRoster : function()
+		{
+			var iq = \$iq({type: 'get'}).c('query', {xmlns: Strophe.NS.ROSTER});
+			Chat.conn.sendIQ(iq, Chat.onRoster);
+			Chat.conn.addHandler(Chat.onRosterChange, Strophe.NS.ROSTER, 'iq', 'set');
+			Chat.conn.addHandler(Chat.onMessage, null, 'message', 'chat');
+		},
 		
 		onRoster : function(iq)
 		{
@@ -341,7 +355,7 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 //			Chat.conn.send(\$pres({
 //				// from: Chat.currentUser.jid,
 //				to: roomName + '@conference.' + Chat.domain + '/' + Chat.currentUser.name
-//				}).c('x', {'xmlns': 'http://jabber.org/protocol/muc'})
+//				}).c('x', {xmlns: Strophe.NS.MUC})
 //			);
 			
 			console.log('Connected to room');
@@ -349,23 +363,20 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 //			Chat.conn.muc.queryOccupants(roomName + '@conference.' + Chat.domain, Chat.onRoomQueryOccupants, null);
 		},
 		
-		sendPing : function()
+		onRoomMsg : function(stanza)
 		{
-			console.log('Sending ping to ' + Chat.domain + '.');
+			console.log('onRoomMsg');
+			console.log(stanza);
 			
-			Chat.conn.send(\$iq({
-				to: Chat.domain,
-				type: 'get',
-				id: 'ping1'
-				}).c('ping', {xmlns: 'urn:xmpp:ping'})
-			);
+			return true;
 		},
 		
-		handlePong : function(iq)
+		onRoomPresence : function(stanza)
 		{
-			console.log('Received pong from server');
+			console.log('onRoomPresence');
+			console.log(stanza);
 			
-			return false;
+			return true;
 		},
 		
 		onRoomQueryOccupants : function(stanza)
@@ -388,21 +399,15 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 			console.log(occupantJids);
 		},
 		
-		onRoomMsg : function(stanza)
-		{
-			console.log('onRoomMsg');
-			console.log(stanza);
-		},
-		
-		onRoomPresence : function(stanza)
-		{
-			console.log('onRoomPresence');
-			console.log(stanza);
-		},
-		
 		on_presence : function(stanza)
 		{
 			console.log('on_presence');
+			console.log(stanza);
+		},
+		
+		onError : function(stanza)
+		{
+			console.log('ERROR OCCURED!');
 			console.log(stanza);
 		}
 	};
