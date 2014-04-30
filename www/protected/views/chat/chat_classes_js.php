@@ -23,6 +23,7 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 		unread = (typeof(unread) == 'undefined' ? false : unread);
 		
 		this.id = id;
+		this.callinvite = false;
 		this.name = name;
 		this.hidden = hidden;
 		this.unread = unread;

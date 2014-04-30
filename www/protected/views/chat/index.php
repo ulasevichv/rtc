@@ -9,6 +9,7 @@ Yii::app()->clientScript->registerScriptFile($baseUrl.'/assets/js/MethodsForDate
 Yii::app()->clientScript->registerScriptFile($baseUrl.'/assets/js/MethodsForStrings.js');
 
 Yii::app()->clientScript->registerScriptFile($baseUrl.'/assets/js/strophe.js');
+Yii::app()->clientScript->registerScriptFile('https://swww.tokbox.com/webrtc/v2.0/js/TB.min.js');
 //Yii::app()->clientScript->registerScriptFile($baseUrl.'/assets/js/strophe.chatstates.js');
 //Yii::app()->clientScript->registerScriptFile($baseUrl.'/assets/js/strophe.muc.js');
 //Yii::app()->clientScript->registerScriptFile($baseUrl.'/assets/js/strophe.roster.js');
@@ -60,8 +61,18 @@ $this->renderPartial('chat_gui_js', array(
 		<div id="users">
 		</div>
 		<div id="chat">
+            <div id="videoChat" style="display:none;">
+
+            </div>
+            <div id="videoChatInviteButtons" style="display:none;">
+                <?php echo CHtml::htmlButton(Yii::t('general', 'Accept'), array('id' => 'btnAccept', 'class' => 'btn btn-primary')); ?>
+                <?php echo CHtml::htmlButton(Yii::t('general', 'Decline'), array('id' => 'btnDecline', 'class' => 'btn btn-primary')); ?>
+            </div>
 			<div id="messages"></div>
 			<div id="sending" style="visibility:hidden;">
+                <div id="userPanel">
+                    <?php echo CHtml::htmlButton(Yii::t('general', 'Video Call'), array('id' => 'btnVideoCall', 'class' => 'btn btn-primary')); ?>
+                </div>
 				<div class="controls">
 					<?php echo CHtml::textArea(null, '', array('id' => 'inputMessage')); ?>
 					<?php echo CHtml::htmlButton(Yii::t('general', 'Send'), array('id' => 'btnSend', 'class' => 'btn btn-primary')); ?>

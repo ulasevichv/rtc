@@ -108,7 +108,9 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 			Chat.conn.sendIQ(iq, Chat.onRoster);
 			Chat.conn.addHandler(Chat.onRosterChange, 'jabber:iq:roster', 'iq', 'set');
 			Chat.conn.addHandler(Chat.onMessage, null, 'message', 'chat');
-			
+			Chat.conn.addHandler(Chat.onVideoCall, null, 'message', 'videoCall');
+			Chat.conn.addHandler(Chat.onVideoCallAccepted, null, 'message', 'VideoCallAccepted');
+
 			
 			
 			
@@ -243,13 +245,16 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 			return true;
 		},
 		
-		sendMessage : function(recipientJid, text)
+		sendMessage : function(recipientJid, text, type)
 		{
 			console.log('sendMessage(' + recipientJid + ', ' + text +')');
-			
+
+			if (typeof(type)=='undefined') {
+			    type='chat';
+			}
 			Chat.conn.send(\$msg({
 				to : recipientJid,
-				type : 'chat',
+				type : type,
 				}).c('body').t(text).up()
 				.c('active', {xmlns: 'http://jabber.org/protocol/chatstates'})
 			);
@@ -306,7 +311,69 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 			
 			return true;
 		},
-		
+
+		onVideoCall : function(msg)
+		{
+			var to = $(msg).attr('to');
+			var from = $(msg).attr('from');
+			var type = $(msg).attr('type');
+			var jBody = $(msg).find('body');
+
+            var user = ChatGUI.getUserByBareJid(Strophe.getBareJidFromJid(from));
+			console.log('onVideoCall: ' + from + ', ' + type);
+
+			var text = 'Start video call with ' + user.fullName + '?';
+
+
+
+			var newMessage = new InternalChatMessage(
+				MethodsForDateTime.dateToString(new Date()),
+				user.bareJid,
+				user.fullName,
+				text);
+
+			// ChatGUI.addChatMessages([newMessage]);
+			ChatGUI.addChatMessage(newMessage);
+			ChatGUI.addVideoCallInvitationControls(user.bareJid);
+
+
+			return true;
+		},
+		acceptVideoCall : function () {
+		    Chat.sendMessage(ChatGUI.openedRoom.id,true,'VideoCallAccepted');
+		    console.log(ChatGUI.openedRoom.id);
+		    return true;
+		},
+		onVideoCallAccepted : function() {
+		    $.ajax({
+		        type: 'POST',
+		        url: 'index.php?r=chat/videocall',
+		        data: null,
+		        success: function(json) {
+
+                    jsonObj = $.parseJSON(json);
+
+                    var apiKey = jsonObj.apiKey;
+                    var sessionId = jsonObj.sessionId;
+                    var token = jsonObj.token;
+            console.log(jsonObj.apiKey);
+            console.log(jsonObj.sessionId);
+            console.log(jsonObj.token);
+          // Initialize session, set up event listeners, and connect
+          var session = TB.initSession(sessionId);
+          session.addEventListener('sessionConnected', sessionConnectedHandler);
+          session.connect(apiKey, token);
+
+          function sessionConnectedHandler(event) {
+            var publisher = TB.initPublisher(apiKey, 'videoChat');
+            session.publish(publisher);
+            $('#videoChat').show();
+          }
+
+		        }
+		    });
+		},
+
 		onMessage_old : function(msg)
 		{
 			console.log(msg);
