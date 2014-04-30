@@ -340,40 +340,68 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 			return true;
 		},
 		acceptVideoCall : function () {
-		    Chat.sendMessage(ChatGUI.openedRoom.id,true,'VideoCallAccepted');
+		    Chat.sendMessage(ChatGUI.openedRoom.id,'','VideoCallAccepted');
 		    console.log(ChatGUI.openedRoom.id);
 		    return true;
 		},
-		onVideoCallAccepted : function() {
-		    $.ajax({
-		        type: 'POST',
-		        url: 'index.php?r=chat/videocall',
-		        data: null,
-		        success: function(json) {
+		onVideoCallAccepted : function(message) {
 
-                    jsonObj = $.parseJSON(json);
+            var elems = message.getElementsByTagName('body');
+            window.txtt = Strophe.getText(elems[0]);
+            if (Strophe.getText(elems[0])) {
+                json = Strophe.getText(elems[0]).replace(new RegExp('&quot;','g'),'\"');
+                jsonObj = $.parseJSON(json);
+                $.ajax({
+                    type: 'POST',
+                    url: 'index.php?r=chat/videocallToken',
+                    data: {'sessionId':jsonObj.sessionId,'apiKey':jsonObj.apiKey},
+                    success: function(token) {
+                        jsonObj.token = token;
+                        Chat.openTokInit(jsonObj);
+                    }
+                });
 
-                    var apiKey = jsonObj.apiKey;
-                    var sessionId = jsonObj.sessionId;
-                    var token = jsonObj.token;
-            console.log(jsonObj.apiKey);
-            console.log(jsonObj.sessionId);
-            console.log(jsonObj.token);
-          // Initialize session, set up event listeners, and connect
-          var session = TB.initSession(sessionId);
-          session.addEventListener('sessionConnected', sessionConnectedHandler);
-          session.connect(apiKey, token);
+            } else {
+                 $.ajax({
+                    type: 'POST',
+                    url: 'index.php?r=chat/videocall',
+                    data: null,
+                    success: function(json) {
+                        Chat.openTokInit($.parseJSON(json));
+                        var to = $(message).attr('from');
+                        Chat.sendMessage(to,json,'VideoCallAccepted');
 
-          function sessionConnectedHandler(event) {
-            var publisher = TB.initPublisher(apiKey, 'videoChat');
-            session.publish(publisher);
-            $('#videoChat').show();
-          }
+                    }
+                });
+            }
 
-		        }
-		    });
+		    return true;
 		},
+        openTokInit : function(openTokObj)
+        {
 
+            var apiKey = openTokObj.apiKey;
+            var sessionId = openTokObj.sessionId;
+            var token = openTokObj.token;
+
+          // Initialize session, set up event listeners, and connect
+          var session = TB.initSession(apiKey, sessionId);
+          $('#videoChat').append('<div id=\"myvideo\"></div>');
+//          var publisher = OT.initPublisher('myvideo');
+          $('#videoChat').show();
+          session.connect(token, function(error) {
+              var publisher = OT.initPublisher('myvideo');
+              session.publish(publisher);
+          });
+            session.on('streamCreated', function(event) {
+            var id = 'video-' + event.stream.connection.connectionId;
+            $('#videoChat').append('<div class=\"other-video\" style=\"float: left;\" id=\"' + id + '\"></div>');
+                  session.subscribe(event.stream, id);
+                });
+
+
+          return true;
+        },
 		onMessage_old : function(msg)
 		{
 			console.log(msg);

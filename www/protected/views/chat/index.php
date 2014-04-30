@@ -9,7 +9,7 @@ Yii::app()->clientScript->registerScriptFile($baseUrl.'/assets/js/MethodsForDate
 Yii::app()->clientScript->registerScriptFile($baseUrl.'/assets/js/MethodsForStrings.js');
 
 Yii::app()->clientScript->registerScriptFile($baseUrl.'/assets/js/strophe.js');
-Yii::app()->clientScript->registerScriptFile('https://swww.tokbox.com/webrtc/v2.0/js/TB.min.js');
+Yii::app()->clientScript->registerScriptFile('//static.opentok.com/webrtc/v2.2/js/opentok.min.js');
 //Yii::app()->clientScript->registerScriptFile($baseUrl.'/assets/js/strophe.chatstates.js');
 //Yii::app()->clientScript->registerScriptFile($baseUrl.'/assets/js/strophe.muc.js');
 //Yii::app()->clientScript->registerScriptFile($baseUrl.'/assets/js/strophe.roster.js');
@@ -65,6 +65,7 @@ $this->renderPartial('chat_gui_js', array(
 
             </div>
             <div id="videoChatInviteButtons" style="display:none;">
+                <p><?php echo Yii::t('general', 'User wants to use a video/audio communication. ') ?></p>
                 <?php echo CHtml::htmlButton(Yii::t('general', 'Accept'), array('id' => 'btnAccept', 'class' => 'btn btn-primary')); ?>
                 <?php echo CHtml::htmlButton(Yii::t('general', 'Decline'), array('id' => 'btnDecline', 'class' => 'btn btn-primary')); ?>
             </div>

@@ -38,7 +38,7 @@ class ChatController extends Controller
 
         $session = $apiObj->createSession(null, array(SessionPropertyConstants::P2P_PREFERENCE => "disabled"));
 
-        $token = $apiObj->generateToken($session->getSessionId(), RoleConstants::PUBLISHER);
+        $token = $apiObj->generateToken($session->getSessionId(), RoleConstants::MODERATOR);
         $script = "
             var OTvideo = OTvideo || {};
 
@@ -59,6 +59,15 @@ class ChatController extends Controller
 
         );
         echo json_encode($responce);
+        Yii::app()->end();
+    }
+
+    public function actionVideocallToken() {
+        $apiObj = new OpenTokSDK();
+
+        $token = $apiObj->generateToken($_POST['sessionId'], RoleConstants::PUBLISHER);
+
+        echo $token;
         Yii::app()->end();
     }
 }
