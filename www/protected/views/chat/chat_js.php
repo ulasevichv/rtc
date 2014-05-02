@@ -381,16 +381,26 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 		},
         openTokInit : function(openTokObj)
         {
+            //var OTvideo = OTvideo || {};
+
+            OTvideo.apiKey = openTokObj.apiKey;
+            OTvideo.sessionId = openTokObj.sessionId;
+            OTvideo.token = openTokObj.token;
+
+            OTvideo.init();
+
+            return true;
 
             var apiKey = openTokObj.apiKey;
             var sessionId = openTokObj.sessionId;
             var token = openTokObj.token;
 
-          // Initialize session, set up event listeners, and connect
+
           var session = TB.initSession(apiKey, sessionId);
           $('#videoChat').append('<div id=\"myvideo\"></div>');
-//          var publisher = OT.initPublisher('myvideo');
+
           $('#videoChat').show();
+
           session.connect(token, function(error) {
               var publisher = OT.initPublisher('myvideo');
               session.publish(publisher);

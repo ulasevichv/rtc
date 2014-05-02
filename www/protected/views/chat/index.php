@@ -7,6 +7,7 @@ Yii::app()->clientScript->registerCssFile('http://fonts.googleapis.com/css?famil
 
 Yii::app()->clientScript->registerScriptFile($baseUrl.'/assets/js/MethodsForDateTime.js');
 Yii::app()->clientScript->registerScriptFile($baseUrl.'/assets/js/MethodsForStrings.js');
+Yii::app()->clientScript->registerScriptFile($baseUrl.'/assets/js/OTvideo.js');
 
 Yii::app()->clientScript->registerScriptFile($baseUrl.'/assets/js/strophe.js');
 Yii::app()->clientScript->registerScriptFile('//static.opentok.com/webrtc/v2.2/js/opentok.min.js');
@@ -73,6 +74,7 @@ $this->renderPartial('chat_gui_js', array(
 			<div id="sending" style="visibility:hidden;">
                 <div id="userPanel">
                     <?php echo CHtml::htmlButton(Yii::t('general', 'Video Call'), array('id' => 'btnVideoCall', 'class' => 'btn btn-primary')); ?>
+                    <?php echo CHtml::htmlButton(Yii::t('general', 'End Call'), array('id' => 'btnEndCall', 'class' => 'btn btn-primary','onclick'=>'OTvideo.session.disconnect();','style'=>'display: none' )); ?>
                 </div>
 				<div class="controls">
 					<?php echo CHtml::textArea(null, '', array('id' => 'inputMessage')); ?>
