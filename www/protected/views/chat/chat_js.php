@@ -5,10 +5,15 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 		connection : null,
 		domain : '".$xmppAddress."',
 		boshAddress : '".$boshAddress."',
-		currentUser : {
+//		currentUser : new InternalChatUser(
+//			'".$xmppUser->serverUserName."' + '@' + '".$xmppAddress."',
+//			'".$xmppUser->serverUserPass."',
+//			'".$xmppUser->serverUserName."',
+//			'".Yii::app()->user->fullName."'),
+		currentUserData : {
 			jid : '".$xmppUser->serverUserName."' + '@' + '".$xmppAddress."',
-			name : '".$xmppUser->serverUserName."',
 			password : '".$xmppUser->serverUserPass."',
+			nickname : '".$xmppUser->serverUserName."',
 			fullName : '".Yii::app()->user->fullName."'
 		},
 		persistentRoomName : 'room01',
@@ -18,9 +23,9 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 		{
 			Chat.conn  = new Strophe.Connection(Chat.boshAddress);
 			
-			console.log('Connecting \'' + Chat.currentUser.jid + '\' (' + Chat.currentUser.password + ')');
+			console.log('Connecting \'' + Chat.currentUserData.jid + '\' (' + Chat.currentUserData.password + ')');
 			
-			Chat.conn.connect(Chat.currentUser.jid, Chat.currentUser.password, function(status) { Chat.onConnectionStatusChange(status); });
+			Chat.conn.connect(Chat.currentUserData.jid, Chat.currentUserData.password, function(status) { Chat.onConnectionStatusChange(status); });
 		},
 		
 		disconnect : function()
@@ -32,7 +37,7 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 			);
 			
 			Chat.conn.send(\$pres({
-				to : Chat.persistentRoomName + '@conference.' + Chat.domain + '/' + Chat.currentUser.name,
+				to : Chat.persistentRoomName + '@conference.' + Chat.domain + '/' + Chat.currentUserData.nickname,
 				type : 'unavailable'
 				}).c('x', {xmlns: Strophe.NS.MUC})
 			);
@@ -82,11 +87,6 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 			alert('".Yii::t('general', 'Unable to connect to server. Please, reload the page')."');
 		},
 		
-//		onAuth : function(iq)
-//		{
-//			console.log('onAuth');
-//		},
-		
 		getRoomsList : function()
 		{
 			Chat.conn.muc.listRooms('conference.' + Chat.domain, Chat.onRoomsList, Chat.onError);
@@ -120,13 +120,11 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 		{
 			console.log('onRoster');
 			
-			var currentUser = {
-				fullJid : $(iq).attr('to'),
-				bareJid : Chat.currentUser.jid,
-				nickname : Strophe.getNodeFromJid(Chat.currentUser.jid),
-				fullName : Chat.currentUser.fullName,
-				online : false
-			};
+			var currentUser = new InternalChatUser(
+				$(iq).attr('to'),
+				Chat.currentUserData.jid,
+				Strophe.getNodeFromJid(Chat.currentUserData.jid),
+				Chat.currentUserData.fullName);
 			
 			ChatGUI.addUser(currentUser);
 			
@@ -137,13 +135,11 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 				
 				console.log(userName + '(' + nickname + ')');
 				
-				var user = {
-					fullJid : '',
-					bareJid : bareJid,
-					nickname : nickname,
-					fullName : userName,
-					online : false
-				};
+				var user = new InternalChatUser(
+					'',
+					bareJid,
+					nickname,
+					userName);
 				
 				ChatGUI.addUser(user);
 			});
@@ -243,19 +239,19 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 			
 //			Chat.conn.addHandler(Chat.on_presence, null, 'presence');
 			
-//			Chat.conn.muc.join(roomName + '@conference.' + Chat.domain, Chat.currentUser.name, Chat.onRoomMsg, Chat.onRoomPresence, function() {});
-//			Chat.conn.muc.join(roomName + '@conference.' + Chat.domain, Chat.currentUser.name, Chat.onRoomMsg, Chat.onPresence, function() {});
-//			Chat.conn.muc.join(roomName + '@conference.' + Chat.domain, Chat.currentUser.name, Chat.onRoomMsg, null, null);
-			Chat.conn.muc.join(roomName + '@conference.' + Chat.domain, Chat.currentUser.name, null, null, null);
+//			Chat.conn.muc.join(roomName + '@conference.' + Chat.domain, Chat.currentUserData.nickname, Chat.onRoomMsg, Chat.onRoomPresence, function() {});
+//			Chat.conn.muc.join(roomName + '@conference.' + Chat.domain, Chat.currentUserData.nickname, Chat.onRoomMsg, Chat.onPresence, function() {});
+//			Chat.conn.muc.join(roomName + '@conference.' + Chat.domain, Chat.currentUserData.nickname, Chat.onRoomMsg, null, null);
+			Chat.conn.muc.join(roomName + '@conference.' + Chat.domain, Chat.currentUserData.nickname, null, null, null);
 			
 //			Chat.conn.send(\$pres({
-//				// from: Chat.currentUser.jid,
-//				to: roomName + '@conference.' + Chat.domain + '/' + Chat.currentUser.name
+//				// from: Chat.currentUserData.jid,
+//				to: roomName + '@conference.' + Chat.domain + '/' + Chat.currentUserData.nickname
 //				}).c('x', {xmlns: Strophe.NS.MUC})
 //			);
 			
 			Chat.conn.send(\$pres({
-				to: roomName + '@conference.' + Chat.domain + '/' + Chat.currentUser.name
+				to: roomName + '@conference.' + Chat.domain + '/' + Chat.currentUserData.nickname
 				})
 			);
 			
@@ -294,7 +290,7 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 				{
 					console.log('onDirectPresence: ' + fullJid + ' (' + bareJid + ', ' + jidId + ') > ' + to + ' > ' + presenceType);
 					
-					if (bareJid == Chat.currentUser.jid && from != to) return true; // Unwanted status of current user from previous sessions.
+					if (bareJid == Chat.currentUserData.jid && from != to) return true; // Unwanted status of current user from previous sessions.
 					
 					var user = ChatGUI.getUserByBareJid(bareJid);
 					
@@ -324,7 +320,7 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 					
 					// Creating room.
 					
-					if (presenceType == 'available' && resource == Chat.currentUser.name && room == null)
+					if (presenceType == 'available' && resource == Chat.currentUserData.nickname && room == null)
 					{
 						var xmppRoom = Chat.conn.muc.rooms[bareJid];
 						
@@ -386,7 +382,7 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 			
 			var text = jBody.text();
 			
-			if (type == 'chat')
+			if (type == MessageType.CHAT)
 			{
 				console.log('onDirectMessage: ' + from + ' > ' + to + ' > ' + text);
 				
@@ -395,6 +391,7 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 				if (user != null)
 				{
 					var newMessage = new InternalChatMessage(
+						MessageType.CHAT,
 						MethodsForDateTime.dateToString(new Date()),
 						user.bareJid,
 						user.fullName,
@@ -404,19 +401,47 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 					ChatGUI.addChatMessage(newMessage);
 				}
 			}
-			else if (type == 'groupchat')
+			else if (type == MessageType.GROUPCHAT)
 			{
-				console.log('onRoomMessage: ' + from + ' > ' + to + ' > ' + text);
+				var roomJid = bareJid;
 				
-				var room = ChatGUI.getRoomById(bareJid);
+				var room = ChatGUI.getRoomById(roomJid);
 				
-				console.log(room);
+				console.log('onRoomMessage: [' + roomJid + '] ' + from + ' > ' + to + ' > ' + text);
 				
-				var newMessage = new InternalChatMessage(
-					MethodsForDateTime.dateToString(new Date()),
-					user.bareJid,
-					user.fullName,
-					text);
+				var sendDateString = '';
+				
+				var jX = $(stanza).find('x[xmlns=\"jabber:x:delay\"]');
+				
+				if (jX.length != 0)
+				{
+					var xmppStamp = jX.attr('stamp');
+					
+					sendDateString = MethodsForDateTime.xmppStampToDateString(xmppStamp);
+				}
+				
+				if (sendDateString == '') sendDateString = MethodsForDateTime.dateToString(new Date());
+				
+				var senderBareJid = resource + '@' + Strophe.getDomainFromJid(from).replace('conference.', '');
+				
+				console.log('senderBareJid: ' + ', ' + senderBareJid);
+				
+				var sender = ChatGUI.getUserByBareJid(senderBareJid);
+				
+				console.log(sender);
+				
+				if (room != null && sender != null)
+				{
+					var newMessage = new InternalChatMessage(
+						MessageType.GROUPCHAT,
+						sendDateString,
+						sender.bareJid,
+						sender.fullName,
+						text,
+						roomJid);
+					
+					ChatGUI.addChatMessage(newMessage);
+				}
 			}
 			
 			return true;

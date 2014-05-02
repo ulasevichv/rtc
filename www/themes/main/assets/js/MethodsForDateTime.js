@@ -40,5 +40,14 @@ var MethodsForDateTime =
 		}
 		
 		return str + strValue;
+	},
+	
+	xmppStampToDateString : function(stamp)
+	{
+		var result = stamp;
+		
+		result = result.substring(0, 4) + '-' + result.substring(4, 6) + '-' + result.substring(6, 8) + ' ' + result.substring(9);
+		
+		return result;
 	}
 };
