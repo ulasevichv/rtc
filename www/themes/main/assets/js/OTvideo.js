@@ -6,6 +6,7 @@ OTvideo.token = null;
 OTvideo.publisher = null;
 OTvideo.session = null;
 OTvideo.subscribers = {};
+OTvideo.isInCall = false;
 
 OTvideo.init = function() {
     OTvideo.session = TB.initSession(OTvideo.apiKey, OTvideo.sessionId);
@@ -26,11 +27,13 @@ OTvideo.init = function() {
         return true;
     });
     OTvideo.session.on("sessionConnected", function(event) {
+        OTvideo.isInCall = true;
         $('#userPanel #btnVideoCall').hide(0);
         $('#userPanel #btnEndCall').show(0);
 
     });
     OTvideo.session.on("sessionDisconnected", function(event) {
+        OTvideo.isInCall = false;
         $('#userPanel #btnEndCall').hide(0);
         $('#userPanel #btnVideoCall').show(0);
     });
