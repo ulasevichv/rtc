@@ -1,6 +1,13 @@
 <?php
 Yii::app()->clientScript->registerScript(uniqid(), "
 	
+	// Room 
+	
+	var StanzaSourceType = {
+		DIRECT : 0,
+		ROOM : 1
+	};
+	
 	// Chat message.
 	
 	InternalChatMessage.prototype = new Object();
