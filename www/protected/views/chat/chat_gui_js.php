@@ -1,5 +1,5 @@
 <?php
-Yii::app()->clientScript->registerScript(uniqid(), "
+Yii::app()->clientScript->registerScript(uniqid('chat_gui'), "
 	
 	var ChatGUI = {
 		
@@ -551,7 +551,10 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 
 	$('#btnDecline').on('click', function(e)
 	{
-		ChatGUI.sendChatMessage();
+			Chat.sendMessage(ChatGUI.openedRoom.id,'','VideoCallDeclined');
+			Chat.sendMessage(ChatGUI.openedRoom.id,'".Yii::t('general','Video/audio call declined')."','chat');
+			$('#videoChatInviteButtons').hide(400);
+		    return true;
 	});
 	
 	$('#inputMessage').keydown(function (e)

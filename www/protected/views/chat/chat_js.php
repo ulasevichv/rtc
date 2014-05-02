@@ -1,5 +1,5 @@
 <?php
-Yii::app()->clientScript->registerScript(uniqid(), "
+Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 	
 	var Chat = {
 		connection : null,
@@ -110,6 +110,7 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 			Chat.conn.addHandler(Chat.onMessage, null, 'message', 'chat');
 			Chat.conn.addHandler(Chat.onVideoCall, null, 'message', 'videoCall');
 			Chat.conn.addHandler(Chat.onVideoCallAccepted, null, 'message', 'VideoCallAccepted');
+			Chat.conn.addHandler(Chat.onVideoCallDeclined, null, 'message', 'VideoCallDeclined');
 
 			
 			
@@ -345,9 +346,7 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 		    return true;
 		},
 		onVideoCallAccepted : function(message) {
-
             var elems = message.getElementsByTagName('body');
-            window.txtt = Strophe.getText(elems[0]);
             if (Strophe.getText(elems[0])) {
                 json = Strophe.getText(elems[0]).replace(new RegExp('&quot;','g'),'\"');
                 jsonObj = $.parseJSON(json);
@@ -376,6 +375,9 @@ Yii::app()->clientScript->registerScript(uniqid(), "
             }
 
 		    return true;
+		},
+		onVideoCallDeclined : function(message) {
+            console.log('onVideoCallDeclined');
 		},
         openTokInit : function(openTokObj)
         {
