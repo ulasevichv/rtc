@@ -55,7 +55,11 @@ $this->renderPartial('chat_gui_js', array(
 	<div class="header">
 	</div>
 	<div class="sections">
-		<div id="rooms">
+		<div class="roomsContainer">
+			<div id="rooms">
+			</div>
+			<div id="staticRooms">
+			</div>
 		</div>
 		<div id="users">
 		</div>

@@ -35,6 +35,7 @@ body > div.container[role="main"] {
 }
 .chatRoot > .header {
 	position: absolute;
+	z-index: 1;
 	width: 100%;
 	background: linear-gradient(to bottom, #f1f1f1 0px, #bab9ba 100%) repeat scroll 0 0 rgba(0, 0, 0, 0);
 	text-align: center;
@@ -51,12 +52,17 @@ body > div.container[role="main"] {
 
 /*** Rooms ***/
 
-#rooms {
+.roomsContainer {
+	position: relative;
 	float: left;
 	background: #30384a;
 	width: 200px;
 	height: 100%;
 	overflow-y: auto;
+}
+#rooms {
+	float: left;
+	width: 100%;
 }
 #rooms > .room {
 	float: left;
@@ -77,15 +83,12 @@ body > div.container[role="main"] {
 #rooms > .room:hover {
 	background: #384154;
 }
-/*#rooms > .room:nth-child(1) {*/
-	/*border-top: 1px solid #ff0000;*/
-/*}*/
+#rooms > .room:hover > .text {
+	color: #ffffff;
+}
 #rooms > .room[opened] {
 	background: #232a38;
 	border-top: 1px solid #232a38;
-}
-#rooms > .room:hover > .text {
-	color: #ffffff;
 }
 #rooms > .room > .icon {
 	float: left;
@@ -109,8 +112,41 @@ body > div.container[role="main"] {
 	float: right;
 	margin: 2px 4px 0 0;
 }
+#staticRooms {
+	position: absolute;
+	left: 0;
+	bottom: 0;
+	width: 100%;
+}
+#staticRooms > .room {
+	float: left;
+	clear: both;
+	width: 100%;
+	font-size: 14px;
+	border-top: 1px solid #404758;
+	border-bottom: 1px solid #232a38;
+	cursor: pointer;
+	padding: 4px 0 4px 10px;
+	-webkit-touch-callout: none;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}
+#staticRooms > .room:hover {
+	background: #384154;
+}
+#staticRooms > .room:hover > .text {
+	color: #ffffff;
+}
+#staticRooms > .room > .text {
+	float: left;
+	color: #ccffcc;
+	margin: 0 0 0 3px;
+}
 
-	/*** Users ***/
+/*** Users ***/
 
 #users {
 	float: right;

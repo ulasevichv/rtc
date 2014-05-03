@@ -5,41 +5,34 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 		connection : null,
 		domain : '".$xmppAddress."',
 		boshAddress : '".$boshAddress."',
-//		currentUser : new InternalChatUser(
-//			'".$xmppUser->serverUserName."' + '@' + '".$xmppAddress."',
-//			'".$xmppUser->serverUserPass."',
-//			'".$xmppUser->serverUserName."',
-//			'".Yii::app()->user->fullName."'),
-		currentUserData : {
-			jid : '".$xmppUser->serverUserName."' + '@' + '".$xmppAddress."',
-			password : '".$xmppUser->serverUserPass."',
-			nickname : '".$xmppUser->serverUserName."',
-			fullName : '".Yii::app()->user->fullName."'
-		},
+		currentUser : new InternalChatUser(
+			'',
+			'".$xmppUser->serverUserName."' + '@' + '".$xmppAddress."',
+			'".$xmppUser->serverUserName."',
+			'".Yii::app()->user->fullName."',
+			'".$xmppUser->serverUserPass."'
+		),
 		persistentRoomName : 'room01',
-//		predefinedRecipientName : 'daniel',
 		
 		connect : function()
 		{
 			Chat.conn  = new Strophe.Connection(Chat.boshAddress);
 			
-			console.log('Connecting \'' + Chat.currentUserData.jid + '\' (' + Chat.currentUserData.password + ')');
+			console.log('Connecting \'' + Chat.currentUser.bareJid + '\' (' + Chat.currentUser.password + ')');
 			
-			Chat.conn.connect(Chat.currentUserData.jid, Chat.currentUserData.password, function(status) { Chat.onConnectionStatusChange(status); });
+			Chat.conn.connect(Chat.currentUser.bareJid, Chat.currentUser.password, function(status) { Chat.onConnectionStatusChange(status); });
 		},
 		
 		disconnect : function()
 		{
-			Chat.conn.send(\$pres({
-				// to : Chat.domain,
-				type : 'unavailable'
-				})
-			);
+			for (var roomName in Chat.conn.muc.rooms) {
+    			Chat.conn.muc.rooms[roomName].leave();
+			}
 			
 			Chat.conn.send(\$pres({
-				to : Chat.persistentRoomName + '@conference.' + Chat.domain + '/' + Chat.currentUserData.nickname,
-				type : 'unavailable'
-				}).c('x', {xmlns: Strophe.NS.MUC})
+				to : Chat.domain,
+				type : PresenceType.UNAVAILABLE
+				})
 			);
 			
 			Chat.conn.disconnect();
@@ -96,17 +89,22 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 		{
 			console.log('onRoomsList');
 			
-			$(iq).find('item').each(function () {
-				var fullJid = $(this).attr('jid');
-				var roomName = Strophe.getNodeFromJid(fullJid);
-				var roomTextName = $(this).attr('name');
+			$(iq).find('item').each(function ()
+			{
+				var jid = $(this).attr('jid');
 				
-				console.log(roomName + ', ' + roomTextName);
+				var staticRoom = new InternalStaticChatRoom(
+					jid,
+					Strophe.getNodeFromJid(jid),
+					$(this).attr('name')
+				);
+				
+				ChatGUI.staticRooms.push(staticRoom);
 			});
 			
-			console.log(Chat.conn.muc.rooms);
+			ChatGUI.staticRooms.sort(function(a,b) { return a.fullName.localeCompare(b.fullName); });
 			
-			Chat.connectToRoom(Chat.persistentRoomName);
+			ChatGUI.refreshStaticRooms();
 		},
 		
 		getRoster : function()
@@ -120,13 +118,9 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 		{
 			console.log('onRoster');
 			
-			var currentUser = new InternalChatUser(
-				$(iq).attr('to'),
-				Chat.currentUserData.jid,
-				Strophe.getNodeFromJid(Chat.currentUserData.jid),
-				Chat.currentUserData.fullName);
+			Chat.currentUser.fullJid = $(iq).attr('to');
 			
-			ChatGUI.addUser(currentUser);
+			ChatGUI.addUser(Chat.currentUser);
 			
 			$(iq).find('item').each(function () {
 				var bareJid = $(this).attr('jid');
@@ -199,36 +193,26 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 			return true;
 		},
 		
-		sendMessage : function(recipientJid, text)
+		sendMessage : function(recipientJid, message)
 		{
-			console.log('sendMessage(' + recipientJid + ', ' + text +')');
+			console.log('sendMessage(' + recipientJid + ', ' + message.text +')');
 			
-			Chat.conn.send(\$msg({
-				to : recipientJid,
-				type : 'chat',
-				}).c('body').t(text).up()
-				.c('active', {xmlns: 'http://jabber.org/protocol/chatstates'})
-			);
+			if (message.type == MessageType.CHAT)
+			{
+				Chat.conn.send(\$msg({
+					to : recipientJid,
+					type : 'chat',
+					}).c('body').t(message.text).up()
+					.c('active', {xmlns: 'http://jabber.org/protocol/chatstates'})
+				);
+			}
+			else if (message.type == MessageType.GROUPCHAT)
+			{
+				var xmppRoom = Chat.conn.muc.rooms[message.roomJid];
+				
+				xmppRoom.groupchat(message.text);
+			}
 		},
-		
-//		sendMessage_old : function(userName, resource, text)
-//		{
-//			var jid = Chat.domain;
-//			
-//			if (userName != '') jid = userName + '@' + jid;
-//			if (resource != '') jid = jid + '/' + resource;
-//			
-//			console.log('sendXmppMessage(\'' + jid + '\', \'' + text + '\')');
-//			
-//			Chat.conn.send(\$msg({
-//				to: jid,
-//				type: 'chat'
-//				}).cnode(Strophe.xmlElement('body', text)).up()
-//				.c('active', {xmlns: 'http://jabber.org/protocol/chatstates'})
-//			);
-//			
-//			console.log('sent');
-//		},
 		
 		connectToRoom : function(roomName)
 		{
@@ -237,23 +221,27 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 			// console.log('rooms:');
 			// console.log(xmppConnection.muc.listRooms());
 			
-//			Chat.conn.addHandler(Chat.on_presence, null, 'presence');
-			
-//			Chat.conn.muc.join(roomName + '@conference.' + Chat.domain, Chat.currentUserData.nickname, Chat.onRoomMsg, Chat.onRoomPresence, function() {});
-//			Chat.conn.muc.join(roomName + '@conference.' + Chat.domain, Chat.currentUserData.nickname, Chat.onRoomMsg, Chat.onPresence, function() {});
-//			Chat.conn.muc.join(roomName + '@conference.' + Chat.domain, Chat.currentUserData.nickname, Chat.onRoomMsg, null, null);
-			Chat.conn.muc.join(roomName + '@conference.' + Chat.domain, Chat.currentUserData.nickname, null, null, null);
+//			Chat.conn.muc.join(roomName + '@conference.' + Chat.domain, Chat.currentUser.nickname, Chat.onRoomMsg, Chat.onRoomPresence, function() {});
+//			Chat.conn.muc.join(roomName + '@conference.' + Chat.domain, Chat.currentUser.nickname, Chat.onRoomMsg, Chat.onPresence, function() {});
+//			Chat.conn.muc.join(roomName + '@conference.' + Chat.domain, Chat.currentUser.nickname, Chat.onRoomMsg, null, null);
+			Chat.conn.muc.join(roomName + '@conference.' + Chat.domain, Chat.currentUser.nickname, null, null, null);
 			
 //			Chat.conn.send(\$pres({
-//				// from: Chat.currentUserData.jid,
-//				to: roomName + '@conference.' + Chat.domain + '/' + Chat.currentUserData.nickname
+//				// from: Chat.currentUser.bareJid,
+//				to: roomName + '@conference.' + Chat.domain + '/' + Chat.currentUser.nickname
 //				}).c('x', {xmlns: Strophe.NS.MUC})
 //			);
 			
-			Chat.conn.send(\$pres({
-				to: roomName + '@conference.' + Chat.domain + '/' + Chat.currentUserData.nickname
-				})
-			);
+//			Chat.conn.send(\$pres({
+//				to: roomName + '@conference.' + Chat.domain + '/' + Chat.currentUser.nickname
+//				})
+//			);
+			
+//			Chat.conn.send(\$pres({
+//				from : Chat.currentUser.fullJid,
+//				to: roomName + '@conference.' + Chat.domain + '/' + Chat.currentUser.nickname
+//				}).c('x', {xmlns: Strophe.NS.MUC})
+//			);
 			
 //			Chat.conn.muc.queryOccupants(roomName + '@conference.' + Chat.domain, Chat.onRoomQueryOccupants, null);
 		},
@@ -268,7 +256,7 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 			var resource = Strophe.getResourceFromJid(fullJid);
 			
 			var presenceType = $(stanza).attr('type');
-			if (typeof(presenceType) == 'undefined') presenceType = 'available';
+			if (typeof(presenceType) == 'undefined') presenceType = PresenceType.AVAILABLE;
 			
 			var sourceType = StanzaSourceType.DIRECT;
 			
@@ -290,7 +278,7 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 				{
 					console.log('onDirectPresence: ' + fullJid + ' (' + bareJid + ', ' + jidId + ') > ' + to + ' > ' + presenceType);
 					
-					if (bareJid == Chat.currentUserData.jid && from != to) return true; // Unwanted status of current user from previous sessions.
+					if (bareJid == Chat.currentUser.bareJid && from != to) return true; // Unwanted status of current user from previous sessions.
 					
 					var user = ChatGUI.getUserByBareJid(bareJid);
 					
@@ -304,7 +292,7 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 						
 						if (presenceType !== 'error')
 						{
-							ChatGUI.updateUser(bareJid, fullJid, (presenceType == 'available'));
+							ChatGUI.updateUser(bareJid, fullJid, (presenceType == PresenceType.AVAILABLE));
 						}
 					}
 					
@@ -312,29 +300,80 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 				}
 				case StanzaSourceType.ROOM:
 				{
+					var roomJid = bareJid;
+					
+					var room = ChatGUI.getRoomById(roomJid);
+					
 					console.log('onRoomPresence: ' + fullJid + ' (' + bareJid + ', ' + jidId + ') > ' + to + ' > ' + presenceType);
 					
-					var roomName = bareJid;
+					// Fixing room presence.
 					
-					var room = ChatGUI.getRoomById(roomName);
-					
-					// Creating room.
-					
-					if (presenceType == 'available' && resource == Chat.currentUserData.nickname && room == null)
+					if (to == Chat.currentUser.fullJid && presenceType == PresenceType.UNAVAILABLE)
 					{
-						var xmppRoom = Chat.conn.muc.rooms[bareJid];
+						Chat.conn.send(\$pres({
+							from : Chat.currentUser.fullJid,
+							to : roomJid + '/' + Chat.currentUser.nickname
+							}).c('x', {xmlns: Strophe.NS.MUC})
+						);
 						
-						console.log('Connected to room: ' + bareJid);
-						console.log(xmppRoom);
+						return true;
+					}
+					
+					// Creating room or revealing room.
+					
+					if (room == null && presenceType == PresenceType.AVAILABLE && resource == Chat.currentUser.nickname)
+					{
+//						var xmppRoom = Chat.conn.muc.rooms[bareJid];
+//						
+//						console.log('Connected to room: ' + bareJid);
+//						console.log(xmppRoom);
 						
-						var room = new InternalChatRoom(bareJid, jidId);
+						var staticRoom = ChatGUI.getStaticRoomByName(jidId);
+						
+						var room = new InternalChatRoom(
+							bareJid,
+							MessageType.GROUPCHAT,
+							staticRoom.fullName
+						);
+						
+						for (var i = 0; i < ChatGUI.roomOnlineStatusesPull.length; i++)
+						{
+							var pullObject = ChatGUI.roomOnlineStatusesPull[i];
+							
+							if (pullObject.roomJid == bareJid)
+							{
+								room.changeParticipantOnlineStatus(pullObject.nickname, true);
+								
+								ChatGUI.roomOnlineStatusesPull.splice(i, 1);
+								i--;
+							}
+						}
 						
 						ChatGUI.rooms.push(room);
+						
+						ChatGUI.openedRoom = room;
 						
 						ChatGUI.refreshRooms();
 					}
 					
+					// Saving participants statuses for not existing group.
 					
+					if (room == null && presenceType == PresenceType.AVAILABLE)
+					{
+						ChatGUI.roomOnlineStatusesPull.push({ roomJid : roomJid, nickname : resource });
+					}
+					
+					// Updating participants statuses for existing group.
+					
+					if (room != null)
+					{
+						var participantNickname = resource;
+						var online = (presenceType == PresenceType.AVAILABLE);
+						
+						room.changeParticipantOnlineStatus(participantNickname, online);
+						
+						ChatGUI.updateUsersVisibility();
+					}
 					
 					break;
 				}
@@ -355,7 +394,7 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 //			var jidId = Strophe.getNodeFromJid(fullJid);
 //			
 //			var type = $(stanza).attr('type');
-//			if (typeof(type) == 'undefined') type = 'available';
+//			if (typeof(type) == 'undefined') type = PresenceType.AVAILABLE;
 //			
 //			console.log('onRoomPresence: ' + from + ' > ' + to + ' > ' + type);
 //			
@@ -424,11 +463,12 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 				
 				var senderBareJid = resource + '@' + Strophe.getDomainFromJid(from).replace('conference.', '');
 				
-				console.log('senderBareJid: ' + ', ' + senderBareJid);
-				
 				var sender = ChatGUI.getUserByBareJid(senderBareJid);
 				
-				console.log(sender);
+				if (sender != null && sender.bareJid == Chat.currentUser.bareJid && jX.length == 0) // Received message from self at runtime.
+				{
+					return true;
+				}
 				
 				if (room != null && sender != null)
 				{
@@ -480,12 +520,6 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 			
 			console.log(occupantJids);
 		},
-		
-//		on_presence : function(stanza)
-//		{
-//			console.log('on_presence');
-//			console.log(stanza);
-//		},
 		
 		onError : function(stanza)
 		{

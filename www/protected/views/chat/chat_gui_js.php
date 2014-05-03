@@ -5,11 +5,13 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 		
 		users : [],
 		rooms : [
-			new InternalChatRoom('dashboard', 'Dashboard')
+			new InternalChatRoom('dashboard', MessageType.CHAT, 'Dashboard')
 		],
 		openedRoom : null,
+		staticRooms : [],
 		chatSize : null,
 		sendingDivSize : null,
+		roomOnlineStatusesPull : [],
 		
 		getUserByBareJid : function(bareJid)
 		{
@@ -30,6 +32,18 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 				var room = ChatGUI.rooms[i];
 				
 				if (room.id == id) return room;
+			}
+			
+			return null;
+		},
+		
+		getStaticRoomByName : function(name)
+		{
+			for (var i = 0; i < ChatGUI.staticRooms.length; i++)
+			{
+				var staticRoom = ChatGUI.staticRooms[i];
+				
+				if (staticRoom.name == name) return staticRoom;
 			}
 			
 			return null;
@@ -160,7 +174,7 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 			{
 				var user = ChatGUI.users[i];
 				
-				if (user.bareJid == Chat.currentUserData.jid)
+				if (user.bareJid == Chat.currentUser.bareJid)
 				{
 					currentUser = user;
 					ChatGUI.users.splice(i, 1);
@@ -189,6 +203,60 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 			$('#users').html(feed.join(''));
 		},
 		
+		updateUsersVisibility : function()
+		{
+			var jSending = $('#sending');
+			
+			if (ChatGUI.openedRoom == ChatGUI.getRoomById('dashboard'))
+			{
+				jSending.css('visibility', 'hidden');
+				
+				ChatGUI.users.forEach(function(user, i)
+				{
+					var jUser = $('#users .user[barejid=\"' + user.bareJid  + '\"]');
+					
+					jUser.css('display', 'block');
+				});
+			}
+			else
+			{
+				jSending.css('visibility', 'visible');
+				
+				if (ChatGUI.openedRoom.type == MessageType.CHAT)
+				{
+					ChatGUI.users.forEach(function(user, i)
+					{
+						var jUser = $('#users .user[bareJid=\"' + user.bareJid  + '\"]');
+						
+						if (user.bareJid == Chat.currentUser.bareJid || user.bareJid == ChatGUI.openedRoom.id)
+						{
+							jUser.css('display', 'block');
+						}
+						else
+						{
+							jUser.css('display', 'none');
+						}
+					});
+				}
+				else if (ChatGUI.openedRoom.type == MessageType.GROUPCHAT)
+				{
+					ChatGUI.users.forEach(function(user, i)
+					{
+						var jUser = $('#users .user[bareJid=\"' + user.bareJid  + '\"]');
+						
+						if (user.bareJid == Chat.currentUser.bareJid || (user.online && ChatGUI.openedRoom.isParticipantOnline(user.nickname)))
+						{
+							jUser.css('display', 'block');
+						}
+						else
+						{
+							jUser.css('display', 'none');
+						}
+					});
+				}
+			}
+		},
+		
 		refreshRooms : function()
 		{
 			var feed = [];
@@ -207,7 +275,7 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 				feed.push('<div class=\"room\" roomId=\"' + room.id + '\"' + openedAttr + unreadAttr + '>');
 				feed.push(	'<div class=\"icon\"></div>');
 				feed.push(	'<div class=\"text\">');
-				feed.push(		room.name);
+				feed.push(		room.fullName);
 				feed.push(	'</div>');
 				
 				if (room.id != 'dashboard')
@@ -225,39 +293,7 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 			
 			ChatGUI.updateChatTitle();
 			
-			// Updating users.
-			
-			var jSending = $('#sending');
-			
-			if (ChatGUI.openedRoom == ChatGUI.getRoomById('dashboard'))
-			{
-				jSending.css('visibility', 'hidden');
-				
-				ChatGUI.users.forEach(function(user, i)
-				{
-					var jUser = $('#users .user[barejid=\"' + user.bareJid  + '\"]');
-					
-					jUser.css('display', 'block');
-				});
-			}
-			else
-			{
-				jSending.css('visibility', 'visible');
-				
-				ChatGUI.users.forEach(function(user, i)
-				{
-					var jUser = $('#users .user[bareJid=\"' + user.bareJid  + '\"]');
-					
-					if (user.bareJid == Chat.currentUserData.jid || user.bareJid == ChatGUI.openedRoom.id)
-					{
-						jUser.css('display', 'block');
-					}
-					else
-					{
-						jUser.css('display', 'none');
-					}
-				});
-			}
+			ChatGUI.updateUsersVisibility();
 			
 			// Updating messages.
 			
@@ -275,9 +311,9 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 				{
 					var message = ChatGUI.openedRoom.messages[i];
 					
-//					console.log ('###: ' + message.senderJid + ' [' + Chat.currentUserData.jid + ']');
+//					console.log ('###: ' + message.senderJid + ' [' + Chat.currentUser.bareJid + ']');
 					
-					var blockType = (message.senderJid == Chat.currentUserData.jid ? 'outgoing' : 'incoming');
+					var blockType = (message.senderJid == Chat.currentUser.bareJid ? 'outgoing' : 'incoming');
 					
 					feed.push('<div class=\"message ' + blockType + '\">');
 					feed.push(	'<div class=\"from\">');
@@ -294,6 +330,24 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 				
 				jMessages.html(feed.join(''));
 			}
+		},
+		
+		refreshStaticRooms : function()
+		{
+			var feed = [];
+			
+			for (var i = 0; i < ChatGUI.staticRooms.length; i++)
+			{
+				var staticRoom = ChatGUI.staticRooms[i];
+				
+				feed.push('<div class=\"room\" jid=\"' + staticRoom.jid + '\" roomName=\"' + staticRoom.name + '\">');
+				feed.push(	'<div class=\"text\">');
+				feed.push(		staticRoom.fullName);
+				feed.push(	'</div>');
+				feed.push('</div>');
+			}
+			
+			$('#staticRooms').html(feed.join(''));
 		},
 		
 		revealRoom : function(room)
@@ -336,7 +390,7 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 			}
 			else
 			{
-				jHeader.html('".Yii::t('general', 'Chat')."' + ' (' + ChatGUI.openedRoom.name + ')');
+				jHeader.html('".Yii::t('general', 'Chat')."' + ' (' + ChatGUI.openedRoom.fullName + ')');
 			}
 		},
 		
@@ -349,23 +403,27 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 			if (msg != '')
 			{
 				msg = MethodsForStrings.escapeHtml(msg);
-				msg = msg.replace('\\n', '<br/>');
+				msg = msg.replace(/\\n/g, '<br/>');
 				
 				var newMessage = new InternalChatMessage(
-					MessageType.CHAT,
+					ChatGUI.openedRoom.type,
 					MethodsForDateTime.dateToString(new Date()),
-					Chat.currentUserData.jid,
-					Chat.currentUserData.fullName,
+					Chat.currentUser.bareJid,
+					Chat.currentUser.fullName,
 					msg);
 				
-				// ChatGUI.addChatMessages([newMessage]);
+				if (ChatGUI.openedRoom.type == MessageType.GROUPCHAT)
+				{
+					newMessage.roomJid = ChatGUI.openedRoom.id;
+				}
+				
 				ChatGUI.addChatMessage(newMessage);
 				
 				jInputMessage.val('');
 				
 				var recipientJid = ChatGUI.openedRoom.id;
 				
-				Chat.sendMessage(recipientJid, msg);
+				Chat.sendMessage(recipientJid, newMessage);
 			}
 		},
 		
@@ -375,7 +433,7 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 			
 			if (message.type == MessageType.CHAT)
 			{
-				if (message.senderJid == Chat.currentUserData.jid)
+				if (message.senderJid == Chat.currentUser.bareJid)
 				{
 					targetRoom = ChatGUI.openedRoom;
 				}
@@ -387,7 +445,7 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 					{
 						if (targetRoom == null)
 						{
-							targetRoom = new InternalChatRoom(message.senderJid, message.senderFullName, false, true);
+							targetRoom = new InternalChatRoom(message.senderJid, MessageType.CHAT, message.senderFullName, false, true);
 							
 							ChatGUI.rooms.push(targetRoom);
 						}
@@ -405,15 +463,13 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 			}
 			else if (message.type == MessageType.GROUPCHAT)
 			{
-//				console.log('#: ' + message.roomJid);
-				
 				targetRoom = ChatGUI.getRoomById(message.roomJid);
 				
 				targetRoom.messages.push(message);
 				
 				ChatGUI.refreshRooms();
 			}
-		},
+		}
 	};
 	
 ", CClientScript::POS_HEAD);
@@ -470,7 +526,7 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 	{
 		var userBareJid = $(this).attr('bareJid');
 		
-		if (userBareJid == Chat.currentUserData.jid) return;
+		if (userBareJid == Chat.currentUser.bareJid) return;
 		
 		var user = ChatGUI.getUserByBareJid(userBareJid);
 		
@@ -480,7 +536,7 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 		
 		if (room == null)
 		{
-			room = new InternalChatRoom(roomId, user.fullName);
+			room = new InternalChatRoom(roomId, MessageType.CHAT, user.fullName);
 			ChatGUI.rooms.push(room);
 			
 			ChatGUI.openedRoom = room;
@@ -488,21 +544,15 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 		}
 		else
 		{
-			if (ChatGUI.openedRoom != room)
+			if (ChatGUI.openedRoom == room) return;
+			
+			if (room.hidden)
 			{
-				if (room.hidden)
-				{
-					ChatGUI.revealRoom(room);
-					
-					ChatGUI.openedRoom = room;
-					ChatGUI.refreshRooms();
-				}
-				else
-				{
-					ChatGUI.openedRoom = room;
-					ChatGUI.refreshRooms();
-				}
+				ChatGUI.revealRoom(room);
 			}
+			
+			ChatGUI.openedRoom = room;
+			ChatGUI.refreshRooms();
 		}
 	});
 	
@@ -513,9 +563,25 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 	
 	$('#inputMessage').keydown(function (e)
 	{
-		if ((e.keyCode == 10 || e.keyCode == 13) && e.ctrlKey)
+//		// Send message on CTRL+ENTER.
+//		if ((e.keyCode == 10 || e.keyCode == 13) && e.ctrlKey)
+//		{
+//			ChatGUI.sendChatMessage();
+//		}
+		
+		// Send message on ENTER.
+		if (e.keyCode == 10 || e.keyCode == 13)
 		{
-			ChatGUI.sendChatMessage();
+			if (e.ctrlKey)
+			{
+				$(this).val($(this).val() + '\\n');
+			}
+			else
+			{
+				e.preventDefault();
+				
+				ChatGUI.sendChatMessage();
+			}
 		}
 	});
 	
@@ -543,6 +609,32 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 		var roomId = $(this).parents('.room').attr('roomId');
 		
 		ChatGUI.closeRoom(roomId);
+	});
+	
+	$('#staticRooms').on('dblclick', '> .room', function(e)
+	{
+		var staticRoomName = $(this).attr('roomName');
+		
+		var staticRoom = ChatGUI.getStaticRoomByName(staticRoomName);
+		
+		var room = ChatGUI.getRoomById(staticRoom.jid);
+		
+		if (room == null)
+		{
+			Chat.connectToRoom(staticRoom.name);
+		}
+		else
+		{
+			if (ChatGUI.openedRoom == room) return;
+			
+			if (room.hidden)
+			{
+				ChatGUI.revealRoom(room);
+			}
+			
+			ChatGUI.openedRoom = room;
+			ChatGUI.refreshRooms();
+		}
 	});
 	
 	// Starting chat.
