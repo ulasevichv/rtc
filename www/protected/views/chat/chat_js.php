@@ -21,6 +21,7 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 			console.log('Connecting \'' + Chat.currentUser.jid + '\' (' + Chat.currentUser.password + ')');
 			
 			Chat.conn.connect(Chat.currentUser.jid, Chat.currentUser.password, function(status) { Chat.onConnectionStatusChange(status); });
+
 		},
 		
 		disconnect : function()
@@ -116,6 +117,7 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 			
 			
 			ChatGUI.unblockControls();
+			ChatRooms.init();
 		},
 		
 		onDisconnect : function()

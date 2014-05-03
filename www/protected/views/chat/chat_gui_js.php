@@ -438,7 +438,7 @@ Yii::app()->clientScript->registerScript(uniqid('chat_gui'), "
 	
 ", CClientScript::POS_HEAD);
 
-Yii::app()->clientScript->registerScript(uniqid(), "
+Yii::app()->clientScript->registerScript(uniqid('chat_gui_ready'), "
 	
 	$(document).tooltip(
 	{
@@ -600,5 +600,6 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 	ChatGUI.blockControls();
 	
 	Chat.connect();
+
 	
 ", CClientScript::POS_READY);

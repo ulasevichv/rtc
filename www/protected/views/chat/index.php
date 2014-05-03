@@ -12,7 +12,7 @@ Yii::app()->clientScript->registerScriptFile($baseUrl.'/assets/js/OTvideo.js');
 Yii::app()->clientScript->registerScriptFile($baseUrl.'/assets/js/strophe.js');
 Yii::app()->clientScript->registerScriptFile('//static.opentok.com/webrtc/v2.2/js/opentok.min.js');
 //Yii::app()->clientScript->registerScriptFile($baseUrl.'/assets/js/strophe.chatstates.js');
-//Yii::app()->clientScript->registerScriptFile($baseUrl.'/assets/js/strophe.muc.js');
+Yii::app()->clientScript->registerScriptFile($baseUrl.'/assets/js/strophe.muc.js');
 //Yii::app()->clientScript->registerScriptFile($baseUrl.'/assets/js/strophe.roster.js');
 //Yii::app()->clientScript->registerScriptFile($baseUrl.'/assets/js/roster.js');
 //Yii::app()->clientScript->registerScriptFile($baseUrl.'/assets/js/flXHR.js');
@@ -47,9 +47,11 @@ $this->renderPartial('chat_js', array(
 	'boshAddress' => $boshAddress,
 	'xmppUser' => $xmppUser,
 ), false, false);
-
+$this->renderPartial('chat_rooms_js', array(
+), false, false);
 $this->renderPartial('chat_gui_js', array(
 ), false, false);
+
 
 ?>
 
@@ -57,8 +59,13 @@ $this->renderPartial('chat_gui_js', array(
 	<div class="header">
 	</div>
 	<div class="sections">
-		<div id="rooms">
-		</div>
+        <div id="left_side">
+            <div id="rooms">
+            </div>
+            <div id="group_rooms">
+            </div>
+        </div>
+
 		<div id="users">
 		</div>
 		<div id="chat">
