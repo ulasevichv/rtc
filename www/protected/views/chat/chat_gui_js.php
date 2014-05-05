@@ -299,12 +299,34 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 			
 			var jMessages = $('#messages');
 			
+//			var feed = [];
+			
 			if (ChatGUI.openedRoom == ChatGUI.getRoomById('dashboard'))
 			{
-				jMessages.html('');
+				jMessages.children().css('display', 'none');
 			}
 			else
 			{
+				jMessages.children().css('display', 'none');
+				
+				var openedRoomMsgContainerId = 'msg_' + Strophe.getNodeFromJid(ChatGUI.openedRoom.id);
+				
+				var jMsgContainerDiv = $('#' + openedRoomMsgContainerId);
+				
+				if (jMsgContainerDiv.length == 0)
+				{
+					jMessages.append(
+						'<div id=\"' + openedRoomMsgContainerId + '\" class=\"msgContainer\">' +
+							'<div class=\"video\"></div>' +
+							'<div class=\"text\"></div>' +
+						'</div>'
+					);
+				}
+				else
+				{
+					jMsgContainerDiv.css('display', 'block');
+				}
+				
 				var feed = [];
 				
 				for (var i = 0; i < ChatGUI.openedRoom.messages.length; i++)
@@ -328,7 +350,7 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 					feed.push('</div>');
 				}
 				
-				jMessages.html(feed.join(''));
+				jMsgContainerDiv.find('.text').html(feed.join(''));
 			}
 		},
 		

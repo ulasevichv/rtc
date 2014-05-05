@@ -201,23 +201,36 @@ body > div.container[role="main"] {
 	margin: 3px 200px 0 200px;
 }
 #messages {
+}
+#messages > .msgContainer {
+	height: 100%;
+	overflow-y: hidden;
+}
+#messages > .msgContainer > .video {
+	width: 100%;
+	height: 30%;
+	border: 1px dotted red;
+}
+#messages > .msgContainer > .text {
+	width: 100%;
+	height: 70%;
 	overflow-y: auto;
 }
-#messages > .message {
+#messages .message {
 	display: table;
 	position: relative;
 	float: left;
 	width: 100%;
 }
-#messages > div.message:nth-of-type(1) > .from,
-#messages > div.message:nth-of-type(1) > .text,
-#messages > div.message:nth-of-type(1) > .time {
+#messages div.message:nth-of-type(1) > .from,
+#messages div.message:nth-of-type(1) > .text,
+#messages div.message:nth-of-type(1) > .time {
 	border-top: none;
 }
-#messages > .message:nth-last-of-type(1) {
+#messages .message:nth-last-of-type(1) {
 	border-bottom: 1px solid #e1e1e1;
 }
-#messages > .message > .from {
+#messages .message > .from {
 	display: table-cell;
 	width: 160px;
 	color: #40556a;
@@ -225,31 +238,31 @@ body > div.container[role="main"] {
 	text-align: right;
 	padding: 1px 5px 3px 5px;
 }
-#messages > .message.outgoing > .from {
+#messages .message.outgoing > .from {
 	border-right: 1px solid #bed6eb;
 	border-top: 1px solid #bed6eb;
 	background-color: #e4ecf6;
 }
-#messages > .message.incoming > .from {
+#messages .message.incoming > .from {
 	border-right: 1px solid #e1e1e1;
 	border-top: 1px solid #e1e1e1;
 	background-color: #f7f7f7;
 	color: #747474;
 }
-#messages > .message > .text {
+#messages .message > .text {
 	display: table-cell;
 	cursor: default;
 	padding: 1px 5px 3px 5px;
 }
-#messages > .message.outgoing > .text {
+#messages .message.outgoing > .text {
 	border-top: 1px solid #bed6eb;
 	background-color: #f3f7fb;
 }
-#messages > .message.incoming > .text {
+#messages .message.incoming > .text {
 	border-top: 1px solid #e1e1e1;
 	background-color: #ffffff;
 }
-#messages > .message > .time {
+#messages .message > .time {
 	display: table-cell;
 	font-size: 10px;
 	color: #999999;
@@ -258,11 +271,11 @@ body > div.container[role="main"] {
 	text-align: right;
 	padding: 0 5px 0 0;
 }
-#messages > .message.outgoing > .time {
+#messages .message.outgoing > .time {
 	border-top: 1px solid #bed6eb;
 	background-color: #f3f7fb;
 }
-#messages > .message.incoming > .time {
+#messages .message.incoming > .time {
 	border-top: 1px solid #e1e1e1;
 	background-color: #ffffff;
 }
