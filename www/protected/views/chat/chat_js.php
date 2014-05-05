@@ -66,7 +66,10 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 //			var iq = \$iq({type: 'get'}).c('query', {xmlns: Strophe.NS.ROSTER});
 //			Chat.conn.sendIQ(iq, RosterObj.on_roster);
 //			Chat.conn.addHandler(RosterObj.on_roster_changed, Strophe.NS.ROSTER, 'iq', 'set');
-			
+
+			Chat.conn.addHandler(Chat.onVideoCall, null, 'message', 'videoCall');
+			Chat.conn.addHandler(Chat.onVideoCallAccepted, null, 'message', 'VideoCallAccepted');
+			Chat.conn.addHandler(Chat.onVideoCallDeclined, null, 'message', 'VideoCallDeclined');
 			
 			
 			Chat.getRoster();
@@ -211,6 +214,13 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 				var xmppRoom = Chat.conn.muc.rooms[message.roomJid];
 				
 				xmppRoom.groupchat(message.text);
+			} else {
+                Chat.conn.send(\$msg({
+                        to : recipientJid,
+                        type : message.type,
+                        }).c('body').t(message.text).up()
+                        .c('active', {xmlns: 'http://jabber.org/protocol/chatstates'})
+                    );
 			}
 		},
 		
@@ -486,6 +496,100 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 			
 			return true;
 		},
+
+		onVideoCall : function(msg)
+		{
+			var to = $(msg).attr('to');
+			var from = $(msg).attr('from');
+			var type = $(msg).attr('type');
+			var jBody = $(msg).find('body');
+
+            var user = ChatGUI.getUserByBareJid(Strophe.getBareJidFromJid(from));
+			console.log('onVideoCall: ' + from + ', ' + type);
+
+			var text = 'Start video call with ' + user.fullName + '?';
+
+            var newMessage = new InternalChatMessage(
+					'videoCall',
+					MethodsForDateTime.dateToString(new Date()),
+					user.bareJid,
+					user.fullName,
+					text);
+
+			// ChatGUI.addChatMessages([newMessage]);
+			ChatGUI.addChatMessage(newMessage);
+			ChatGUI.addVideoCallInvitationControls(user.bareJid);
+
+			return true;
+		},
+		acceptVideoCall : function () {
+
+		   var newMessage = new InternalChatMessage(
+					'VideoCallAccepted',
+					MethodsForDateTime.dateToString(new Date()),
+					ChatGUI.openedRoom.id,
+					ChatGUI.openedRoom.fullName,
+					'');
+		    Chat.sendMessage(ChatGUI.openedRoom.id,newMessage);
+		    console.log(ChatGUI.openedRoom.id);
+		    return true;
+		},
+		onVideoCallAccepted : function(message) {
+		console.log('onVideoCallAccepted');
+            var elems = message.getElementsByTagName('body');
+            if (Strophe.getText(elems[0])) {
+                json = Strophe.getText(elems[0]).replace(new RegExp('&quot;','g'),'\"');
+                jsonObj = $.parseJSON(json);
+                $.ajax({
+                    type: 'POST',
+                    url: 'index.php?r=chat/videocallToken',
+                    data: {'sessionId':jsonObj.sessionId,'apiKey':jsonObj.apiKey},
+                    success: function(token) {
+                        jsonObj.token = token;
+                        Chat.openTokInit(jsonObj);
+                    }
+                });
+
+            } else {
+                 $.ajax({
+                    type: 'POST',
+                    url: 'index.php?r=chat/videocall',
+                    data: null,
+                    success: function(json) {
+                        Chat.openTokInit($.parseJSON(json));
+                        var to = $(message).attr('from');
+                        var newMessage = new InternalChatMessage(
+                                'VideoCallAccepted',
+                                MethodsForDateTime.dateToString(new Date()),
+                                ChatGUI.openedRoom.id,
+                                ChatGUI.openedRoom.fullName,
+                                json);
+
+//                        Chat.sendMessage(to,json,'VideoCallAccepted');
+                        Chat.sendMessage(to,newMessage);
+
+                    }
+                });
+            }
+
+		    return true;
+		},
+		onVideoCallDeclined : function(message) {
+            console.log('onVideoCallDeclined');
+		},
+        openTokInit : function(openTokObj)
+        {
+            //var OTvideo = OTvideo || {};
+
+            OTvideo.apiKey = openTokObj.apiKey;
+            OTvideo.sessionId = openTokObj.sessionId;
+            OTvideo.token = openTokObj.token;
+            OTvideo.myDiv = '#msg_' + ChatGUI.openedRoom.fullName + ' .video';
+
+            OTvideo.init();
+
+            return true;
+        },
 		
 //		onRoomMsg : function(stanza)
 //		{

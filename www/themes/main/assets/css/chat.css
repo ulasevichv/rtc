@@ -305,3 +305,16 @@ body > div.container[role="main"] {
 #btnSend {
 	margin: auto 0 auto 1px;
 }
+
+#videoChat {
+    overflow: hidden;
+    width: 100%;
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 10px;
+}
+#myvideo {
+    float: left;
+}
+#videoChatInviteButtons {
+    text-align: center;
+}

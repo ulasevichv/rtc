@@ -8,7 +8,8 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 	
 	var MessageType = {
 		CHAT : 'chat',
-		GROUPCHAT : 'groupchat'
+		GROUPCHAT : 'groupchat',
+		VIDEOCALL : 'videoCall'
 	};
 	
 	var PresenceType = {
@@ -60,6 +61,7 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 		
 		this.id = id;
 		this.type = type;
+		this.callinvite = false;
 		this.fullName = fullName;
 		this.hidden = hidden;
 		this.unread = unread;
