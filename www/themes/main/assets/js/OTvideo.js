@@ -41,5 +41,4 @@ OTvideo.init = function() {
     OTvideo.session.on("connectionDestroyed", function(event) {
         OTvideo.session.disconnect();
     });
-
 }

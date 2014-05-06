@@ -33,8 +33,8 @@ class ChatController extends Controller
 		$this->render('index');
 	}
 	
-	public function actionVideoCall() {
-		
+	public function actionInitializeVideoCall()
+	{
 		$apiObj = new OpenTokSDK();
 		
 		$session = $apiObj->createSession(null, array(SessionPropertyConstants::P2P_PREFERENCE => 'disabled'));

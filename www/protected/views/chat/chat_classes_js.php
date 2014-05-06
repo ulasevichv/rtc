@@ -34,6 +34,36 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 		this.fullName = fullName;
 		this.password = password;
 		this.online = online;
+		
+		this.opentokIniObjects = [];
+	}
+	
+	InternalChatUser.prototype.addOpentokIniObject = function(roomJid, obj)
+	{
+		var iniObject = this.getOpentokIniObject(roomJid);
+		
+		if (iniObject == null)
+		{
+			this.opentokIniObjects.push({
+				roomJid : roomJid,
+				obj: obj });
+		}
+		else
+		{
+			iniObject.obj = obj;
+		}
+	}
+	
+	InternalChatUser.prototype.getOpentokIniObject = function(roomJid)
+	{
+		for (var i = 0; i < this.opentokIniObjects.length; i++)
+		{
+			var opentokIniObject = this.opentokIniObjects[i];
+			
+			if (opentokIniObject.roomJid == roomJid) return opentokIniObject;
+		}
+		
+		return null;
 	}
 	
 	// Chat message.

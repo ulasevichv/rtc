@@ -444,7 +444,6 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 						user.fullName,
 						text);
 					
-					// ChatGUI.addChatMessages([newMessage]);
 					ChatGUI.addChatMessage(newMessage);
 				}
 			}
@@ -495,6 +494,30 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 			return true;
 		},
 		
+		startVideoCall : function()
+		{
+			$.ajax({
+				type: 'POST',
+				url: '?r=chat/initializeVideoCall',
+				data: null,
+				success: function(json)
+				{
+					Chat.openTokInit($.parseJSON(json));
+					
+					ChatGUI.showVideoCallInvitationSentMessage();
+					
+					var newMessage = new InternalChatMessage(
+						MessageType.VIDEO_CALL,
+						MethodsForDateTime.dateToString(new Date()),
+						ChatGUI.openedRoom.id,
+						ChatGUI.openedRoom.fullName,
+						json);
+					
+					Chat.sendMessage(ChatGUI.openedRoom.id, newMessage);
+				}
+			});
+		},
+		
 		onVideoCall : function(msg)
 		{
 			var to = $(msg).attr('to');
@@ -502,40 +525,74 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 			var type = $(msg).attr('type');
 			var jBody = $(msg).find('body');
 			
-			var user = ChatGUI.getUserByBareJid(Strophe.getBareJidFromJid(from));
-			
 			console.log('onVideoCall: ' + from + ', ' + type);
 			
-			var text = 'Start video call with ' + user.fullName + '?';
-			
-			var newMessage = new InternalChatMessage(
-				MessageType.VIDEO_CALL,
-				MethodsForDateTime.dateToString(new Date()),
-				user.bareJid,
-				user.fullName,
-				text);
-			
-			ChatGUI.addChatMessage(newMessage);
-			ChatGUI.addVideoCallInvitationControls(user.bareJid);
+			if (from != Chat.currentUser.fullJid)
+			{
+				var sender = ChatGUI.getUserByBareJid(Strophe.getBareJidFromJid(from));
+				
+				var text = 'Start video call with ' + sender.fullName + '?';
+				
+				var newMessage = new InternalChatMessage(
+					MessageType.VIDEO_CALL,
+					MethodsForDateTime.dateToString(new Date()),
+					sender.bareJid,
+					sender.fullName,
+					text);
+				
+				ChatGUI.addChatMessage(newMessage);
+				ChatGUI.addVideoCallInvitationControls(sender.bareJid);
+				
+				var opentokIniJsonObj = $.parseJSON(jBody.text());
+				
+//				console.log('AAAAAAAAAAAAAAAAAAAAAA');
+//				
+//				console.log(opentokIniJsonObj);
+				
+				Chat.currentUser.addOpentokIniObject(Strophe.getBareJidFromJid(from), opentokIniJsonObj);
+			}
 			
 			return true;
 		},
 		
 		acceptVideoCall : function ()
 		{
-			var newMessage = new InternalChatMessage(
-				MessageType.VIDEO_CALL_ACCEPTED,
-				MethodsForDateTime.dateToString(new Date()),
-				ChatGUI.openedRoom.id,
-				ChatGUI.openedRoom.fullName,
-				'');
+			var opentokIniObject = Chat.currentUser.getOpentokIniObject(ChatGUI.openedRoom.id);
 			
-		    Chat.sendMessage(ChatGUI.openedRoom.id, newMessage);
-		    
-		    console.log(ChatGUI.openedRoom.id);
-		    
-		    return true;
+			console.log(opentokIniObject.obj);
+			
+			$.ajax({
+				type: 'POST',
+				url: '?r=chat/getVideoCallToken',
+				data: { sessionId : opentokIniObject.obj.sessionId, apiKey : opentokIniObject.obj.apiKey},
+				success: function(token)
+				{
+					opentokIniObject.obj.token = token;
+					
+					console.log('CCCCCCCCCCCCCCCCCCCCCCCCCC');
+					console.log(token);
+					console.log(opentokIniObject.obj);
+					
+					Chat.openTokInit(opentokIniObject.obj);
+				}
+			});
 		},
+		
+//		acceptVideoCall : function ()
+//		{
+//			var newMessage = new InternalChatMessage(
+//				MessageType.VIDEO_CALL_ACCEPTED,
+//				MethodsForDateTime.dateToString(new Date()),
+//				ChatGUI.openedRoom.id,
+//				ChatGUI.openedRoom.fullName,
+//				'');
+//			
+//		    Chat.sendMessage(ChatGUI.openedRoom.id, newMessage);
+//		    
+//		    console.log(ChatGUI.openedRoom.id);
+//		    
+//		    return true;
+//		},
 		
 		onVideoCallAccepted : function(message)
 		{
@@ -565,7 +622,7 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 			{
 				 $.ajax({
 					type: 'POST',
-					url: 'index.php?r=chat/videocall',
+					url: 'index.php?r=chat/initializeVideoCall',
 					data: null,
 					success: function(json)
 					{
