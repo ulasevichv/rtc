@@ -1,4 +1,4 @@
-MethodsForStrings =
+var MethodsForStrings =
 {
 	idsToString : function(ids)
 	{

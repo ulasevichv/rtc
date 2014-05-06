@@ -306,15 +306,17 @@ body > div.container[role="main"] {
 	margin: auto 0 auto 1px;
 }
 
+/*** Video ***/
+
 #videoChat {
-    overflow: hidden;
-    width: 100%;
-    border-bottom: 1px solid #ccc;
-    padding-bottom: 10px;
+	overflow: hidden;
+	width: 100%;
+	border-bottom: 1px solid #cccccc;
+	padding-bottom: 10px;
 }
 #myvideo {
-    float: left;
+	float: left;
 }
 #videoChatInviteButtons {
-    text-align: center;
+	text-align: center;
 }

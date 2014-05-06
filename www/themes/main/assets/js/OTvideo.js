@@ -23,7 +23,7 @@ OTvideo.init = function() {
     OTvideo.session.on('streamCreated', function(event) {
         console.log('OTvideo.session.streamCreated');
         var id = 'video-' + event.stream.connection.connectionId;
-        $(OTvideo.myDiv).append('<div class=\"other-video\" style=\"float: left;\" id=\"' + id + '\"></div>');
+        $(OTvideo.myDiv).append('<div class=\"other-video\" style=\"float:left;\" id=\"' + id + '\"></div>');
         OTvideo.session.subscribe(event.stream, id);
         return true;
     });

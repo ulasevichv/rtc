@@ -12,7 +12,6 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 			'".Yii::app()->user->fullName."',
 			'".$xmppUser->serverUserPass."'
 		),
-		persistentRoomName : 'room01',
 		
 		connect : function()
 		{
@@ -66,11 +65,10 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 //			var iq = \$iq({type: 'get'}).c('query', {xmlns: Strophe.NS.ROSTER});
 //			Chat.conn.sendIQ(iq, RosterObj.on_roster);
 //			Chat.conn.addHandler(RosterObj.on_roster_changed, Strophe.NS.ROSTER, 'iq', 'set');
-
-			Chat.conn.addHandler(Chat.onVideoCall, null, 'message', 'videoCall');
-			Chat.conn.addHandler(Chat.onVideoCallAccepted, null, 'message', 'VideoCallAccepted');
-			Chat.conn.addHandler(Chat.onVideoCallDeclined, null, 'message', 'VideoCallDeclined');
 			
+			Chat.conn.addHandler(Chat.onVideoCall, null, 'message', MessageType.VIDEO_CALL);
+			Chat.conn.addHandler(Chat.onVideoCallAccepted, null, 'message', MessageType.VIDEO_CALL_ACCEPTED);
+			Chat.conn.addHandler(Chat.onVideoCallDeclined, null, 'message', MessageType.VIDEO_CALL_DECLINED);
 			
 			Chat.getRoster();
 			Chat.getRoomsList();
@@ -209,7 +207,7 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 					.c('active', {xmlns: 'http://jabber.org/protocol/chatstates'})
 				);
 			}
-			else if (message.type == MessageType.GROUPCHAT)
+			else if (message.type == MessageType.GROUP_CHAT)
 			{
 				var xmppRoom = Chat.conn.muc.rooms[message.roomJid];
 				
@@ -342,7 +340,7 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 						
 						var room = new InternalChatRoom(
 							bareJid,
-							MessageType.GROUPCHAT,
+							MessageType.GROUP_CHAT,
 							staticRoom.fullName
 						);
 						
@@ -450,7 +448,7 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 					ChatGUI.addChatMessage(newMessage);
 				}
 			}
-			else if (type == MessageType.GROUPCHAT)
+			else if (type == MessageType.GROUP_CHAT)
 			{
 				var roomJid = bareJid;
 				
@@ -483,7 +481,7 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 				if (room != null && sender != null)
 				{
 					var newMessage = new InternalChatMessage(
-						MessageType.GROUPCHAT,
+						MessageType.GROUP_CHAT,
 						sendDateString,
 						sender.bareJid,
 						sender.fullName,
@@ -496,100 +494,118 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 			
 			return true;
 		},
-
+		
 		onVideoCall : function(msg)
 		{
 			var to = $(msg).attr('to');
 			var from = $(msg).attr('from');
 			var type = $(msg).attr('type');
 			var jBody = $(msg).find('body');
-
-            var user = ChatGUI.getUserByBareJid(Strophe.getBareJidFromJid(from));
+			
+			var user = ChatGUI.getUserByBareJid(Strophe.getBareJidFromJid(from));
+			
 			console.log('onVideoCall: ' + from + ', ' + type);
-
+			
 			var text = 'Start video call with ' + user.fullName + '?';
-
-            var newMessage = new InternalChatMessage(
-					'videoCall',
-					MethodsForDateTime.dateToString(new Date()),
-					user.bareJid,
-					user.fullName,
-					text);
-
-			// ChatGUI.addChatMessages([newMessage]);
+			
+			var newMessage = new InternalChatMessage(
+				MessageType.VIDEO_CALL,
+				MethodsForDateTime.dateToString(new Date()),
+				user.bareJid,
+				user.fullName,
+				text);
+			
 			ChatGUI.addChatMessage(newMessage);
 			ChatGUI.addVideoCallInvitationControls(user.bareJid);
-
+			
 			return true;
 		},
-		acceptVideoCall : function () {
-
-		   var newMessage = new InternalChatMessage(
-					'VideoCallAccepted',
-					MethodsForDateTime.dateToString(new Date()),
-					ChatGUI.openedRoom.id,
-					ChatGUI.openedRoom.fullName,
-					'');
-		    Chat.sendMessage(ChatGUI.openedRoom.id,newMessage);
+		
+		acceptVideoCall : function ()
+		{
+			var newMessage = new InternalChatMessage(
+				MessageType.VIDEO_CALL_ACCEPTED,
+				MethodsForDateTime.dateToString(new Date()),
+				ChatGUI.openedRoom.id,
+				ChatGUI.openedRoom.fullName,
+				'');
+			
+		    Chat.sendMessage(ChatGUI.openedRoom.id, newMessage);
+		    
 		    console.log(ChatGUI.openedRoom.id);
+		    
 		    return true;
 		},
-		onVideoCallAccepted : function(message) {
-		console.log('onVideoCallAccepted');
-            var elems = message.getElementsByTagName('body');
-            if (Strophe.getText(elems[0])) {
-                json = Strophe.getText(elems[0]).replace(new RegExp('&quot;','g'),'\"');
-                jsonObj = $.parseJSON(json);
-                $.ajax({
-                    type: 'POST',
-                    url: 'index.php?r=chat/videocallToken',
-                    data: {'sessionId':jsonObj.sessionId,'apiKey':jsonObj.apiKey},
-                    success: function(token) {
-                        jsonObj.token = token;
-                        Chat.openTokInit(jsonObj);
-                    }
-                });
-
-            } else {
-                 $.ajax({
-                    type: 'POST',
-                    url: 'index.php?r=chat/videocall',
-                    data: null,
-                    success: function(json) {
-                        Chat.openTokInit($.parseJSON(json));
-                        var to = $(message).attr('from');
-                        var newMessage = new InternalChatMessage(
-                                'VideoCallAccepted',
-                                MethodsForDateTime.dateToString(new Date()),
-                                ChatGUI.openedRoom.id,
-                                ChatGUI.openedRoom.fullName,
-                                json);
-
-//                        Chat.sendMessage(to,json,'VideoCallAccepted');
-                        Chat.sendMessage(to,newMessage);
-
-                    }
-                });
-            }
-
-		    return true;
+		
+		onVideoCallAccepted : function(message)
+		{
+			console.log('onVideoCallAccepted()');
+			
+			var elems = message.getElementsByTagName('body');
+			
+			if (Strophe.getText(elems[0])) // For call starter.
+			{
+				json = Strophe.getText(elems[0]).replace(new RegExp('&quot;','g'),'\"');
+				
+				jsonObj = $.parseJSON(json);
+				
+				$.ajax({
+					type: 'POST',
+					url: 'index.php?r=chat/getVideoCallToken',
+					data: { sessionId : jsonObj.sessionId, apiKey : jsonObj.apiKey},
+					success: function(token)
+					{
+						jsonObj.token = token;
+						
+						Chat.openTokInit(jsonObj);
+					}
+				});
+			}
+			else // For call recipient.
+			{
+				 $.ajax({
+					type: 'POST',
+					url: 'index.php?r=chat/videocall',
+					data: null,
+					success: function(json)
+					{
+						Chat.openTokInit($.parseJSON(json));
+						
+						var to = $(message).attr('from');
+						var newMessage = new InternalChatMessage(
+							MessageType.VIDEO_CALL_ACCEPTED,
+							MethodsForDateTime.dateToString(new Date()),
+							ChatGUI.openedRoom.id,
+							ChatGUI.openedRoom.fullName,
+							json);
+						
+//						Chat.sendMessage(to, json, MessageType.VIDEO_CALL_ACCEPTED);
+						Chat.sendMessage(to, newMessage);
+					}
+				});
+			}
+			
+			return true;
 		},
-		onVideoCallDeclined : function(message) {
-            console.log('onVideoCallDeclined');
+		
+		onVideoCallDeclined : function(message)
+		{
+			console.log('onVideoCallDeclined()');
 		},
-        openTokInit : function(openTokObj)
-        {
-            //var OTvideo = OTvideo || {};
-
-            OTvideo.apiKey = openTokObj.apiKey;
-            OTvideo.sessionId = openTokObj.sessionId;
-            OTvideo.token = openTokObj.token;
-            OTvideo.myDiv = '#msg_' + ChatGUI.openedRoom.fullName + ' .video';
-
-            OTvideo.init();
-
-            return true;
-        },
+		
+		openTokInit : function(openTokObj)
+		{
+			//var OTvideo = OTvideo || {};
+			
+			OTvideo.apiKey = openTokObj.apiKey;
+			OTvideo.sessionId = openTokObj.sessionId;
+			OTvideo.token = openTokObj.token;
+			OTvideo.myDiv = '#msg_' + ChatGUI.openedRoom.fullName + ' .video';
+			
+			OTvideo.init();
+			
+			return true;
+		},
 		
 //		onRoomMsg : function(stanza)
 //		{
@@ -605,25 +621,25 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 //			return true;
 //		},
 		
-		onRoomQueryOccupants : function(stanza)
-		{
-			console.log('onRoomQueryOccupants');
-			console.log(stanza);
-			
-			var jItems = $(stanza).find('item');
-			
-			console.log(jItems);
-			console.log(jItems.length);
-			
-			var occupantJids = [];
-			
-			for (var i = 0; i < jItems.length; i++)
-			{
-				occupantJids.push(jItems.eq(i).attr('jid'));
-			}
-			
-			console.log(occupantJids);
-		},
+//		onRoomQueryOccupants : function(stanza)
+//		{
+//			console.log('onRoomQueryOccupants');
+//			console.log(stanza);
+//			
+//			var jItems = $(stanza).find('item');
+//			
+//			console.log(jItems);
+//			console.log(jItems.length);
+//			
+//			var occupantJids = [];
+//			
+//			for (var i = 0; i < jItems.length; i++)
+//			{
+//				occupantJids.push(jItems.eq(i).attr('jid'));
+//			}
+//			
+//			console.log(occupantJids);
+//		},
 		
 		onError : function(stanza)
 		{

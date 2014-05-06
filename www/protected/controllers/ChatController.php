@@ -32,43 +32,47 @@ class ChatController extends Controller
 	{
 		$this->render('index');
 	}
-
-    public function actionVideoCall() {
-
-        $apiObj = new OpenTokSDK();
-
-        $session = $apiObj->createSession(null, array(SessionPropertyConstants::P2P_PREFERENCE => "disabled"));
-
-        $token = $apiObj->generateToken($session->getSessionId(), RoleConstants::MODERATOR);
-        $script = "
-            var OTvideo = OTvideo || {};
-
-            OTvideo.apiKey = ".Yii::app()->params['opentok_api_key'].";
-            OTvideo.sessionId = '{$session->getSessionId()}';
-            OTvideo.token = '{$token}';
-            OTvideo.default_user_id = ".Yii::app()->user->id.";
-            OTvideo.username = '<div class=\"ot-username\" data-uid=\"".Yii::app()->user->id."\">".Yii::app()->user->firstName."</div>';
-            OTvideo.init();
-            OTvideo.checker();
-
-        ";
-
-        $responce = array(
-            'apiKey'=>Yii::app()->params['opentok_api_key'],
-            'sessionId'=>$session->getSessionId(),
-            'token'=>$token
-
-        );
-        echo json_encode($responce);
-        Yii::app()->end();
-    }
-
-    public function actionVideocallToken() {
-        $apiObj = new OpenTokSDK();
-
-        $token = $apiObj->generateToken($_POST['sessionId'], RoleConstants::PUBLISHER);
-
-        echo $token;
-        Yii::app()->end();
-    }
+	
+	public function actionVideoCall() {
+		
+		$apiObj = new OpenTokSDK();
+		
+		$session = $apiObj->createSession(null, array(SessionPropertyConstants::P2P_PREFERENCE => 'disabled'));
+		
+		$token = $apiObj->generateToken($session->getSessionId(), RoleConstants::MODERATOR);
+		
+		$script = "
+			var OTvideo = OTvideo || {};
+			
+			OTvideo.apiKey = ".Yii::app()->params['opentok_api_key'].";
+			OTvideo.sessionId = '{$session->getSessionId()}';
+			OTvideo.token = '{$token}';
+			OTvideo.default_user_id = ".Yii::app()->user->id.";
+			OTvideo.username = '<div class=\"ot-username\" data-uid=\"".Yii::app()->user->id."\">".Yii::app()->user->firstName."</div>';
+			OTvideo.init();
+			OTvideo.checker();
+		
+		";
+		
+		$response = array(
+			'apiKey' => Yii::app()->params['opentok_api_key'],
+			'sessionId' => $session->getSessionId(),
+			'token' => $token,
+		);
+		
+		echo json_encode($response);
+		
+		Yii::app()->end();
+	}
+	
+	public function actionGetVideoCallToken()
+	{
+		$apiObj = new OpenTokSDK();
+		
+		$token = $apiObj->generateToken($_POST['sessionId'], RoleConstants::PUBLISHER);
+		
+		echo $token;
+		
+		Yii::app()->end();
+	}
 }

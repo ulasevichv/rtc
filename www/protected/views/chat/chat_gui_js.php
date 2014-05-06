@@ -238,7 +238,7 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 						}
 					});
 				}
-				else if (ChatGUI.openedRoom.type == MessageType.GROUPCHAT)
+				else if (ChatGUI.openedRoom.type == MessageType.GROUP_CHAT)
 				{
 					ChatGUI.users.forEach(function(user, i)
 					{
@@ -434,7 +434,7 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 					Chat.currentUser.fullName,
 					msg);
 				
-				if (ChatGUI.openedRoom.type == MessageType.GROUPCHAT)
+				if (ChatGUI.openedRoom.type == MessageType.GROUP_CHAT)
 				{
 					newMessage.roomJid = ChatGUI.openedRoom.id;
 				}
@@ -448,35 +448,34 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 				Chat.sendMessage(recipientJid, newMessage);
 			}
 		},
+		
 		sendVideoCallMessage : function()
 		{
-            var recipientJid = ChatGUI.openedRoom.id;
-            var msg = 'Video Call invitation sent to ' + recipientJid;
-
-				msg = MethodsForStrings.escapeHtml(msg);
-				msg = msg.replace('\\n', '<br/>');
-
-				var newMessage = new InternalChatMessage(
-					'videoCall',
-					MethodsForDateTime.dateToString(new Date()),
-					Chat.currentUser.bareJid,
-					Chat.currentUser.fullName,
-					msg);
-
-				// ChatGUI.addChatMessages([newMessage]);
-
-				ChatGUI.addChatMessage(newMessage);
-
-                console.log('sendVideoCallMessage');
-				Chat.sendMessage(recipientJid, newMessage);
-
+			var recipientJid = ChatGUI.openedRoom.id;
+			var msg = 'Video Call invitation sent to ' + recipientJid;
+			
+			msg = MethodsForStrings.escapeHtml(msg);
+			msg = msg.replace('\\n', '<br/>');
+			
+			var newMessage = new InternalChatMessage(
+				MessageType.VIDEO_CALL,
+				MethodsForDateTime.dateToString(new Date()),
+				Chat.currentUser.bareJid,
+				Chat.currentUser.fullName,
+				msg);
+			
+			ChatGUI.addChatMessage(newMessage);
+			
+			console.log('sendVideoCallMessage');
+			
+			Chat.sendMessage(recipientJid, newMessage);
 		},
-
+		
 		addChatMessage : function(message)
 		{
 			var targetRoom = null;
 			
-			if (message.type == MessageType.CHAT || message.type == MessageType.VIDEOCALL )
+			if (message.type == MessageType.CHAT || message.type == MessageType.VIDEO_CALL)
 			{
 				if (message.senderJid == Chat.currentUser.bareJid)
 				{
@@ -506,7 +505,7 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 				
 				ChatGUI.refreshRooms();
 			}
-			else if (message.type == MessageType.GROUPCHAT)
+			else if (message.type == MessageType.GROUP_CHAT)
 			{
 				targetRoom = ChatGUI.getRoomById(message.roomJid);
 				
@@ -515,14 +514,18 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 				ChatGUI.refreshRooms();
 			}
 		},
+		
 		addVideoCallInvitationControls : function(senderJid)
 		{
-            targetRoom = ChatGUI.getRoomById(senderJid);
-            targetRoom.callinvite = true;
-            if (ChatGUI.openedRoom == targetRoom) {
-                $('#videoChatInviteButtons').show(400);
-            }
-            return true;
+			targetRoom = ChatGUI.getRoomById(senderJid);
+			targetRoom.callinvite = true;
+			
+			if (ChatGUI.openedRoom == targetRoom)
+			{
+				$('#videoChatInviteButtons').show(400);
+			}
+			
+			return true;
 		},
 	};
 	
@@ -573,10 +576,10 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 			}
 		}
 		if (ChatGUI.openedRoom.callinvite == true) {
-                $('#videoChatInviteButtons').show(400);
-        } else {
-            $('#videoChatInviteButtons').hide(0);
-        }
+				$('#videoChatInviteButtons').show(400);
+		} else {
+			$('#videoChatInviteButtons').hide(0);
+		}
 		ChatGUI.refreshRooms();
 	});
 	
@@ -618,25 +621,26 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 	{
 		ChatGUI.sendChatMessage();
 	});
-
-	$('#btnVideoCall').on('click', function(e)
+	
+	$('#btnStartVideoCall').on('click', function(e)
 	{
 		ChatGUI.sendVideoCallMessage();
 	});
-
-	$('#btnAccept').on('click', function(e)
+	
+	$('#btnAcceptVideoCall').on('click', function(e)
 	{
 		Chat.acceptVideoCall();
 		ChatGUI.openedRoom.callinvite = false;
 		$('#videoChatInviteButtons').hide(400);
 	});
-
-	$('#btnDecline').on('click', function(e)
+	
+	$('#btnDeclineVideoCall').on('click', function(e)
 	{
-			Chat.sendMessage(ChatGUI.openedRoom.id,'','VideoCallDeclined');
-			Chat.sendMessage(ChatGUI.openedRoom.id,'".Yii::t('general','Video/audio call declined')."','chat');
-			$('#videoChatInviteButtons').hide(400);
-		    return true;
+		Chat.sendMessage(ChatGUI.openedRoom.id, '', MessageType.VIDEO_CALL_DECLINED);
+		Chat.sendMessage(ChatGUI.openedRoom.id, '".Yii::t('general','Video/audio call declined')."', 'chat');
+		$('#videoChatInviteButtons').hide(400);
+		
+		return true;
 	});
 	
 	$('#inputMessage').keydown(function (e)
