@@ -600,7 +600,8 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 			OTvideo.apiKey = openTokObj.apiKey;
 			OTvideo.sessionId = openTokObj.sessionId;
 			OTvideo.token = openTokObj.token;
-			OTvideo.myDiv = '#msg_' + ChatGUI.openedRoom.fullName + ' .video';
+			var openedRoomNickName = ChatGUI.openedRoom.id.split('@');
+			OTvideo.myDiv = '#msg_' + openedRoomNickName[0] + ' .video';
 			
 			OTvideo.init();
 			
