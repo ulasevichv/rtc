@@ -24,7 +24,7 @@ Yii::app()->clientScript->registerScript(uniqid('chat_rooms_js'), "
 		    console.log('showRoomsList');
 		    feed.push('<div class=\"heading1\">".Yii::t('general','Group Chats')."</div>');
 		    $.each(rooms[0].childNodes, function( index, value ) {
-		         feed.push('<div class=\"GroupRoom\" roomId=\"' + value.getAttribute('jid') + '\">');
+		         feed.push('<div class=\"GroupRoom\" roomId=\"' + value.getAttribute('jid') + '\" roomName=\"' + value.getAttribute('name') + '\">');
 		         feed.push('<div class=\"icon\"></div>');
 		         feed.push(value.getAttribute('name'));
 		         feed.push('</div>');
@@ -34,6 +34,23 @@ Yii::app()->clientScript->registerScript(uniqid('chat_rooms_js'), "
 		showRoomsListError: function(err) {
 		    console.log('showRoomsListError');
 		    console.log(err);
+		},
+		joinRoom: function (roomId,userName) {
+//		    join: function(room, nick, msg_handler_cb, pres_handler_cb, roster_cb, password, history_attrs) {
+            Chat.conn.muc.join(roomId,Chat.conn.jid,userName,ChatRooms.onGroupMessage,ChatRooms.onRoomPresence,ChatRooms.onRoster);
+            return true;
+		},
+		onGroupMessage: function (msg) {
+
+		    return true;
+		},
+		onRoomPresence: function (presence) {
+		    console.log('onRoomPresence');
+		    return true;
+		},
+		onRoster: function (roster) {
+		    console.log('onRoster');
+		    return true;
 		}
 
 	}

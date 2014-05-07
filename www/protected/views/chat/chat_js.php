@@ -109,6 +109,7 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 			Chat.conn.sendIQ(iq, Chat.onRoster);
 			Chat.conn.addHandler(Chat.onRosterChange, 'jabber:iq:roster', 'iq', 'set');
 			Chat.conn.addHandler(Chat.onMessage, null, 'message', 'chat');
+			Chat.conn.addHandler(ChatRooms.onGroupMessage, null, 'message', 'groupchat');
 			Chat.conn.addHandler(Chat.onVideoCall, null, 'message', 'videoCall');
 			Chat.conn.addHandler(Chat.onVideoCallAccepted, null, 'message', 'VideoCallAccepted');
 			Chat.conn.addHandler(Chat.onVideoCallDeclined, null, 'message', 'VideoCallDeclined');

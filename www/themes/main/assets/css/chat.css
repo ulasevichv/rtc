@@ -295,4 +295,5 @@ body > div.container[role="main"] {
     background: #232a38;
     border-top: 1px solid #232a38;
     color: white;
+    cursor: pointer;
 }

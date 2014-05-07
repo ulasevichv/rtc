@@ -68,7 +68,6 @@ var Rooms = {
         return true;
     },
     on_public_message: function (message) {
-        console.log('rpubm');
         var from = $(message).attr('from');
         console.log(from);
         var room = Strophe.getBareJidFromJid(from);

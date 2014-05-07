@@ -29,5 +29,21 @@ Yii::app()->clientScript->registerScript(uniqid('chat_classes'), "
 		this.unread = unread;
 		this.messages = []; // InternalChatMessage
 	}
+
+		InternalChatRoom.prototype = new Object();
+
+	function ExternalChatRoom(id, name, hidden, unread)
+	{
+		hidden = (typeof(hidden) == 'undefined' ? false : hidden);
+		unread = (typeof(unread) == 'undefined' ? false : unread);
+
+		this.id = id;
+		this.callinvite = false;
+		this.groupchat = true;
+		this.name = name;
+		this.hidden = hidden;
+		this.unread = unread;
+		this.messages = []; // InternalChatMessage
+	}
 	
 ", CClientScript::POS_HEAD);
