@@ -1,5 +1,5 @@
 <?php
-Yii::app()->clientScript->registerScript(uniqid(), "
+Yii::app()->clientScript->registerScript(uniqid('chat_classes'), "
 	
 	var StanzaSourceType = {
 		DIRECT : 0,

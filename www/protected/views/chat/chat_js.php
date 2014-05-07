@@ -1,5 +1,5 @@
 <?php
-Yii::app()->clientScript->registerScript(uniqid(), "
+Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 	
 	var Chat = {
 		connection : null,
@@ -512,7 +512,7 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 						ChatGUI.openedRoom.id,
 						ChatGUI.openedRoom.fullName,
 						json);
-					
+					console.log(newMessage);
 					Chat.sendMessage(ChatGUI.openedRoom.id, newMessage);
 				}
 			});
