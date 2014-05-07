@@ -449,6 +449,16 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 			}
 			else if (type == MessageType.GROUP_CHAT)
 			{
+
+				if ($(stanza).attr('videocall')) {
+				    alert('groupcall');
+			        var opentokIniJsonObj = $.parseJSON(text);
+			        console.log(bareJid);
+			        Chat.currentUser.addOpentokIniObject(bareJid, opentokIniJsonObj);
+			        console.log(Chat.currentUser);
+
+			    }
+
 				var roomJid = bareJid;
 				
 				var room = ChatGUI.getRoomById(roomJid);
@@ -476,6 +486,19 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 				{
 					return true;
 				}
+				console.log('----------------------');
+				console.log(sender);
+				console.log(Chat.currentUser.bareJid);
+				console.log('----------------------');
+
+				if ($(stanza).attr('videocall') && sender != null && sender.bareJid != Chat.currentUser.bareJid ) {
+				    ChatGUI.addVideoCallInvitationControls(Chat.currentUser.bareJid);
+
+
+				    return true;
+				}
+
+
 				
 				if (room != null && sender != null)
 				{
@@ -496,6 +519,8 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 		
 		startVideoCall : function()
 		{
+
+
 			$.ajax({
 				type: 'POST',
 				url: '?r=chat/initializeVideoCall',
@@ -505,8 +530,16 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 					Chat.openTokInit($.parseJSON(json));
 					
 					ChatGUI.showVideoCallInvitationSentMessage();
-					
-					var newMessage = new InternalChatMessage(
+
+					if (ChatGUI.openedRoom.type == 'groupchat') {
+
+                        var xmppRoom = Chat.conn.muc.rooms[ChatGUI.openedRoom.id];
+
+                        Chat.conn.muc.VideoCallInviteMessage(xmppRoom.name, null,'',json,'groupchat');
+                        return true;
+
+                    } else {
+                    	var newMessage = new InternalChatMessage(
 						MessageType.VIDEO_CALL,
 						MethodsForDateTime.dateToString(new Date()),
 						ChatGUI.openedRoom.id,
@@ -514,6 +547,10 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 						json);
 					console.log(newMessage);
 					Chat.sendMessage(ChatGUI.openedRoom.id, newMessage);
+                    }
+                    return true;
+
+
 				}
 			});
 		},
@@ -524,34 +561,32 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 			var from = $(msg).attr('from');
 			var type = $(msg).attr('type');
 			var jBody = $(msg).find('body');
-			
+
 			console.log('onVideoCall: ' + from + ', ' + type);
-			
+
 			if (from != Chat.currentUser.fullJid)
 			{
 				var sender = ChatGUI.getUserByBareJid(Strophe.getBareJidFromJid(from));
-				
+
 				var text = 'Start video call with ' + sender.fullName + '?';
-				
+
 				var newMessage = new InternalChatMessage(
 					MessageType.VIDEO_CALL,
 					MethodsForDateTime.dateToString(new Date()),
 					sender.bareJid,
 					sender.fullName,
 					text);
-				
+
 				ChatGUI.addChatMessage(newMessage);
 				ChatGUI.addVideoCallInvitationControls(sender.bareJid);
-				
+
 				var opentokIniJsonObj = $.parseJSON(jBody.text());
-				
-//				console.log('AAAAAAAAAAAAAAAAAAAAAA');
-//				
+
 //				console.log(opentokIniJsonObj);
-				
+
 				Chat.currentUser.addOpentokIniObject(Strophe.getBareJidFromJid(from), opentokIniJsonObj);
 			}
-			
+
 			return true;
 		},
 		
