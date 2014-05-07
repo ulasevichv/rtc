@@ -24,15 +24,16 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 		
 		disconnect : function()
 		{
-			for (var roomName in Chat.conn.muc.rooms) {
-    			Chat.conn.muc.rooms[roomName].leave();
-			}
-			
 			Chat.conn.send(\$pres({
 				to : Chat.domain,
 				type : PresenceType.UNAVAILABLE
 				})
 			);
+			
+			for (var roomName in Chat.conn.muc.rooms) {
+				console.log('Disconnecting from room: ' + roomName);
+    			Chat.conn.muc.rooms[roomName].leave();
+			}
 			
 			Chat.conn.disconnect();
 			Chat.conn = null;
@@ -319,11 +320,11 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 					
 					if (to == Chat.currentUser.fullJid && presenceType == PresenceType.UNAVAILABLE)
 					{
-						Chat.conn.send(\$pres({
-							from : Chat.currentUser.fullJid,
-							to : roomJid + '/' + Chat.currentUser.nickname
-							}).c('x', {xmlns: Strophe.NS.MUC})
-						);
+//						Chat.conn.send(\$pres({
+//							from : Chat.currentUser.fullJid,
+//							to : roomJid + '/' + Chat.currentUser.nickname
+//							}).c('x', {xmlns: Strophe.NS.MUC})
+//						);
 						
 						return true;
 					}

@@ -727,6 +727,13 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 		}
 	});
 	
+	$(window).on('beforeunload', function()
+	{
+		console.log('beforeunload');
+		
+		Chat.disconnect();
+	});
+	
 	// Starting chat.
 	
 	ChatGUI.sendingDivSize = ChatGUI.getSendingDivSize();
