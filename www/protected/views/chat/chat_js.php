@@ -209,6 +209,7 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 			}
 			else if (message.type == MessageType.GROUP_CHAT)
 			{
+			    console.log(message);
 				var xmppRoom = Chat.conn.muc.rooms[message.roomJid];
 				
 				xmppRoom.groupchat(message.text);
@@ -415,6 +416,7 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 		
 		onMessage : function(stanza)
 		{
+		    console.log('onMessage');
 			var from = $(stanza).attr('from');
 			var to = $(stanza).attr('to');
 			var type = $(stanza).attr('type');
@@ -451,7 +453,7 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 			{
 
 				if ($(stanza).attr('videocall')) {
-				    alert('groupcall');
+				    console.log('--- groupcall request ---');
 			        var opentokIniJsonObj = $.parseJSON(text);
 			        console.log(bareJid);
 			        Chat.currentUser.addOpentokIniObject(bareJid, opentokIniJsonObj);
@@ -491,10 +493,19 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 				console.log(Chat.currentUser.bareJid);
 				console.log('----------------------');
 
-				if ($(stanza).attr('videocall') && sender != null && sender.bareJid != Chat.currentUser.bareJid ) {
+				if ($(stanza).attr('videocall')) {
 				    ChatGUI.addVideoCallInvitationControls(Chat.currentUser.bareJid);
 
-
+                    var msgText = 'Start a group call?';
+                     var newMessage = new InternalChatMessage(
+						MessageType.GROUP_CHAT,
+						MethodsForDateTime.dateToString(new Date()),
+						ChatGUI.openedRoom.id,
+						ChatGUI.openedRoom.fullName,
+						msgText,
+						ChatGUI.openedRoom.id);
+//					console.log(newMessage);
+					Chat.sendMessage(ChatGUI.openedRoom.id, newMessage);
 				    return true;
 				}
 

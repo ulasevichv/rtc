@@ -514,11 +514,10 @@ Yii::app()->clientScript->registerScript(uniqid('chat_gui'), "
 		addVideoCallInvitationControls : function(senderJid)
 		{
 
-		    $('#videoChatInviteButtons').show(400);
-
-		    return true;
 			targetRoom = ChatGUI.getRoomById(senderJid);
-
+            if (!targetRoom) {
+                targetRoom = ChatGUI.getRoomById(ChatGUI.openedRoom.id);
+            }
 			targetRoom.callinvite = true;
 			
 			if (ChatGUI.openedRoom == targetRoom)
