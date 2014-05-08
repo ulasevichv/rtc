@@ -236,12 +236,15 @@ Yii::app()->clientScript->registerScript(uniqid('chat_gui'), "
 			});
 			
 			$('#users').html(feed.join(''));
-
+			
+			ChatGUI.updateUsersVisibility();
 		},
 		
 		updateUsersVisibility : function()
 		{
 			var jSending = $('#sending');
+			
+			if (ChatGUI.openedRoom == null) return;
 			
 			if (ChatGUI.openedRoom == ChatGUI.getRoomById('dashboard'))
 			{
@@ -330,8 +333,6 @@ Yii::app()->clientScript->registerScript(uniqid('chat_gui'), "
 			ChatGUI.updateChatTitle();
 			
 			ChatGUI.updateUsersVisibility();
-
-
 			
 			// Updating messages.
 			

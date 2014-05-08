@@ -325,9 +325,9 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 					
 					console.log('onRoomPresence: ' + fullJid + ' (' + bareJid + ', ' + jidId + ') > ' + to + ' > ' + presenceType);
 					
-					// Fixing room presence.
+					// Fixing current user room presence.
 					
-					if (to == Chat.currentUser.fullJid && presenceType == PresenceType.UNAVAILABLE)
+					if (bareJid == Chat.currentUser.bareJid && to == Chat.currentUser.fullJid && presenceType == PresenceType.UNAVAILABLE)
 					{
 //						Chat.conn.send(\$pres({
 //							from : Chat.currentUser.fullJid,

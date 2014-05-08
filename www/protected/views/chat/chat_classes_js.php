@@ -19,7 +19,9 @@ Yii::app()->clientScript->registerScript(uniqid('chat_classes'), "
 		UNAVAILABLE : 'unavailable'
 	};
 	
+	//==================================================
 	// Chat user.
+	//==================================================
 	
 	InternalChatUser.prototype = new Object();
 	
@@ -66,7 +68,9 @@ Yii::app()->clientScript->registerScript(uniqid('chat_classes'), "
 		return null;
 	}
 	
+	//==================================================
 	// Chat message.
+	//==================================================
 	
 	InternalChatMessage.prototype = new Object();
 	
@@ -82,7 +86,9 @@ Yii::app()->clientScript->registerScript(uniqid('chat_classes'), "
 		this.roomJid = roomJid;
 	}
 	
+	//==================================================
 	// Chat room.
+	//==================================================
 	
 	InternalChatRoom.prototype = new Object();
 	
@@ -124,7 +130,9 @@ Yii::app()->clientScript->registerScript(uniqid('chat_classes'), "
 		return (this.onlineUserNicknames.indexOf(nickname) != -1);
 	}
 	
+	//==================================================
 	// Static chat room.
+	//==================================================
 	
 	InternalStaticChatRoom.prototype = new Object();
 	
