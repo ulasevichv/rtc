@@ -130,7 +130,7 @@ Yii::app()->clientScript->registerScript(uniqid('chat_gui'), "
 		    var videoToggleHeight = 0;
 		    var containerDiv = '';
 		    if (ChatGUI.openedRoom) {
-		        containerDiv = '#msg_'+ ChatGUI.openedRoom.fullName;
+		        containerDiv = '#msg_'+ Strophe.getNodeFromJid(ChatGUI.openedRoom.id);
 		    } else {
 		        containerDiv = '';
 		    }
@@ -151,7 +151,7 @@ Yii::app()->clientScript->registerScript(uniqid('chat_gui'), "
 		scrollBottomOnNewMessage : function () {
 		var containerDiv = '';
 		if (ChatGUI.openedRoom) {
-		        containerDiv = '#msg_'+ ChatGUI.openedRoom.fullName;
+		        containerDiv = '#msg_'+ Strophe.getNodeFromJid(ChatGUI.openedRoom.id);
 		    } else {
 		        containerDiv = '';
 		}
