@@ -98,6 +98,8 @@ Yii::app()->clientScript->registerScript(uniqid('chat_gui'), "
 		
 		onWindowResize : function(initialCall)
 		{
+
+
 			initialCall = (typeof(initialCall) != 'undefined' ? initialCall : false);
 			
 			var newChatSize = ChatGUI.getChatSize();
@@ -121,6 +123,20 @@ Yii::app()->clientScript->registerScript(uniqid('chat_gui'), "
 			
 			ChatGUI.chatSize = newChatSize;
 			ChatGUI.sendingDivSize = newSendingDivSize;
+			ChatGUI.resizeChatTextDiv();
+		},
+		resizeChatTextDiv : function () {
+		    var videoHeight = 0;
+		    var videoToggleHeight = 0;
+		    if ($('.video').is(':visible')) {
+                videoHeight = $('.video').outerHeight()
+		    }
+		    if ($('.video-toggle').is(':visible')) {
+                videoToggleHeight = $('.video-toggle').outerHeight()
+		    }
+
+		    $('.chat-text').css('height',($('.msgContainer').outerHeight() - videoToggleHeight - videoHeight) + 'px');
+		    return true
 		},
 		
 		addUser : function(user)
@@ -201,6 +217,7 @@ Yii::app()->clientScript->registerScript(uniqid('chat_gui'), "
 			});
 			
 			$('#users').html(feed.join(''));
+
 		},
 		
 		updateUsersVisibility : function()
@@ -294,6 +311,8 @@ Yii::app()->clientScript->registerScript(uniqid('chat_gui'), "
 			ChatGUI.updateChatTitle();
 			
 			ChatGUI.updateUsersVisibility();
+
+
 			
 			// Updating messages.
 			
@@ -315,8 +334,10 @@ Yii::app()->clientScript->registerScript(uniqid('chat_gui'), "
 				{
 					jMessages.append(
 						'<div id=\"' + openedRoomMsgContainerId + '\" class=\"msgContainer\">' +
-							'<div class=\"video\"></div>' +
-							'<div class=\"text\"></div>' +
+							'<div class=\"video\"  style=\"display: none;\"></div>' +
+							'<div class=\"video-toggle btn btn-primary\" style=\"display: none;\">Show/Hide video</div>' +
+							'<div style=\"clear: both\"></div>' +
+							'<div class=\"text chat-text\"></div>' +
 						'</div>'
 					);
 					
@@ -349,6 +370,8 @@ Yii::app()->clientScript->registerScript(uniqid('chat_gui'), "
 				}
 				
 				jMsgContainerDiv.find('.text').html(feed.join(''));
+
+				ChatGUI.resizeChatTextDiv();
 			}
 		},
 		
@@ -526,7 +549,7 @@ Yii::app()->clientScript->registerScript(uniqid('chat_gui'), "
 			}
 			
 			return true;
-		}
+		},
 	};
 	
 ", CClientScript::POS_HEAD);
@@ -640,6 +663,7 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 		
 		ChatGUI.openedRoom.callinvite = false;
 		$('#videoChatInviteButtons').hide(400);
+
 	});
 	
 	$('#btnDeclineVideoCall').on('click', function(e)
@@ -700,6 +724,15 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 		
 		ChatGUI.closeRoom(roomId);
 	});
+
+	$('#messages').on('click', '> .msgContainer .video-toggle', function(e)
+	{
+            $(this).parent().find('.video').slideToggle('fast','swing',function(){
+                ChatGUI.resizeChatTextDiv();
+            });
+//            ChatGUI.resizeChatTextDiv();
+            return true;
+	});
 	
 	$('#staticRooms').on('dblclick', '> .room', function(e)
 	{
@@ -725,6 +758,7 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 			ChatGUI.openedRoom = room;
 			ChatGUI.refreshRooms();
 		}
+		ChatGUI.resizeChatTextDiv();
 	});
 	
 	$(window).on('beforeunload', function()
