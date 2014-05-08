@@ -82,6 +82,8 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 		
 		onDisconnect : function()
 		{
+			if (Chat.disconnecting) return;
+			
 			alert('".Yii::t('general', 'Unable to connect to server. Please, reload the page')."');
 		},
 		
