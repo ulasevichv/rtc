@@ -525,7 +525,7 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 					ChatGUI.addChatMessage(newMessage);
 				}
 			}
-			
+			ChatGUI.scrollBottomOnNewMessage();
 			return true;
 		},
 		
@@ -605,8 +605,7 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 		acceptVideoCall : function ()
 		{
 			var opentokIniObject = Chat.currentUser.getOpentokIniObject(ChatGUI.openedRoom.id);
-			
-			console.log(opentokIniObject.obj);
+
 			
 			$.ajax({
 				type: 'POST',
@@ -615,10 +614,6 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 				success: function(token)
 				{
 					opentokIniObject.obj.token = token;
-					
-					console.log('CCCCCCCCCCCCCCCCCCCCCCCCCC');
-					console.log(token);
-					console.log(opentokIniObject.obj);
 					
 					Chat.openTokInit(opentokIniObject.obj);
 				}

@@ -128,15 +128,32 @@ Yii::app()->clientScript->registerScript(uniqid('chat_gui'), "
 		resizeChatTextDiv : function () {
 		    var videoHeight = 0;
 		    var videoToggleHeight = 0;
-		    if ($('.video').is(':visible')) {
-                videoHeight = $('.video').outerHeight()
-		    }
-		    if ($('.video-toggle').is(':visible')) {
-                videoToggleHeight = $('.video-toggle').outerHeight()
+		    var containerDiv = '';
+		    if (ChatGUI.openedRoom) {
+		        containerDiv = '#msg_'+ ChatGUI.openedRoom.fullName;
+		    } else {
+		        containerDiv = '';
 		    }
 
-		    $('.chat-text').css('height',($('.msgContainer').outerHeight() - videoToggleHeight - videoHeight) + 'px');
+		    if ($('.video').is(':visible')) {
+                videoHeight = $(containerDiv +' .video').outerHeight()
+		    }
+		    if ($('.video-toggle').is(':visible')) {
+                videoToggleHeight = $(containerDiv +' .video-toggle').outerHeight()
+		    }
+
+		    $('.chat-text').css('height',($(containerDiv+ '.msgContainer').outerHeight() - videoToggleHeight - videoHeight) + 'px');
 		    return true
+		},
+
+		scrollBottomOnNewMessage : function () {
+		var containerDiv = '';
+		if (ChatGUI.openedRoom) {
+		        containerDiv = '#msg_'+ ChatGUI.openedRoom.fullName;
+		    } else {
+		        containerDiv = '';
+		}
+		    $(containerDiv + ' .chat-text').animate({scrollTop: $(containerDiv + ' .chat-text').prop(\"scrollHeight\")}, 500);
 		},
 		
 		addUser : function(user)
@@ -467,6 +484,8 @@ Yii::app()->clientScript->registerScript(uniqid('chat_gui'), "
 				var recipientJid = ChatGUI.openedRoom.id;
 				
 				Chat.sendMessage(recipientJid, newMessage);
+
+				ChatGUI.scrollBottomOnNewMessage();
 			}
 		},
 		

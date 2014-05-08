@@ -332,3 +332,7 @@ body > div.container[role="main"] {
     border-top-left-radius: 0;
     border-top-right-radius: 0;
 }
+#myvideo, .other-video {
+    margin: 10px 40px 10px 10px;
+    border: 3px solid #285e8e;
+}

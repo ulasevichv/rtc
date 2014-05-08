@@ -9,6 +9,8 @@ OTvideo.subscribers = {};
 OTvideo.isInCall = false;
 OTvideo.myDiv = '';
 OTvideo.myDivVideo = '';
+OTvideo.smallwidth = 300;
+OTvideo.smallheight = 200;
 
 OTvideo.init = function() {
     OTvideo.session = TB.initSession(OTvideo.apiKey, OTvideo.sessionId);
@@ -18,7 +20,8 @@ OTvideo.init = function() {
 
     OTvideo.session.connect(OTvideo.token, function(error) {
         console.log('OTvideo.session.connect');
-        OTvideo.publisher = OT.initPublisher('myvideo');
+        var publisherProperties = {width: OTvideo.smallwidth, height:OTvideo.smallheight, name:Chat.currentUser.fullName};
+        OTvideo.publisher = OT.initPublisher('myvideo',publisherProperties);
         OTvideo.session.publish(OTvideo.publisher);
         return true;
     });
@@ -26,7 +29,7 @@ OTvideo.init = function() {
         console.log('OTvideo.session.streamCreated');
         var id = 'video-' + event.stream.connection.connectionId;
         $(OTvideo.myDivVideo).append('<div class=\"other-video\" style=\"float:left;\" id=\"' + id + '\"></div>');
-        OTvideo.session.subscribe(event.stream, id);
+        OTvideo.session.subscribe(event.stream, id, {style: {'nameDisplayMode': 'off'}, width: OTvideo.smallwidth, height: OTvideo.smallheight});
         return true;
     });
     OTvideo.session.on("sessionConnected", function(event) {
