@@ -141,7 +141,9 @@ Yii::app()->clientScript->registerScript(uniqid('chat_gui'), "
 		    if ($('.video-toggle').is(':visible')) {
                 videoToggleHeight = $(containerDiv +' .video-toggle').outerHeight()
 		    }
-
+            console.log(videoHeight);
+            console.log(videoToggleHeight);
+            console.log($(containerDiv+ '.msgContainer').outerHeight());
 		    $('.chat-text').css('height',($(containerDiv+ '.msgContainer').outerHeight() - videoToggleHeight - videoHeight) + 'px');
 		    return true
 		},

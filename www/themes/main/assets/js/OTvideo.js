@@ -41,11 +41,18 @@ OTvideo.init = function() {
     });
     OTvideo.session.on("sessionDisconnected", function(event) {
         OTvideo.isInCall = false;
+        $('#userPanel #btnStartVideoCall').show(0);
         $('#userPanel #btnEndCall').hide(0);
-        $('#userPanel #btnEndCall').hide(0);
+        $(OTvideo.myDiv + ' .video').hide(0);
         $(OTvideo.myDiv + ' .video-toggle').hide(0);
+        ChatGUI.resizeChatTextDiv();
+
     });
     OTvideo.session.on("connectionDestroyed", function(event) {
         OTvideo.session.disconnect();
+        $(OTvideo.myDiv + ' .video-toggle').hide(0);
+        $(OTvideo.myDiv + ' .video').hide(0);
+        ChatGUI.resizeChatTextDiv();
     });
+
 }
