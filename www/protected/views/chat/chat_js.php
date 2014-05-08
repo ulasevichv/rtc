@@ -12,6 +12,7 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 			'".Yii::app()->user->fullName."',
 			'".$xmppUser->serverUserPass."'
 		),
+		disconnecting : false,
 		
 		connect : function()
 		{
@@ -24,6 +25,8 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 		
 		disconnect : function()
 		{
+			Chat.disconnecting = true;
+			
 			Chat.conn.send(\$pres({
 				to : Chat.domain,
 				type : PresenceType.UNAVAILABLE
@@ -258,6 +261,8 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 		
 		onPresence : function(stanza)
 		{
+			if (Chat.disconnecting) return true;
+			
 			var from = $(stanza).attr('from');
 			var to = $(stanza).attr('to');
 			var fullJid = from;
@@ -296,7 +301,11 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 					{
 						if (user.fullJid != '' && user.fullJid != fullJid)
 						{
-							console.log('!!!!!!!!!!! ' + user.fullJid + ' | ' + fullJid);
+							if (presenceType == PresenceType.AVAILABLE)
+							{
+								ChatGUI.updateUser(bareJid, fullJid, true);
+							}
+							
 							return true;
 						}
 						

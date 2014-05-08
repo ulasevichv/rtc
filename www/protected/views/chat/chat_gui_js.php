@@ -755,7 +755,7 @@ Yii::app()->clientScript->registerScript(uniqid(), "
             return true;
 	});
 	
-	$('#staticRooms').on('dblclick', '> .room', function(e)
+	$('#staticRooms').on('click', '> .room', function(e)
 	{
 		var staticRoomName = $(this).attr('roomName');
 		

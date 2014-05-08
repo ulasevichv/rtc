@@ -8,7 +8,8 @@ Yii::app()->clientScript->registerScriptFile($baseUrl.'/assets/js/MethodsForDate
 Yii::app()->clientScript->registerScriptFile($baseUrl.'/assets/js/MethodsForStrings.js');
 
 Yii::app()->clientScript->registerScriptFile($baseUrl.'/assets/js/OTvideo.js');
-Yii::app()->clientScript->registerScriptFile('//static.opentok.com/webrtc/v2.2/js/opentok.min.js');
+//Yii::app()->clientScript->registerScriptFile('//static.opentok.com/webrtc/v2.2/js/opentok.min.js');
+Yii::app()->clientScript->registerScriptFile('//static.opentok.com/webrtc/v2.2/js/opentok.js');
 
 Yii::app()->clientScript->registerScriptFile($baseUrl.'/assets/js/strophe.js');
 Yii::app()->clientScript->registerScriptFile($baseUrl.'/assets/js/strophe.muc.js');
@@ -37,7 +38,6 @@ if (!isset($xmppUser))
 	Yii::app()->user->setFlash('error', Yii::t('general', 'XMPP user is not found. Chatting is not possible.'));
 	return;
 }
-
 
 $this->renderPartial('chat_classes_js', array(
 ), false, true);
