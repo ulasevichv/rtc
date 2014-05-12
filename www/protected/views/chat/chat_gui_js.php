@@ -432,11 +432,29 @@ Yii::app()->clientScript->registerScript(uniqid('chat_gui'), "
 			}
 		},
 		
-		closeRoom : function(roomId)
+		closeRoom : function(roomJid)
 		{
-			var room = ChatGUI.getRoomById(roomId);
+			var room = ChatGUI.getRoomById(roomJid);
 			
-			room.hidden = true;
+			if (room.type == MessageType.CHAT)
+			{
+				room.hidden = true;
+			}
+			else if (room.type == MessageType.GROUP_CHAT)
+			{
+				Chat.disconnectFromRoom(roomJid);
+				
+				for (var i = 0; i < ChatGUI.rooms.length; i++)
+				{
+					var chatRoom = ChatGUI.rooms[i];
+					
+					if (chatRoom.id == room.id)
+					{
+						ChatGUI.rooms.splice(i, 1);
+						break;
+					}
+				}
+			}
 			
 			ChatGUI.openedRoom = ChatGUI.getRoomById('dashboard');
 			
@@ -772,10 +790,10 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 		{
 			if (ChatGUI.openedRoom == room) return;
 			
-			if (room.hidden)
-			{
-				ChatGUI.revealRoom(room);
-			}
+//			if (room.hidden) // OLD code
+//			{
+//				ChatGUI.revealRoom(room);
+//			}
 			
 			ChatGUI.openedRoom = room;
 			ChatGUI.refreshRooms();

@@ -98,7 +98,7 @@ Yii::app()->clientScript->registerScript(uniqid('chat_classes'), "
 		unread = (typeof(unread) == 'undefined' ? false : unread);
 		
 		this.id = id;
-		this.type = type;
+		this.type = type; // MessageType
 		this.callinvite = false;
 		this.fullName = fullName;
 		this.hidden = hidden;

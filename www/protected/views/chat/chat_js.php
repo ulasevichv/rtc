@@ -33,13 +33,28 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 				})
 			);
 			
-			for (var roomName in Chat.conn.muc.rooms) {
+			for (var roomName in Chat.conn.muc.rooms)
+			{
 				console.log('Disconnecting from room: ' + roomName);
     			Chat.conn.muc.rooms[roomName].leave();
 			}
 			
 			Chat.conn.disconnect();
 			Chat.conn = null;
+		},
+		
+		disconnectFromRoom : function(roomJid)
+		{
+			var room = ChatGUI.getRoomById(roomJid);
+			
+			for (var roomName in Chat.conn.muc.rooms)
+			{
+				if (roomName == roomJid)
+				{
+					Chat.conn.muc.rooms[roomName].leave();
+					break;
+				}
+			}
 		},
 		
 		onConnectionStatusChange : function(status)
