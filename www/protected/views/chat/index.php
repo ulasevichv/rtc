@@ -77,9 +77,11 @@ $this->renderPartial('chat_gui_js', array(
 			<div id="messages"></div>
 			<div id="sending" style="visibility:hidden;">
                 <div id="userPanel">
-                    <?php echo CHtml::htmlButton(Yii::t('general', 'Video Call'), array('id' => 'btnStartVideoCall', 'class' => 'btn btn-primary')); ?>
-                    <?php echo CHtml::htmlButton(Yii::t('general', 'End Call'), array('id' => 'btnEndCall', 'class' => 'btn btn-primary', 'onclick' => 'OTvideo.session.disconnect();',
-						'style' => 'display:none;')); ?>
+                    <a id="btnStartVideoCall" class="btn btn-primary" href="javascript:void(0)"><span class="glyphicon glyphicon-earphone"></span> <?php echo Yii::t('general', 'Video Call') ?></a>
+                    <a id="btnEndCall" style="display: none" onclick="OTvideo.session.disconnect();" class="btn btn-primary" href="javascript:void(0)"> <span class="glyphicon glyphicon-remove"></span> <?php echo Yii::t('general', 'End Call') ?></a>
+                    <?php //echo CHtml::htmlButton(Yii::t('general', 'Video Call'), array('id' => 'btnStartVideoCall', 'class' => 'btn btn-primary')); ?>
+                    <?php //echo CHtml::htmlButton(Yii::t('general', 'End Call'), array('id' => 'btnEndCall', 'class' => 'btn btn-primary', 'onclick' => 'OTvideo.session.disconnect();',
+//						'style' => 'display:none;')); ?>
                 </div>
 				<div class="controls">
 					<?php echo CHtml::textArea(null, '', array('id' => 'inputMessage')); ?>

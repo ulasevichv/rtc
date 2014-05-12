@@ -336,3 +336,6 @@ body > div.container[role="main"] {
     margin: 10px 40px 10px 10px;
     border: 3px solid #285e8e;
 }
+#userPanel {
+    padding: 3px 0 5px 0;
+}
