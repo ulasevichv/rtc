@@ -203,7 +203,9 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 		sendMessage : function(recipientJid, message)
 		{
 			console.log('sendMessage(' + recipientJid + ', ' + message.text +')');
-			
+
+            $.ionSound.play('button_push'); // Play sound
+
 			if (message.type == MessageType.CHAT)
 			{
 				Chat.conn.send(\$msg({
@@ -442,7 +444,7 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 			if (jBody.length == 0) return true;
 			
 			var text = jBody.text();
-			
+			$.ionSound.play('sound_message');
 			if (type == MessageType.CHAT)
 			{
 				console.log('onDirectMessage: ' + from + ' > ' + to + ' > ' + text);

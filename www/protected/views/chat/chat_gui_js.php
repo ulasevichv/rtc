@@ -799,5 +799,15 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 	ChatGUI.blockControls();
 	
 	Chat.connect();
+
+	//Sound Init
+	$.ionSound({
+	path : '".Yii::app()->theme->baseUrl."/assets/sounds/',
+    sounds: [
+        'sound_message',
+        'button_push',
+    ]
+});
+
 	
 ", CClientScript::POS_READY);

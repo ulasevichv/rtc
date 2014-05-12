@@ -13,6 +13,7 @@ Yii::app()->clientScript->registerScriptFile('//static.opentok.com/webrtc/v2.2/j
 
 Yii::app()->clientScript->registerScriptFile($baseUrl.'/assets/js/strophe.js');
 Yii::app()->clientScript->registerScriptFile($baseUrl.'/assets/js/strophe.muc.js');
+Yii::app()->clientScript->registerScriptFile($baseUrl.'/assets/js/ion.sound.min.js');
 //Yii::app()->clientScript->registerScriptFile($baseUrl.'/assets/js/strophe.chatstates.js');
 //Yii::app()->clientScript->registerScriptFile($baseUrl.'/assets/js/strophe.roster.js');
 //Yii::app()->clientScript->registerScriptFile($baseUrl.'/assets/js/roster.js');
