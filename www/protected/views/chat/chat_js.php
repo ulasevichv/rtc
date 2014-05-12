@@ -2,7 +2,7 @@
 Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 	
 	var Chat = {
-		connection : null,
+		conn : null,
 		domain : '".$xmppAddress."',
 		boshAddress : '".$boshAddress."',
 		currentUser : new InternalChatUser(
