@@ -534,7 +534,7 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 						msgText,
 						ChatGUI.openedRoom.id);
 //					console.log(newMessage);
-					Chat.sendMessage(ChatGUI.openedRoom.id, newMessage);
+//					Chat.sendMessage(ChatGUI.openedRoom.id, newMessage);
 				    return true;
 				}
 
