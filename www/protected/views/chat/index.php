@@ -11,9 +11,10 @@ Yii::app()->clientScript->registerScriptFile($baseUrl.'/assets/js/OTvideo.js');
 //Yii::app()->clientScript->registerScriptFile('//static.opentok.com/webrtc/v2.2/js/opentok.min.js');
 Yii::app()->clientScript->registerScriptFile('//static.opentok.com/webrtc/v2.2/js/opentok.js');
 
+Yii::app()->clientScript->registerScriptFile($baseUrl.'/assets/js/ion.sound.min.js');
+
 Yii::app()->clientScript->registerScriptFile($baseUrl.'/assets/js/strophe.js');
 Yii::app()->clientScript->registerScriptFile($baseUrl.'/assets/js/strophe.muc.js');
-Yii::app()->clientScript->registerScriptFile($baseUrl.'/assets/js/ion.sound.min.js');
 //Yii::app()->clientScript->registerScriptFile($baseUrl.'/assets/js/strophe.chatstates.js');
 //Yii::app()->clientScript->registerScriptFile($baseUrl.'/assets/js/strophe.roster.js');
 //Yii::app()->clientScript->registerScriptFile($baseUrl.'/assets/js/roster.js');
@@ -67,22 +68,24 @@ $this->renderPartial('chat_gui_js', array(
 		<div id="users">
 		</div>
 		<div id="chat">
-            <div id="videoChat" style="display:none;">
-            </div>
-            <div id="videoChatInviteButtons" style="display:none;">
-                <p><?php echo Yii::t('general', 'User wants to use a video/audio communication.'); ?></p>
-                <?php echo CHtml::htmlButton(Yii::t('general', 'Accept'), array('id' => 'btnAcceptVideoCall', 'class' => 'btn btn-primary')); ?>
-                <?php echo CHtml::htmlButton(Yii::t('general', 'Decline'), array('id' => 'btnDeclineVideoCall', 'class' => 'btn btn-primary')); ?>
-            </div>
+			<div id="videoChat" style="display:none;">
+			</div>
+			<div id="videoChatInviteButtons" style="display:none;">
+				<p><?php echo Yii::t('general', 'User wants to use a video/audio communication.'); ?></p>
+				<?php echo CHtml::htmlButton(Yii::t('general', 'Accept'), array('id' => 'btnAcceptVideoCall', 'class' => 'btn btn-primary')); ?>
+				<?php echo CHtml::htmlButton(Yii::t('general', 'Decline'), array('id' => 'btnDeclineVideoCall', 'class' => 'btn btn-primary')); ?>
+			</div>
 			<div id="messages"></div>
 			<div id="sending" style="visibility:hidden;">
-                <div id="userPanel">
-                    <a id="btnStartVideoCall" class="btn btn-primary" href="javascript:void(0)"><span class="glyphicon glyphicon-earphone"></span> <?php echo Yii::t('general', 'Video Call') ?></a>
-                    <a id="btnEndCall" style="display: none" onclick="OTvideo.session.disconnect();" class="btn btn-primary" href="javascript:void(0)"> <span class="glyphicon glyphicon-remove"></span> <?php echo Yii::t('general', 'End Call') ?></a>
-                    <?php //echo CHtml::htmlButton(Yii::t('general', 'Video Call'), array('id' => 'btnStartVideoCall', 'class' => 'btn btn-primary')); ?>
-                    <?php //echo CHtml::htmlButton(Yii::t('general', 'End Call'), array('id' => 'btnEndCall', 'class' => 'btn btn-primary', 'onclick' => 'OTvideo.session.disconnect();',
+				<div id="userPanel">
+					<a id="btnStartVideoCall" class="btn btn-primary" href="javascript:void(0)"><span class="glyphicon glyphicon-earphone"></span> <?php echo Yii::t('general', 'Video Call') ?></a>
+					<a id="btnEndCall" style="display: none" onclick="OTvideo.session.disconnect();" class="btn btn-primary" href="javascript:void(0)"> <span class="glyphicon glyphicon-remove">
+						</span> <?php echo Yii::t('general', 'End Call') ?>
+					</a>
+					<?php //echo CHtml::htmlButton(Yii::t('general', 'Video Call'), array('id' => 'btnStartVideoCall', 'class' => 'btn btn-primary')); ?>
+					<?php //echo CHtml::htmlButton(Yii::t('general', 'End Call'), array('id' => 'btnEndCall', 'class' => 'btn btn-primary', 'onclick' => 'OTvideo.session.disconnect();',
 //						'style' => 'display:none;')); ?>
-                </div>
+				</div>
 				<div class="controls">
 					<?php echo CHtml::textArea(null, '', array('id' => 'inputMessage')); ?>
 					<?php echo CHtml::htmlButton(Yii::t('general', 'Send'), array('id' => 'btnSend', 'class' => 'btn btn-primary')); ?>

@@ -42,6 +42,20 @@ var MethodsForDateTime =
 		return str + strValue;
 	},
 	
+	// Expected format is: 2001-01-01 00:00:00
+	//
+	stringToDate : function(str)
+	{
+		var year = parseInt(str.substring(0, 4));
+		var month = parseInt(str.substring(5, 7));
+		var day = parseInt(str.substring(8, 10));
+		var hour = parseInt(str.substring(11, 13));
+		var minute = parseInt(str.substring(14, 16));
+		var second = parseInt(str.substring(17, 19));
+		
+		return new Date(year, month - 1, day, hour, minute, second);
+	},
+	
 	xmppStampToDateString : function(stamp)
 	{
 		var result = stamp;

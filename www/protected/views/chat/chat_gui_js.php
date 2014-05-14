@@ -147,15 +147,21 @@ Yii::app()->clientScript->registerScript(uniqid('chat_gui'), "
 		    $('.chat-text').css('height',($(containerDiv+ '.msgContainer').outerHeight() - videoToggleHeight - videoHeight) + 'px');
 		    return true
 		},
-
-		scrollBottomOnNewMessage : function () {
-		var containerDiv = '';
-		if (ChatGUI.openedRoom) {
-		        containerDiv = '#msg_'+ Strophe.getNodeFromJid(ChatGUI.openedRoom.id);
-		    } else {
-		        containerDiv = '';
-		}
-		    $(containerDiv + ' .chat-text').animate({scrollTop: $(containerDiv + ' .chat-text').prop(\"scrollHeight\")}, 500);
+		
+		scrollBottomOnNewMessage : function ()
+		{
+			var containerDiv = '';
+			
+			if (ChatGUI.openedRoom)
+			{
+				containerDiv = '#msg_'+ Strophe.getNodeFromJid(ChatGUI.openedRoom.id);
+			}
+			else
+			{
+				containerDiv = '';
+			}
+			
+			$(containerDiv + ' .chat-text').animate({scrollTop: $(containerDiv + ' .chat-text').prop(\"scrollHeight\")}, 500);
 		},
 		
 		addUser : function(user)
@@ -505,7 +511,7 @@ Yii::app()->clientScript->registerScript(uniqid('chat_gui'), "
 				var recipientJid = ChatGUI.openedRoom.id;
 				
 				Chat.sendMessage(recipientJid, newMessage);
-
+				
 				ChatGUI.scrollBottomOnNewMessage();
 			}
 		},
@@ -546,6 +552,8 @@ Yii::app()->clientScript->registerScript(uniqid('chat_gui'), "
 				{
 					targetRoom = ChatGUI.getRoomById(message.senderJid);
 					
+					$.ionSound.play('sound_message');
+					
 					if (targetRoom != ChatGUI.openedRoom)
 					{
 						if (targetRoom == null)
@@ -569,6 +577,18 @@ Yii::app()->clientScript->registerScript(uniqid('chat_gui'), "
 				targetRoom = ChatGUI.getRoomById(message.roomJid);
 				
 				targetRoom.messages.push(message);
+				
+				var messageDateTime = MethodsForDateTime.stringToDate(message.time);
+				
+				if (messageDateTime > Chat.loginDateTime)
+				{
+					$.ionSound.play('sound_message');
+				}
+				
+				if (targetRoom != ChatGUI.openedRoom)
+				{
+					targetRoom.unread = true;
+				}
 			}
 			
 			ChatGUI.refreshRooms();
@@ -651,7 +671,7 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 		ChatGUI.refreshRooms();
 	});
 	
-	$('#users').on('dblclick', '> .user', function(e)
+	$('#users').on('click', '> .user', function(e)
 	{
 		var userBareJid = $(this).attr('bareJid');
 		

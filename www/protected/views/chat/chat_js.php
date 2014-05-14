@@ -13,6 +13,7 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 			'".$xmppUser->serverUserPass."'
 		),
 		disconnecting : false,
+		loginDateTime : new Date(),
 		
 		connect : function()
 		{
@@ -218,9 +219,9 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 		sendMessage : function(recipientJid, message)
 		{
 			console.log('sendMessage(' + recipientJid + ', ' + message.text +')');
-
-            $.ionSound.play('button_push'); // Play sound
-
+			
+			$.ionSound.play('button_push');
+			
 			if (message.type == MessageType.CHAT)
 			{
 				Chat.conn.send(\$msg({
@@ -236,13 +237,15 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 				var xmppRoom = Chat.conn.muc.rooms[message.roomJid];
 				
 				xmppRoom.groupchat(message.text);
-			} else {
-                Chat.conn.send(\$msg({
-                        to : recipientJid,
-                        type : message.type,
-                        }).c('body').t(message.text).up()
-                        .c('active', {xmlns: 'http://jabber.org/protocol/chatstates'})
-                    );
+			}
+			else
+			{
+				Chat.conn.send(\$msg({
+						to : recipientJid,
+						type : message.type,
+						}).c('body').t(message.text).up()
+						.c('active', {xmlns: 'http://jabber.org/protocol/chatstates'})
+					);
 			}
 		},
 		
@@ -459,7 +462,7 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 			if (jBody.length == 0) return true;
 			
 			var text = jBody.text();
-			$.ionSound.play('sound_message');
+			
 			if (type == MessageType.CHAT)
 			{
 				console.log('onDirectMessage: ' + from + ' > ' + to + ' > ' + text);
@@ -475,21 +478,22 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 						user.fullName,
 						text);
 					
+//					$.ionSound.play('sound_message');
+					
 					ChatGUI.addChatMessage(newMessage);
 				}
 			}
 			else if (type == MessageType.GROUP_CHAT)
 			{
-
-				if ($(stanza).attr('videocall')) {
-				    console.log('--- groupcall request ---');
-			        var opentokIniJsonObj = $.parseJSON(text);
-			        console.log(bareJid);
-			        Chat.currentUser.addOpentokIniObject(bareJid, opentokIniJsonObj);
-			        console.log(Chat.currentUser);
-
-			    }
-
+//				if ($(stanza).attr('videocall'))
+//				{
+//					console.log('--- groupcall request ---');
+//					var opentokIniJsonObj = $.parseJSON(text);
+//					console.log(bareJid);
+//					Chat.currentUser.addOpentokIniObject(bareJid, opentokIniJsonObj);
+//					console.log(Chat.currentUser);
+//				}
+				
 				var roomJid = bareJid;
 				
 				var room = ChatGUI.getRoomById(roomJid);
@@ -517,31 +521,45 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 				{
 					return true;
 				}
+				
 				console.log('----------------------');
 				console.log(sender);
 				console.log(Chat.currentUser.bareJid);
 				console.log('----------------------');
-
-				if ($(stanza).attr('videocall')) {
-				    ChatGUI.addVideoCallInvitationControls(Chat.currentUser.bareJid);
-
-                    var msgText = 'Start a group call?';
-                     var newMessage = new InternalChatMessage(
-						MessageType.GROUP_CHAT,
-						MethodsForDateTime.dateToString(new Date()),
-						ChatGUI.openedRoom.id,
-						ChatGUI.openedRoom.fullName,
-						msgText,
-						ChatGUI.openedRoom.id);
+				
+				if ($(stanza).attr('videocall'))
+				{
+					console.log('--- groupcall request ---');
+					var opentokIniJsonObj = $.parseJSON(text);
+					console.log(bareJid);
+					Chat.currentUser.addOpentokIniObject(bareJid, opentokIniJsonObj);
+					console.log(Chat.currentUser);
+					
+//					$.ionSound.play('sound_message');
+					
+					ChatGUI.addVideoCallInvitationControls(Chat.currentUser.bareJid);
+					
+//					var msgText = 'Start a group call?';
+//					
+//					var newMessage = new InternalChatMessage(
+//						MessageType.GROUP_CHAT,
+//						MethodsForDateTime.dateToString(new Date()),
+//						ChatGUI.openedRoom.id,
+//						ChatGUI.openedRoom.fullName,
+//						msgText,
+//						ChatGUI.openedRoom.id);
+//					
 //					console.log(newMessage);
+//					
 //					Chat.sendMessage(ChatGUI.openedRoom.id, newMessage);
-				    return true;
+//					
+					return true;
 				}
-
-
 				
 				if (room != null && sender != null)
 				{
+//					$.ionSound.play('sound_message');
+					
 					var newMessage = new InternalChatMessage(
 						MessageType.GROUP_CHAT,
 						sendDateString,
@@ -553,14 +571,14 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 					ChatGUI.addChatMessage(newMessage);
 				}
 			}
+			
 			ChatGUI.scrollBottomOnNewMessage();
+			
 			return true;
 		},
 		
 		startVideoCall : function()
 		{
-
-
 			$.ajax({
 				type: 'POST',
 				url: '?r=chat/initializeVideoCall',
@@ -570,27 +588,28 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 					Chat.openTokInit($.parseJSON(json));
 					
 					ChatGUI.showVideoCallInvitationSentMessage();
-
-					if (ChatGUI.openedRoom.type == 'groupchat') {
-
-                        var xmppRoom = Chat.conn.muc.rooms[ChatGUI.openedRoom.id];
-
-                        Chat.conn.muc.VideoCallInviteMessage(xmppRoom.name, null,'',json,'groupchat');
-                        return true;
-
-                    } else {
-                    	var newMessage = new InternalChatMessage(
-						MessageType.VIDEO_CALL,
-						MethodsForDateTime.dateToString(new Date()),
-						ChatGUI.openedRoom.id,
-						ChatGUI.openedRoom.fullName,
-						json);
-					console.log(newMessage);
-					Chat.sendMessage(ChatGUI.openedRoom.id, newMessage);
-                    }
-                    return true;
-
-
+					
+					if (ChatGUI.openedRoom.type == 'groupchat')
+					{
+						var xmppRoom = Chat.conn.muc.rooms[ChatGUI.openedRoom.id];
+						
+						Chat.conn.muc.VideoCallInviteMessage(xmppRoom.name, null,'',json,'groupchat');
+						
+						return true;
+					}
+					else
+					{
+						var newMessage = new InternalChatMessage(
+							MessageType.VIDEO_CALL,
+							MethodsForDateTime.dateToString(new Date()),
+							ChatGUI.openedRoom.id,
+							ChatGUI.openedRoom.fullName,
+							json);
+						console.log(newMessage);
+						Chat.sendMessage(ChatGUI.openedRoom.id, newMessage);
+					}
+					
+					return true;
 				}
 			});
 		},
