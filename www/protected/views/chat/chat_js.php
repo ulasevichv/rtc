@@ -572,7 +572,7 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 				}
 			}
 			
-			ChatGUI.scrollBottomOnNewMessage();
+			ChatGUI.scrollOpenedMessagesToBottom();
 			
 			return true;
 		},

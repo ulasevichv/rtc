@@ -125,7 +125,9 @@ Yii::app()->clientScript->registerScript(uniqid('chat_gui'), "
 			ChatGUI.sendingDivSize = newSendingDivSize;
 			ChatGUI.resizeChatTextDiv();
 		},
-		resizeChatTextDiv : function () {
+		
+		resizeChatTextDiv : function ()
+		{
 		    var videoHeight = 0;
 		    var videoToggleHeight = 0;
 		    var containerDiv = '';
@@ -148,20 +150,38 @@ Yii::app()->clientScript->registerScript(uniqid('chat_gui'), "
 		    return true
 		},
 		
-		scrollBottomOnNewMessage : function ()
+//		scrollOpenedMessagesToBottom : function ()
+//		{
+//			var containerDiv = '';
+//			
+//			if (ChatGUI.openedRoom != null)
+//			{
+//				containerDiv = '#msg_'+ Strophe.getNodeFromJid(ChatGUI.openedRoom.id);
+//			}
+//			else
+//			{
+//				containerDiv = '';
+//			}
+//			
+//			$(containerDiv + ' .chat-text').animate({scrollTop: $(containerDiv + ' .chat-text').prop(\"scrollHeight\")}, 500);
+//		},
+		
+		scrollOpenedMessagesToBottom : function ()
 		{
-			var containerDiv = '';
-			
-			if (ChatGUI.openedRoom)
+			if (ChatGUI.openedRoom != null)
 			{
-				containerDiv = '#msg_'+ Strophe.getNodeFromJid(ChatGUI.openedRoom.id);
+				var roomNameForId = Strophe.getNodeFromJid(ChatGUI.openedRoom.id);
+				
+				if (roomNameForId == null) return;
+				
+				var containerDivId = '#msg_' + roomNameForId;
+				
+				var jTextDiv = $(containerDivId + ' .chat-text');
+				
+				if (jTextDiv.length == 0) return;
+				
+				jTextDiv.animate({scrollTop: jTextDiv.prop(\"scrollHeight\")}, 500);
 			}
-			else
-			{
-				containerDiv = '';
-			}
-			
-			$(containerDiv + ' .chat-text').animate({scrollTop: $(containerDiv + ' .chat-text').prop(\"scrollHeight\")}, 500);
 		},
 		
 		addUser : function(user)
@@ -312,7 +332,13 @@ Yii::app()->clientScript->registerScript(uniqid('chat_gui'), "
 				
 				if (room.hidden) continue;
 				
-				if (room.unread && room == ChatGUI.openedRoom) room.unread = false;
+				var openedRoomWasUnread = false;
+				
+				if (room.unread && room == ChatGUI.openedRoom)
+				{
+					room.unread = false;
+					openedRoomWasUnread = true;
+				}
 				
 				var openedAttr = (room == ChatGUI.openedRoom ? ' opened' : '');
 				var unreadAttr = (room.unread ? ' unread' : '');
@@ -396,8 +422,13 @@ Yii::app()->clientScript->registerScript(uniqid('chat_gui'), "
 				}
 				
 				jMsgContainerDiv.find('.text').html(feed.join(''));
-
+				
 				ChatGUI.resizeChatTextDiv();
+			}
+			
+			if (openedRoomWasUnread)
+			{
+				ChatGUI.scrollOpenedMessagesToBottom();
 			}
 		},
 		
@@ -512,7 +543,7 @@ Yii::app()->clientScript->registerScript(uniqid('chat_gui'), "
 				
 				Chat.sendMessage(recipientJid, newMessage);
 				
-				ChatGUI.scrollBottomOnNewMessage();
+				ChatGUI.scrollOpenedMessagesToBottom();
 			}
 		},
 		
@@ -580,14 +611,14 @@ Yii::app()->clientScript->registerScript(uniqid('chat_gui'), "
 				
 				var messageDateTime = MethodsForDateTime.stringToDate(message.time);
 				
-				if (messageDateTime > Chat.loginDateTime)
+				if (messageDateTime > Chat.loginDateTime && message.senderJid != Chat.currentUser.bareJid)
 				{
 					$.ionSound.play('sound_message');
-				}
-				
-				if (targetRoom != ChatGUI.openedRoom)
-				{
-					targetRoom.unread = true;
+					
+					if (targetRoom != ChatGUI.openedRoom)
+					{
+						targetRoom.unread = true;
+					}
 				}
 			}
 			
@@ -596,11 +627,13 @@ Yii::app()->clientScript->registerScript(uniqid('chat_gui'), "
 		
 		addVideoCallInvitationControls : function(senderJid)
 		{
-
 			targetRoom = ChatGUI.getRoomById(senderJid);
-            if (!targetRoom) {
-                targetRoom = ChatGUI.getRoomById(ChatGUI.openedRoom.id);
-            }
+			
+			if (!targetRoom)
+			{
+				targetRoom = ChatGUI.getRoomById(ChatGUI.openedRoom.id);
+			}
+			
 			targetRoom.callinvite = true;
 			
 			if (ChatGUI.openedRoom == targetRoom)
