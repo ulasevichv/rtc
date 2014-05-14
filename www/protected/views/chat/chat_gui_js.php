@@ -12,6 +12,9 @@ Yii::app()->clientScript->registerScript(uniqid('chat_gui'), "
 		chatSize : null,
 		sendingDivSize : null,
 		roomOnlineStatusesPull : [],
+		initialPageTitle : '',
+		pageTitleTimerId : -1,
+		pageTitleAnimationStep : 0,
 		
 		getUserByBareJid : function(bareJid)
 		{
@@ -430,6 +433,62 @@ Yii::app()->clientScript->registerScript(uniqid('chat_gui'), "
 			{
 				ChatGUI.scrollOpenedMessagesToBottom();
 			}
+			
+			// Updating page title.
+			
+			var thereAreUnreadMessages = false;
+			
+			for (var i = 0; i < ChatGUI.rooms.length; i++)
+			{
+				var room = ChatGUI.rooms[i];
+				
+				if (room.unread)
+				{
+					thereAreUnreadMessages = true;
+					break;
+				}
+			}
+			
+			if (thereAreUnreadMessages)
+			{
+				ChatGUI.startPageTitleAnimation();
+			}
+			else
+			{
+				ChatGUI.stopPageTitleAnimation();
+			}
+		},
+		
+		startPageTitleAnimation : function()
+		{
+			ChatGUI.pageTitleTimerId = setInterval(function() { ChatGUI.performPageTitleAnimationStep(); }, 500);
+		},
+		
+		stopPageTitleAnimation : function()
+		{
+			clearInterval(ChatGUI.pageTitleTimerId);
+			
+			ChatGUI.pageTitleAnimationStep = 0;
+			
+			$(document).attr('title', ChatGUI.initialPageTitle);
+		},
+		
+		performPageTitleAnimationStep : function()
+		{
+			var title = '".Yii::t('general', 'New message')."';
+			
+			switch (ChatGUI.pageTitleAnimationStep)
+			{
+				case 0: title = title; break;
+				case 1: title = '> ' + title; break;
+				case 2: title = '>> ' + title; break;
+				case 3: title = '>>> ' + title; break;
+			}
+			
+			if (ChatGUI.pageTitleAnimationStep == 3) ChatGUI.pageTitleAnimationStep = 0;
+			else ChatGUI.pageTitleAnimationStep++;
+			
+			$(document).attr('title', title);
 		},
 		
 		refreshStaticRooms : function()
@@ -869,16 +928,18 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 	ChatGUI.updateChatTitle();
 	ChatGUI.blockControls();
 	
+	ChatGUI.initialPageTitle = document.title;
+	
 	Chat.connect();
-
-	//Sound Init
+	
+	// Sound initialization.
+	
 	$.ionSound({
-	path : '".Yii::app()->theme->baseUrl."/assets/sounds/',
-    sounds: [
-        'sound_message',
-        'button_push',
-    ]
-});
-
+		path : '".Yii::app()->theme->baseUrl."/assets/sounds/',
+		sounds: [
+			'sound_message',
+			'button_push',
+		]
+	});
 	
 ", CClientScript::POS_READY);
