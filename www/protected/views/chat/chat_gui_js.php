@@ -808,6 +808,21 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 		
 		Chat.startVideoCall();
 	});
+
+	$('#btnShowHistory').on('click', function(e)
+	{
+        $.post(
+        'index.php?r=chat/getUserChatHistory',
+        {userJid:Chat.currentUser.bareJid, openedRoom: ChatGUI.openedRoom.id},
+        function (data) {
+            $('#chat-history-dialog-container').html(data);
+            $('#chat-history-dialog').dialog('open');
+
+        },
+        'html'
+        );
+        return false;
+	});
 	
 	$('#btnAcceptVideoCall').on('click', function(e)
 	{

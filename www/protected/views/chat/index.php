@@ -88,10 +88,16 @@ $this->renderPartial('chat_gui_js', array(
 					<?php //echo CHtml::htmlButton(Yii::t('general', 'Video Call'), array('id' => 'btnStartVideoCall', 'class' => 'btn btn-primary')); ?>
 					<?php //echo CHtml::htmlButton(Yii::t('general', 'End Call'), array('id' => 'btnEndCall', 'class' => 'btn btn-primary', 'onclick' => 'OTvideo.session.disconnect();',
 //						'style' => 'display:none;')); ?>
+                    <a id="btnShowHistory" class="btn btn-primary" href="javascript:void(0)"> <span class="glyphicon glyphicon-dashboard">
+						</span> <?php echo Yii::t('general', 'Show Chat History') ?>
+                    </a>
 				</div>
 				<div class="controls">
 					<?php echo CHtml::textArea(null, '', array('id' => 'inputMessage')); ?>
-					<?php echo CHtml::htmlButton(Yii::t('general', 'Send'), array('id' => 'btnSend', 'class' => 'btn btn-primary')); ?>
+                    <a id="btnSend" class="btn btn-primary" href="javascript:void(0)"> <span class="glyphicon glyphicon-envelope">
+						</span> <?php echo Yii::t('general', 'Send') ?>
+                    </a>
+<!--					--><?php //echo CHtml::htmlButton(Yii::t('general', 'Send'), array('id' => 'btnSend', 'class' => 'btn btn-primary')); ?>
 				</div>
 			</div>
 		</div>
@@ -108,3 +114,30 @@ $this->renderPartial('chat_gui_js', array(
 
     </div>
 </div>
+<?php
+$this->beginWidget('zii.widgets.jui.CJuiDialog', array(
+    'id'      => 'chat-history-dialog',
+    'cssFile' => null,
+    'options' => array(
+        'title'     => Yii::t('general', 'Chat history'),
+        'autoOpen'  => false,
+        'modal'     => true,
+        'hide'      => 'drop',
+        'show'      => 'drop',
+        'position'  => 'center',
+        'height'    =>600,
+        'width'     => 800,
+        'resizable' => false,
+        'buttons'   => array(
+            array(
+                'text'  => Yii::t('general', 'Close'),
+                'click' => 'js:function(){ $(this).dialog("close");}',
+                'class' => 'btn'
+            ),
+        ),
+    ),
+));
+?>
+    <div id="chat-history-dialog-container"></div>
+<?php $this->endWidget('zii.widgets.jui.CJuiDialog');
+?>

@@ -52,6 +52,17 @@ return CMap::mergeArray(
 			'db'=>array(
 				'connectionString' => 'sqlite:'.dirname(__FILE__).'/../data/testdrive.db',
 			),
+            'dbOpenfire'=>array(
+                'connectionString' => 'mysql:host=localhost;dbname=openfire',
+                'emulatePrepare' => true,
+                'username' => 'root',
+                'password' => '',
+                'charset' => 'utf8',
+                'tablePrefix' => '',
+                'enableParamLogging' => true,
+                'enableProfiling' => true,
+                'class'=>'CDbConnection'
+            ),
 			// uncomment the following to use a MySQL database
 			/*
 			'db'=>array(
