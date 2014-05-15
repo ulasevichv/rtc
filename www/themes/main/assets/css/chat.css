@@ -333,9 +333,29 @@ body > div.container[role="main"] {
     border-top-right-radius: 0;
 }
 #myvideo, .other-video {
-    margin: 10px 40px 10px 10px;
+    margin: 10px;
     border: 3px solid #285e8e;
 }
 #userPanel {
     padding: 3px 0 5px 0;
+}
+.video .active {
+    float: none!important;
+    clear: both;
+}
+#video-expanded {
+    position: absolute;
+    height: 99%;
+    width: 99%;
+    top: 0;
+    background: #ccc;
+    z-index: 99;
+    border: 5px solid #2d6ca2;
+    border-radius: 6px;
+    box-shadow: 1px 1px 6px #428bca;
+}
+#video-expanded .video-expanded-buttons {
+    position: absolute;
+    bottom: 5px;
+    left: 5px;
 }

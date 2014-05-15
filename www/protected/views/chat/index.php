@@ -82,6 +82,9 @@ $this->renderPartial('chat_gui_js', array(
 					<a id="btnEndCall" style="display: none" onclick="OTvideo.session.disconnect();" class="btn btn-primary" href="javascript:void(0)"> <span class="glyphicon glyphicon-remove">
 						</span> <?php echo Yii::t('general', 'End Call') ?>
 					</a>
+                    <a id="btnExpandVideo" style="display: none"  onclick="OTvideo.expand();" class="btn btn-primary" href="javascript:void(0)"> <span class="glyphicon glyphicon-fullscreen">
+						</span> <?php echo Yii::t('general', 'Expand Video') ?>
+                    </a>
 					<?php //echo CHtml::htmlButton(Yii::t('general', 'Video Call'), array('id' => 'btnStartVideoCall', 'class' => 'btn btn-primary')); ?>
 					<?php //echo CHtml::htmlButton(Yii::t('general', 'End Call'), array('id' => 'btnEndCall', 'class' => 'btn btn-primary', 'onclick' => 'OTvideo.session.disconnect();',
 //						'style' => 'display:none;')); ?>
@@ -93,4 +96,15 @@ $this->renderPartial('chat_gui_js', array(
 			</div>
 		</div>
 	</div>
+    <div id="video-expanded" style="display: none">
+        <div class="video-expanded-videoContainer">
+
+        </div>
+        <div class="video-expanded-buttons">
+            <a id="btnCollapseVideo" onclick="OTvideo.collapse();" class="btn btn-primary" href="javascript:void(0)"> <span class="glyphicon glyphicon-log-in">
+						</span> <?php echo Yii::t('general', 'Collapse Video') ?>
+            </a>
+        </div>
+
+    </div>
 </div>
