@@ -26,7 +26,7 @@ OTvideo.init = function() {
 
     OTvideo.session.connect(OTvideo.token, function(error) {
         console.log('OTvideo.session.connect');
-        var publisherProperties = {width: OTvideo.bigwidth, height:OTvideo.bigheight, name:Chat.currentUser.fullName};
+        var publisherProperties = {width: OTvideo.bigwidth, height:OTvideo.bigheight, name:Chat.currentUser.fullName, controls: true};
         OTvideo.publisher = OT.initPublisher('myvideo',publisherProperties);
         OTvideo.session.publish(OTvideo.publisher);
         return true;
@@ -115,6 +115,7 @@ OTvideo.focus = function(video_id) {
 OTvideo.expand = function() {
     $(OTvideo.myDiv + ' .video').appendTo('#video-expanded .video-expanded-videoContainer');
     $('#video-expanded').show();
+    $('.video').show();
     OTvideo.expandedMode = true;
     OTvideo.expandedVideoResize();
     return true;

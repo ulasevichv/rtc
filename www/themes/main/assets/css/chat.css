@@ -345,8 +345,8 @@ body > div.container[role="main"] {
 }
 #video-expanded {
     position: absolute;
-    height: 99%;
-    width: 99%;
+    height: 100%;
+    width: 100%;
     top: 0;
     background: #ccc;
     z-index: 99;
