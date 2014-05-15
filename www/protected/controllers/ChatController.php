@@ -75,26 +75,30 @@ class ChatController extends Controller
 		
 		Yii::app()->end();
 	}
-    public function actionGetUserChatHistory() {
-        $historyElements = Yii::app()->dbOpenfire->createCommand()
-            ->select('*')
-            ->from('ofmessagearchive u')
-            ->where('(fromJID=:fromJID AND toJID=:toJID) OR (toJID=:fromJID AND toJID=:fromJID)', array(':fromJID'=>$_POST['userJid'], ':toJID'=>$_POST['openedRoom']))
-            ->queryAll();
-
-
-        Yii::app()->clientScript->scriptMap = array(
-            'jquery.js' => false,
-            'jquery.min.js' => false,
-        );
-        $i = 1;
-        foreach ($historyElements as $key=>$elem) {
-            $historyElements[$key]['id'] = $i;
-            $i++;
-        }
-        $this->renderPartial('_chat_history', array(
-            'historyElements' => $historyElements,
-        ), false, true);
-
-    }
+	
+	public function actionGetUserChatHistory()
+	{
+		$historyElements = Yii::app()->dbOpenfire->createCommand()
+			->select('*')
+			->from('ofMessageArchive u')
+			->where('(fromJID=:fromJID AND toJID=:toJID) OR (toJID=:fromJID AND toJID=:fromJID)', array(':fromJID'=>$_POST['userJid'], ':toJID'=>$_POST['openedRoom']))
+			->queryAll();
+		
+		Yii::app()->clientScript->scriptMap = array(
+			'jquery.js' => false,
+			'jquery.min.js' => false,
+		);
+		
+		$i = 1;
+		
+		foreach ($historyElements as $key=>$elem)
+		{
+			$historyElements[$key]['id'] = $i;
+			$i++;
+		}
+		
+		$this->renderPartial('_chat_history', array(
+			'historyElements' => $historyElements,
+		), false, true);
+	}
 }

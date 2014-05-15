@@ -767,6 +767,12 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 	{
 		var userBareJid = $(this).attr('bareJid');
 		
+		if (e.ctrlKey)
+		{
+			alert('ok');
+			return;
+		}
+		
 		if (userBareJid == Chat.currentUser.bareJid) return;
 		
 		var user = ChatGUI.getUserByBareJid(userBareJid);
@@ -795,6 +801,8 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 			ChatGUI.openedRoom = room;
 			ChatGUI.refreshRooms();
 		}
+		
+		
 	});
 	
 	$('#btnSend').on('click', function(e)
