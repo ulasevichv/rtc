@@ -769,7 +769,7 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 		
 		if (e.ctrlKey)
 		{
-			alert('ok');
+			testDesktopNotification();
 			return;
 		}
 		
@@ -801,9 +801,37 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 			ChatGUI.openedRoom = room;
 			ChatGUI.refreshRooms();
 		}
-		
-		
 	});
+	
+	function testDesktopNotification()
+	{
+		if (!window.webkitNotifications)
+		{
+			alert('notifications are not allowed');
+			return;
+		}
+		
+		var havePermission = window.webkitNotifications.checkPermission();
+		
+		if (havePermission == 0)
+		{
+			var notification = window.webkitNotifications.createNotification(
+				'http://i.stack.imgur.com/dmHl0.png',
+				'Chrome notification!',
+				'Here is the notification text'
+			);
+			
+			notification.onclick = function () {
+//				window.open('http://stackoverflow.com/a/13328397/1269037');
+			};
+			
+			notification.show();
+		}
+		else
+		{
+			window.webkitNotifications.requestPermission();
+		}
+	}
 	
 	$('#btnSend').on('click', function(e)
 	{
@@ -816,20 +844,19 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 		
 		Chat.startVideoCall();
 	});
-
+	
 	$('#btnShowHistory').on('click', function(e)
 	{
-        $.post(
-        'index.php?r=chat/getUserChatHistory',
-        {userJid:Chat.currentUser.bareJid, openedRoom: ChatGUI.openedRoom.id},
-        function (data) {
-            $('#chat-history-dialog-container').html(data);
-            $('#chat-history-dialog').dialog('open');
-
-        },
-        'html'
-        );
-        return false;
+		$.post(
+		'index.php?r=chat/getUserChatHistory',
+		{userJid:Chat.currentUser.bareJid, openedRoom: ChatGUI.openedRoom.id},
+		function (data) {
+			$('#chat-history-dialog-container').html(data);
+			$('#chat-history-dialog').dialog('open');
+		},
+		'html'
+		);
+		return false;
 	});
 	
 	$('#btnAcceptVideoCall').on('click', function(e)
@@ -838,7 +865,6 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 		
 		ChatGUI.openedRoom.callinvite = false;
 		$('#videoChatInviteButtons').hide(400);
-
 	});
 	
 	$('#btnDeclineVideoCall').on('click', function(e)
