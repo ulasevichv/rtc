@@ -406,6 +406,12 @@ body > div.container[role="main"] {
 	margin: -4px 0 0 0;
 	font-size: 13px;
 }
+#chat_right_menu #profile_menu_item {
+	float: left;
+}
+#chat_right_menu #login_menu_item {
+	float: right;
+}
 #chat_right_menu #profile_menu_item ._email {
 	float: right;
 	color: #339933;
@@ -430,4 +436,7 @@ body > div.container[role="main"] {
 }
 #chat_left_menu {
 	width: 220px;
+}
+#chat_right_menu .navbar-nav {
+	float: right;
 }
