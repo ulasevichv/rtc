@@ -394,6 +394,7 @@ body > div.container[role="main"] {
 #chat_left_menu ul.navbar-nav li a{
 	padding: 0 5px;
 	color: #4E4E4E;
+	text-shadow: none;
 }
 #chat_left_menu ul.navbar-nav li a:hover{
 	color: #999;
@@ -423,6 +424,7 @@ body > div.container[role="main"] {
 	color: #4E4E4E;
 	cursor: pointer;
 	font-size: 14px;
+	text-shadow: none;
 }
 #chat_right_menu #login_menu_item a:hover {
 	color: #999;
