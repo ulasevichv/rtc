@@ -800,7 +800,8 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 //			var iq = \$iq({type: 'get'}).c('query', {xmlns: Strophe.NS.ROSTER});
 			
 			Chat.conn.sendIQ(
-				\$iq({type : 'get'})
+//				\$iq({type : 'get', with : 'marina@192.237.219.76'})
+				\$iq({type : 'get', with : 'room01@conference.192.237.219.76'})
 				.c('list', {xmlns : 'urn:xmpp:archive'})
 				.c('set', {xmlns : 'http://jabber.org/protocol/rsm'})
 				.c('max').t(30),
