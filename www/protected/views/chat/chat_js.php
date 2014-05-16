@@ -792,6 +792,53 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 		{
 			console.log('ERROR OCCURED!');
 			console.log(stanza);
+		},
+		
+		loadMessageCollections : function()
+		{
+//			var iq = \$iq({type: 'get'}).c('query', {xmlns: Strophe.NS.ROSTER});
+			
+			Chat.conn.sendIQ(
+				\$iq({type : 'get'})
+				.c('list', {xmlns : 'urn:xmpp:archive'})
+				.c('set', {xmlns : 'http://jabber.org/protocol/rsm'})
+				.c('max').t(30),
+			Chat.onLoadMessageCollections);
+		},
+		
+		onLoadMessageCollections : function(stanza)
+		{
+			console.log('onLoadMessageCollections()');
+			console.log(stanza);
+			
+			var jCollections = $(stanza).find('list chat');
+			
+//			console.log(jCollections.length);
+			
+			var jCollection = jCollections.eq(1);
+			
+			var jid = jCollection.attr('with');
+			var startTime = jCollection.attr('start');
+			
+			console.log(jid + ', ' + startTime);
+			
+			setTimeout(function() { Chat.loadMessages(jid, startTime); }, 20);
+		},
+		
+		loadMessages : function(jid, startTime)
+		{
+			Chat.conn.sendIQ(
+				\$iq({type : 'get'})
+				.c('retrieve', {xmlns : 'urn:xmpp:archive', with : jid, start : startTime})
+				.c('set', {xmlns : 'http://jabber.org/protocol/rsm'})
+				.c('max').t(100),
+			Chat.onLoadMessages);
+		},
+		
+		onLoadMessages : function(stanza)
+		{
+			console.log('onLoadMessages()');
+			console.log(stanza);
 		}
 	};
 	

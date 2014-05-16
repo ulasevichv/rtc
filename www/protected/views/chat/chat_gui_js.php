@@ -129,26 +129,26 @@ Yii::app()->clientScript->registerScript(uniqid('chat_gui'), "
 		
 		resizeChatTextDiv : function ()
 		{
-		    var videoHeight = 0;
-		    var videoToggleHeight = 0;
-		    var containerDiv = '';
-		    if (ChatGUI.openedRoom) {
-		        containerDiv = '#msg_'+ Strophe.getNodeFromJid(ChatGUI.openedRoom.id);
-		    } else {
-		        containerDiv = '';
-		    }
-
-		    if ($('.video').is(':visible')) {
-                videoHeight = $(containerDiv +' .video').outerHeight()
-		    }
-		    if ($('.video-toggle').is(':visible')) {
-                videoToggleHeight = $(containerDiv +' .video-toggle').outerHeight()
-		    }
-            console.log(videoHeight);
-            console.log(videoToggleHeight);
-            console.log($(containerDiv+ '.msgContainer').outerHeight());
-		    $('.chat-text').css('height',($(containerDiv+ '.msgContainer').outerHeight() - videoToggleHeight - videoHeight) + 'px');
-		    return true
+			var videoHeight = 0;
+			var videoToggleHeight = 0;
+			var containerDiv = '';
+			if (ChatGUI.openedRoom) {
+				containerDiv = '#msg_'+ Strophe.getNodeFromJid(ChatGUI.openedRoom.id);
+			} else {
+				containerDiv = '';
+			}
+			
+			if ($('.video').is(':visible')) {
+				videoHeight = $(containerDiv +' .video').outerHeight()
+			}
+			if ($('.video-toggle').is(':visible')) {
+				videoToggleHeight = $(containerDiv +' .video-toggle').outerHeight()
+			}
+//			console.log(videoHeight);
+//			console.log(videoToggleHeight);
+//			console.log($(containerDiv+ '.msgContainer').outerHeight());
+			$('.chat-text').css('height',($(containerDiv+ '.msgContainer').outerHeight() - videoToggleHeight - videoHeight) + 'px');
+			return true
 		},
 		
 		scrollOpenedMessagesToBottom : function ()
@@ -953,6 +953,11 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 		console.log('beforeunload');
 		
 		Chat.disconnect();
+	});
+	
+	$('.chatRoot .header-title').on('click', function()
+	{
+		Chat.loadMessageCollections();
 	});
 	
 	// Starting chat.
