@@ -442,3 +442,6 @@ body > div.container[role="main"] {
 #chat_right_menu .navbar-nav {
 	float: right;
 }
+.header .navbar-toggle {
+	padding: 5px;
+}
