@@ -125,6 +125,8 @@ Yii::app()->clientScript->registerScript(uniqid('chat_gui'), "
 			ChatGUI.chatSize = newChatSize;
 			ChatGUI.sendingDivSize = newSendingDivSize;
 			ChatGUI.resizeChatTextDiv();
+
+
 		},
 		
 		resizeChatTextDiv : function ()
@@ -148,6 +150,7 @@ Yii::app()->clientScript->registerScript(uniqid('chat_gui'), "
             console.log(videoToggleHeight);
             console.log($(containerDiv+ '.msgContainer').outerHeight());
 		    $('.chat-text').css('height',($(containerDiv+ '.msgContainer').outerHeight() - videoToggleHeight - videoHeight) + 'px');
+            $('.header-title').css('width',$('.header').outerWidth() - $('.header-left-menu').outerWidth() - $('.header-right-menu').outerWidth() + 'px');
 		    return true
 		},
 		
@@ -976,5 +979,6 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 			'button_push',
 		]
 	});
+
 	
 ", CClientScript::POS_READY);

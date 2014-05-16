@@ -431,13 +431,13 @@ body > div.container[role="main"] {
 }
 .header .header-title {
 	float: left;
-	width: 598px;
+	/*width: 598px;*/
 }
 #chat_right_menu {
-	width: 320px;
+	/*width: 320px;*/
 }
 #chat_left_menu {
-	width: 220px;
+	/*width: 220px;*/
 }
 #chat_right_menu .navbar-nav {
 	float: right;

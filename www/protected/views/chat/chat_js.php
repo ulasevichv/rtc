@@ -94,6 +94,7 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 			Chat.getRoomsList();
 			
 			ChatGUI.unblockControls();
+			ChatGUI.resizeChatTextDiv();
 		},
 		
 		onDisconnect : function()
