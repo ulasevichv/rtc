@@ -101,8 +101,6 @@ Yii::app()->clientScript->registerScript(uniqid('chat_gui'), "
 		
 		onWindowResize : function(initialCall)
 		{
-
-
 			initialCall = (typeof(initialCall) != 'undefined' ? initialCall : false);
 			
 			var newChatSize = ChatGUI.getChatSize();
@@ -152,22 +150,6 @@ Yii::app()->clientScript->registerScript(uniqid('chat_gui'), "
 		    $('.chat-text').css('height',($(containerDiv+ '.msgContainer').outerHeight() - videoToggleHeight - videoHeight) + 'px');
 		    return true
 		},
-		
-//		scrollOpenedMessagesToBottom : function ()
-//		{
-//			var containerDiv = '';
-//			
-//			if (ChatGUI.openedRoom != null)
-//			{
-//				containerDiv = '#msg_'+ Strophe.getNodeFromJid(ChatGUI.openedRoom.id);
-//			}
-//			else
-//			{
-//				containerDiv = '';
-//			}
-//			
-//			$(containerDiv + ' .chat-text').animate({scrollTop: $(containerDiv + ' .chat-text').prop(\"scrollHeight\")}, 500);
-//		},
 		
 		scrollOpenedMessagesToBottom : function ()
 		{
@@ -451,6 +433,7 @@ Yii::app()->clientScript->registerScript(uniqid('chat_gui'), "
 			
 			if (thereAreUnreadMessages)
 			{
+				ChatGUI.showDesktopNotification();
 				ChatGUI.startPageTitleAnimation();
 			}
 			else
@@ -461,6 +444,7 @@ Yii::app()->clientScript->registerScript(uniqid('chat_gui'), "
 		
 		startPageTitleAnimation : function()
 		{
+			ChatGUI.stopPageTitleAnimation();
 			ChatGUI.pageTitleTimerId = setInterval(function() { ChatGUI.performPageTitleAnimationStep(); }, 500);
 		},
 		
@@ -489,6 +473,38 @@ Yii::app()->clientScript->registerScript(uniqid('chat_gui'), "
 			else ChatGUI.pageTitleAnimationStep++;
 			
 			$(document).attr('title', title);
+		},
+		
+		showDesktopNotification : function()
+		{
+			if (!window.webkitNotifications)
+			{
+				alert('".Yii::t('general', 'Notifications are not allowed')."');
+				return;
+			}
+			
+			var havePermission = window.webkitNotifications.checkPermission();
+			
+			if (havePermission == 0)
+			{
+				var notification = window.webkitNotifications.createNotification(
+					'".Yii::app()->theme->baseUrl."/assets/images/chat/exclamation_mark_green_48.png',
+					'".Yii::t('general', 'New message')."',
+					'".Yii::t('general', 'You have unread messages')."'
+				);
+				
+				notification.onclick = function ()
+				{
+					window.focus();
+					this.cancel();
+				};
+				
+				notification.show();
+			}
+			else
+			{
+				window.webkitNotifications.requestPermission();
+			}
 		},
 		
 		refreshStaticRooms : function()
@@ -767,11 +783,11 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 	{
 		var userBareJid = $(this).attr('bareJid');
 		
-		if (e.ctrlKey)
-		{
-			testDesktopNotification();
-			return;
-		}
+//		if (e.ctrlKey)
+//		{
+//			ChatGUI.showDesktopNotification();
+//			return;
+//		}
 		
 		if (userBareJid == Chat.currentUser.bareJid) return;
 		
@@ -802,36 +818,6 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 			ChatGUI.refreshRooms();
 		}
 	});
-	
-	function testDesktopNotification()
-	{
-		if (!window.webkitNotifications)
-		{
-			alert('notifications are not allowed');
-			return;
-		}
-		
-		var havePermission = window.webkitNotifications.checkPermission();
-		
-		if (havePermission == 0)
-		{
-			var notification = window.webkitNotifications.createNotification(
-				'http://i.stack.imgur.com/dmHl0.png',
-				'Chrome notification!',
-				'Here is the notification text'
-			);
-			
-			notification.onclick = function () {
-//				window.open('http://stackoverflow.com/a/13328397/1269037');
-			};
-			
-			notification.show();
-		}
-		else
-		{
-			window.webkitNotifications.requestPermission();
-		}
-	}
 	
 	$('#btnSend').on('click', function(e)
 	{
