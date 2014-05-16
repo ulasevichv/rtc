@@ -367,11 +367,11 @@ body > div.container[role="main"] {
 }
 
 /* Chat menu */
-#chat_left_menu .container {
+#chat_left_menu .container, #chat_right_menu .container {
 	width: auto;
 
 }
-#chat_left_menu.navbar {
+#chat_left_menu.navbar, #chat_right_menu.navbar {
 	background: transparent;
 	background-image: none;
 	border: none;
@@ -397,4 +397,37 @@ body > div.container[role="main"] {
 }
 #chat_left_menu ul.navbar-nav li a:hover{
 	color: #999;
+}
+#chat_right_menu #profile_menu_item ._icon {
+	float: right;
+	color: #339933;
+	border: none;
+	background: none;
+	margin: -4px 0 0 0;
+	font-size: 13px;
+}
+#chat_right_menu #profile_menu_item ._email {
+	float: right;
+	color: #339933;
+	font-size: 12px;
+	padding: 1px 13px 0 5px;
+}
+#chat_right_menu #login_menu_item a {
+	padding: 0 5px;
+	color: #4E4E4E;
+	cursor: pointer;
+	font-size: 14px;
+}
+#chat_right_menu #login_menu_item a:hover {
+	color: #999;
+}
+.header .header-title {
+	float: left;
+	width: 598px;
+}
+#chat_right_menu {
+	width: 320px;
+}
+#chat_left_menu {
+	width: 220px;
 }
