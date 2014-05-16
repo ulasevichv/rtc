@@ -2,6 +2,7 @@
 
 class ChatController extends Controller
 {
+    public $layout = 'chat';
 	protected function beforeAction($action)
 	{
 		if (empty(Yii::app()->user->id))

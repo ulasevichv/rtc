@@ -57,6 +57,18 @@ $this->renderPartial('chat_gui_js', array(
 
 <div class="chatRoot">
 	<div class="header">
+        <div class="header-left-menu">
+            <?php
+            	echo $this->widget('application.widgets.chatLeftMenu.chatLeftMenu', array(
+                ), true);
+            ?>
+        </div>
+        <div class="header-title">
+
+        </div>
+        <div class="header-right-menu">
+
+        </div>
 	</div>
 	<div class="sections">
 		<div class="roomsContainer">

@@ -68,6 +68,10 @@ OTvideo.init = function() {
         OTvideo.focus(this.id)
     });
 
+    $(document).on('click','.OT_mute', function() {
+        return false;
+    });
+
     $( window ).resize(function() {
         if (OTvideo.expandedMode) {
             OTvideo.expandedVideoResize();
