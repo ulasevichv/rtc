@@ -125,6 +125,8 @@ Yii::app()->clientScript->registerScript(uniqid('chat_gui'), "
 			ChatGUI.chatSize = newChatSize;
 			ChatGUI.sendingDivSize = newSendingDivSize;
 			ChatGUI.resizeChatTextDiv();
+
+
 		},
 		
 		resizeChatTextDiv : function ()
@@ -981,5 +983,6 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 			'button_push',
 		]
 	});
+
 	
 ", CClientScript::POS_READY);
