@@ -559,7 +559,7 @@ Yii::app()->clientScript->registerScript(uniqid('chat_gui'), "
 		
 		updateChatTitle : function()
 		{
-			var jHeader = $('.chatRoot > .header');
+			var jHeader = $('.chatRoot > .header > .header-title');
 			
 			if (ChatGUI.openedRoom == null)
 			{

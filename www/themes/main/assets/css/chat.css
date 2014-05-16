@@ -14,7 +14,7 @@ body {
 body > div.container[role="main"] {
 	margin-top: 0;
 	height: 100%;
-	padding-top: 50px;
+	/*padding-top: 50px;*/
 }
 
 /*** General ***/
@@ -358,4 +358,43 @@ body > div.container[role="main"] {
     position: absolute;
     bottom: 5px;
     left: 5px;
+}
+.header-left-menu {
+	float: left;
+}
+.header-right-menu {
+	float: right;
+}
+
+/* Chat menu */
+#chat_left_menu .container {
+	width: auto;
+
+}
+#chat_left_menu.navbar {
+	background: transparent;
+	background-image: none;
+	border: none;
+	margin-bottom: 0;
+	min-height: 0;
+}
+#chat_left_menu .navbar-brand {
+	padding: 0;
+	height: auto;
+	font-size: 15px;
+	margin-top: 0;
+	margin-left: 0px;
+	float: left;
+}
+#chat_left_menu .navbar-collapse {
+	float: left;
+	margin: 0 0 0 15px;
+
+}
+#chat_left_menu ul.navbar-nav li a{
+	padding: 0 5px;
+	color: #4E4E4E;
+}
+#chat_left_menu ul.navbar-nav li a:hover{
+	color: #999;
 }
