@@ -99,7 +99,7 @@ body > div.container[role="main"] {
 	margin: 3px 0 0 0;
 }
 #rooms > .room[unread] > .icon {
-	background: url("../images/chat/exclamation_mark_green.png") no-repeat scroll 0 0 transparent;
+	background: url("../images/chat/exclamation_mark_green_16.png") no-repeat scroll 0 0 transparent;
 	background-size: 16px 16px;
 	margin: 2px 0 0 0;
 }
