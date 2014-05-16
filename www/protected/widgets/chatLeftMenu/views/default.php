@@ -6,12 +6,6 @@ $baseUrl = Yii::app()->theme->baseUrl;
 <div id="chat_left_menu" class="navbar navbar-inverse navbar-static-top" role="navigation">
 	<div class="container">
 		<div class="navbar-header">
-			<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-				<span class="sr-only"><?php echo CHtml::encode(Yii::t('general', 'Toggle navigation')); ?></span>
-				<span class="icon-bar"></span>
-				<span class="icon-bar"></span>
-				<span class="icon-bar"></span>
-			</button>
 <!--			<a class="navbar-brand" href="/">--><?php //echo CHtml::encode(Yii::app()->name); ?><!--</a>-->
 			<span class="navbar-brand navbar_brand_static"><?php echo CHtml::encode(Yii::app()->name); ?></span>
 		</div>
