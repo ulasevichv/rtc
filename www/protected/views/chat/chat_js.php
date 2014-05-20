@@ -800,12 +800,19 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 //			var iq = \$iq({type: 'get'}).c('query', {xmlns: Strophe.NS.ROSTER});
 			
 			Chat.conn.sendIQ(
-				\$iq({type : 'get', with : 'marina@192.237.219.76'})
+//				\$iq({type : 'get', with : 'marina@192.237.219.76'})
 //				\$iq({type : 'get', with : 'room01@conference.192.237.219.76'})
-				.c('list', {xmlns : 'urn:xmpp:archive'})
+				\$iq({type : 'get'})
+//				.c('list', {xmlns : 'urn:xmpp:archive', with : 'nastassia' + '@' + Chat.domain})
+//				.c('list', {xmlns : 'urn:xmpp:archive', with : 'nastassia' + '@' + Chat.domain, start : '2014-05-16T00:00:00Z'})
+//				.c('list', {xmlns : 'urn:xmpp:archive', with : 'nastassia' + '@' + Chat.domain, start : '2014-05-16T07:01:40.513Z'})
+				.c('list', {xmlns : 'urn:xmpp:archive', with : 'nastassia' + '@' + Chat.domain, start : '2014-05-16T00:00:00Z', end : '2014-05-17T00:00:00Z'})
 				.c('set', {xmlns : 'http://jabber.org/protocol/rsm'})
-				.c('max').t(30),
-			Chat.onLoadMessageCollections);
+				.c('max').t(25).up()
+//				.c('after').t('2014-05-16T00:00:00Z' + 'nastassia' + '@' + Chat.domain),
+//				.c('after').t(0)
+				.c('start').t('2014-05-16T00:00:00Z')
+			, Chat.onLoadMessageCollections);
 		},
 		
 		onLoadMessageCollections : function(stanza)
