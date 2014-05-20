@@ -800,8 +800,8 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 //			var iq = \$iq({type: 'get'}).c('query', {xmlns: Strophe.NS.ROSTER});
 			
 			Chat.conn.sendIQ(
-//				\$iq({type : 'get', with : 'marina@192.237.219.76'})
-				\$iq({type : 'get', with : 'room01@conference.192.237.219.76'})
+				\$iq({type : 'get', with : 'marina@192.237.219.76'})
+//				\$iq({type : 'get', with : 'room01@conference.192.237.219.76'})
 				.c('list', {xmlns : 'urn:xmpp:archive'})
 				.c('set', {xmlns : 'http://jabber.org/protocol/rsm'})
 				.c('max').t(30),
@@ -813,18 +813,18 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 			console.log('onLoadMessageCollections()');
 			console.log(stanza);
 			
-			var jCollections = $(stanza).find('list chat');
-			
-//			console.log(jCollections.length);
-			
-			var jCollection = jCollections.eq(1);
-			
-			var jid = jCollection.attr('with');
-			var startTime = jCollection.attr('start');
-			
-			console.log(jid + ', ' + startTime);
-			
-			setTimeout(function() { Chat.loadMessages(jid, startTime); }, 20);
+//			var jCollections = $(stanza).find('list chat');
+//			
+////			console.log(jCollections.length);
+//			
+//			var jCollection = jCollections.eq(1);
+//			
+//			var jid = jCollection.attr('with');
+//			var startTime = jCollection.attr('start');
+//			
+//			console.log(jid + ', ' + startTime);
+//			
+//			setTimeout(function() { Chat.loadMessages(jid, startTime); }, 20);
 		},
 		
 		loadMessages : function(jid, startTime)
