@@ -213,12 +213,54 @@ body > div.container[role="main"] {
     overflow: hidden;
 
 }
-
 #messages > .msgContainer > .text {
 	width: 100%;
-	height: 70%;
+	/*height: 70%;*/
 	overflow-y: auto;
 }
+#messages > .msgContainer > .text > .chat_history_controls {
+	text-align: center;
+	font-size: 12px;
+}
+#messages > .msgContainer > .text > .chat_history_controls > .clock {
+	position: relative;
+	vertical-align: top;
+	display: inline-block;
+	background: url("../images/chat/clock_16.png") no-repeat scroll 0 0 transparent;
+	background-size: 16px 16px;
+	width: 16px;
+	height: 16px;
+	margin: 5px 0 0 0;
+}
+#messages > .msgContainer > .text[loading] > .chat_history_controls > .clock {
+	background: url("../images/chat/indicator_32.gif") no-repeat scroll 0 0 transparent;
+	background-size: 16px 16px;
+	width: 16px;
+	height: 16px;
+}
+#messages > .msgContainer > .text > .chat_history_controls > .descr {
+	display: inline-block;
+	cursor: default;
+	color: #999999;
+	margin: 5px 0 3px 3px;
+}
+#messages > .msgContainer > .text > .chat_history_controls > .period {
+	display: inline-block;
+	cursor: pointer;
+	color: #428BCA;
+	margin: 0 0 0 10px;
+}
+#messages > .msgContainer > .text[loading] {
+	background: linear-gradient(to bottom, #cccccc 0px, #eeeeee 100%) repeat scroll 0 0;
+	text-align: center;
+}
+/*#messages > .msgContainer > .text[loading] .loading {*/
+	/*display: inline-block;*/
+	/*background: url("../images/chat/indicator_32.gif") no-repeat scroll 0 0 transparent;*/
+	/*background-size: 32px 32px;*/
+	/*width: 32px;*/
+	/*height: 32px;*/
+/*}*/
 #messages .message {
 	display: table;
 	position: relative;

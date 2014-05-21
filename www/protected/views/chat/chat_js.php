@@ -806,12 +806,13 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 //				.c('list', {xmlns : 'urn:xmpp:archive', with : 'nastassia' + '@' + Chat.domain})
 //				.c('list', {xmlns : 'urn:xmpp:archive', with : 'nastassia' + '@' + Chat.domain, start : '2014-05-16T00:00:00Z'})
 //				.c('list', {xmlns : 'urn:xmpp:archive', with : 'nastassia' + '@' + Chat.domain, start : '2014-05-16T07:01:40.513Z'})
-				.c('list', {xmlns : 'urn:xmpp:archive', with : 'nastassia' + '@' + Chat.domain, start : '2014-05-16T00:00:00Z', end : '2014-05-17T00:00:00Z'})
+//				.c('list', {xmlns : 'urn:xmpp:archive', with : 'nastassia' + '@' + Chat.domain, start : '2014-05-13T00:00:00Z', end : '2014-05-25T00:00:00Z'})
+				.c('list', {xmlns : 'urn:xmpp:archive', with : 'nastassia' + '@' + Chat.domain, end : '2014-05-17T00:00:00Z'})
 				.c('set', {xmlns : 'http://jabber.org/protocol/rsm'})
 				.c('max').t(25).up()
 //				.c('after').t('2014-05-16T00:00:00Z' + 'nastassia' + '@' + Chat.domain),
 //				.c('after').t(0)
-				.c('start').t('2014-05-16T00:00:00Z')
+//				.c('start').t('2014-05-16T00:00:00Z')
 			, Chat.onLoadMessageCollections);
 		},
 		

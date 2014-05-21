@@ -52,6 +52,15 @@ Yii::app()->clientScript->registerScript(uniqid('chat_gui'), "
 			return null;
 		},
 		
+		getRoomMessageContainerDiv : function(room)
+		{
+			var roomMsgContainerId = 'msg_' + Strophe.getNodeFromJid(room.id);
+			
+			var jMsgContainerDiv = $('#' + roomMsgContainerId);
+			
+			return jMsgContainerDiv;
+		},
+		
 		blockControls : function()
 		{
 			ChatGUI.changeControlsAvailability(false);
@@ -367,7 +376,7 @@ Yii::app()->clientScript->registerScript(uniqid('chat_gui'), "
 				
 				var openedRoomMsgContainerId = 'msg_' + Strophe.getNodeFromJid(ChatGUI.openedRoom.id);
 				
-				var jMsgContainerDiv = $('#' + openedRoomMsgContainerId);
+				var jMsgContainerDiv = ChatGUI.getRoomMessageContainerDiv(ChatGUI.openedRoom);
 				
 				if (jMsgContainerDiv.length == 0)
 				{
@@ -388,6 +397,18 @@ Yii::app()->clientScript->registerScript(uniqid('chat_gui'), "
 				}
 				
 				var feed = [];
+				
+				feed.push('<div class=\"chat_history_controls\">');
+				feed.push(	'<div class=\"clock\"></div>');
+				feed.push(	'<div class=\"descr\">".Yii::t('chat', 'Show messages from').":</div>');
+				feed.push(	'<div class=\"period\">".Yii::t('chat', 'Yesterday')."</div>');
+				feed.push(	'<div class=\"period\">".Yii::t('chat', '7 days')."</div>');
+				feed.push(	'<div class=\"period\">".Yii::t('chat', '30 days')."</div>');
+				feed.push(	'<div class=\"period\">".Yii::t('chat', '3 months')."</div>');
+				feed.push(	'<div class=\"period\">".Yii::t('chat', '6 months')."</div>');
+				feed.push(	'<div class=\"period\">".Yii::t('chat', '1 year')."</div>');
+				feed.push(	'<div class=\"period\">".Yii::t('chat', 'From Beginning')."</div>');
+				feed.push('</div>');
 				
 				for (var i = 0; i < ChatGUI.openedRoom.messages.length; i++)
 				{
@@ -441,6 +462,24 @@ Yii::app()->clientScript->registerScript(uniqid('chat_gui'), "
 			else
 			{
 				ChatGUI.stopPageTitleAnimation();
+			}
+		},
+		
+		setRoomLoadingState : function(roomJid, value)
+		{
+			var room = ChatGUI.getRoomById(roomJid);
+			
+			var jMsgContainerDiv = ChatGUI.getRoomMessageContainerDiv(room);
+			var jTextDiv = jMsgContainerDiv.find('.text');
+			
+			if (value)
+			{
+				jTextDiv.attr('loading', '');
+				setTimeout(function() { ChatGUI.setRoomLoadingState(roomJid, false) }, 4000);
+			}
+			else
+			{
+				jTextDiv.removeAttr('loading');
 			}
 		},
 		
@@ -804,8 +843,12 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 			room = new InternalChatRoom(roomId, MessageType.CHAT, user.fullName);
 			ChatGUI.rooms.push(room);
 			
+//			room.loading = true;
+			
 			ChatGUI.openedRoom = room;
 			ChatGUI.refreshRooms();
+			
+			ChatGUI.setRoomLoadingState(room.id, true);
 		}
 		else
 		{

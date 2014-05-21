@@ -104,8 +104,8 @@ Yii::app()->clientScript->registerScript(uniqid('chat_classes'), "
 		this.hidden = hidden;
 		this.unread = unread;
 		this.messages = []; // InternalChatMessage
-		
 		this.onlineUserNicknames = [];
+		this.loading = false;
 	}
 	
 	InternalChatRoom.prototype.changeParticipantOnlineStatus = function(nickname, online)
