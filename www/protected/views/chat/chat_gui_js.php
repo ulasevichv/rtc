@@ -948,13 +948,21 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 
 	$('#btnWhiteboard').on('click', function(e)
 	{
+	    jQuery('#whiteboard-container .literally.localstorage').html('<canvas></canvas>');
         $('#whiteboard-container').show();
         var whiteboard = $('.literally.localstorage').literallycanvas({
           backgroundColor: 'whiteSmoke',
           imageURLPrefix: '".Yii::app()->theme->baseUrl."/assets/images/whiteboard',
           onInit: function(lc) {
             lc.on('drawingChange', function() {
-                console.log(lc.getSnapshotJSON());
+                Chat.sendDrawingContent(lc.getSnapshotJSON());
+//                console.log(lc.getSnapshotJSON());
+	        });
+	        lc.on('shapeSave', function(shape) {
+//	        window.shape = shape;
+//	        Chat.sendDrawingContent(JSON.stringify(shape));
+//                console.log(shape);
+//                console.log(lc.getSnapshotJSON());
 	        });
           }
     });
@@ -964,13 +972,27 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 	$('#btnAcceptVideoCall').on('click', function(e)
 	{
 		Chat.acceptVideoCall();
-		
+
 		ChatGUI.openedRoom.callinvite = false;
 		$('#videoChatInviteButtons').hide(400);
 	});
 	$('#btnAcceptWhiteboard').on('click', function(e)
 	{
-		$('#videoChatInviteButtons').hide(400);
+	    jQuery('#whiteboard-container .literally.localstorage').html('<canvas></canvas>');
+		$('#whiteboardInviteButtons').hide(400);
+		$('#whiteboard-container').show();
+          $('.literally.localstorage').literallycanvas({
+          backgroundColor: 'whiteSmoke',
+          imageURLPrefix: '".Yii::app()->theme->baseUrl."/assets/images/whiteboard',
+          onInit: function(lc) {
+            window.whiteboard = lc;
+            lc.on('drawingChange', function() {
+                return false;
+                //console.log(lc.getSnapshotJSON());
+	        });
+          }
+    });
+		return false;
 	});
 	
 	$('#btnDeclineVideoCall').on('click', function(e)
