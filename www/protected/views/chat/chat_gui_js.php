@@ -759,6 +759,25 @@ Yii::app()->clientScript->registerScript(uniqid('chat_gui'), "
 			
 			return true;
 		},
+		addDrawingCallInvitationControls : function(senderJid)
+		{
+//		    alert('addDrawingCallInvitationControls');
+			targetRoom = ChatGUI.getRoomById(senderJid);
+
+			if (!targetRoom)
+			{
+				targetRoom = ChatGUI.getRoomById(ChatGUI.openedRoom.id);
+			}
+            targetRoom.drawInvite = true;
+            console.log(ChatGUI.openedRoom);
+            console.log(targetRoom);
+			if (ChatGUI.openedRoom.id == targetRoom.id)
+			{
+				$('#whiteboardInviteButtons').show(400);
+			}
+
+			return true;
+		},
 	};
 	
 ", CClientScript::POS_HEAD);
@@ -815,6 +834,15 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 		else
 		{
 			$('#videoChatInviteButtons').hide(0);
+		}
+
+		if (ChatGUI.openedRoom.drawInvite == true)
+		{
+			$('#whiteboardInviteButtons').show(400);
+		}
+		else
+		{
+			$('#whiteboardInviteButtons').hide(0);
 		}
 		
 		ChatGUI.refreshRooms();
@@ -875,6 +903,11 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 		
 		Chat.startVideoCall();
 	});
+
+	$('#btnWhiteboard').on('click', function(e)
+	{
+		Chat.startWhiteboardDrawing();
+	});
 	
 	$('#btnShowHistory').on('click', function(e)
 	{
@@ -892,7 +925,16 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 
 	$('#btnWhiteboard').on('click', function(e)
 	{
-		
+        $('#whiteboard-container').show();
+        var whiteboard = $('.literally.localstorage').literallycanvas({
+          backgroundColor: 'whiteSmoke',
+          imageURLPrefix: '".Yii::app()->theme->baseUrl."/assets/images/whiteboard',
+          onInit: function(lc) {
+            lc.on('drawingChange', function() {
+                console.log(lc.getSnapshotJSON());
+	        });
+          }
+    });
 		return false;
 	});
 	
@@ -901,6 +943,10 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 		Chat.acceptVideoCall();
 		
 		ChatGUI.openedRoom.callinvite = false;
+		$('#videoChatInviteButtons').hide(400);
+	});
+	$('#btnAcceptWhiteboard').on('click', function(e)
+	{
 		$('#videoChatInviteButtons').hide(400);
 	});
 	

@@ -385,7 +385,7 @@ body > div.container[role="main"] {
     float: none!important;
     clear: both;
 }
-#video-expanded {
+#video-expanded, #whiteboard-container {
     position: absolute;
     height: 100%;
     width: 100%;

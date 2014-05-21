@@ -3,11 +3,14 @@ $baseUrl = Yii::app()->theme->baseUrl;
 
 Yii::app()->clientScript->registerCssFile('http://fonts.googleapis.com/css?family=Roboto:400&subset=latin,cyrillic');
 Yii::app()->clientScript->registerCssFile($baseUrl.'/assets/css/chat.css');
+Yii::app()->clientScript->registerCssFile($baseUrl.'/assets/css/literally.css');
 
 Yii::app()->clientScript->registerScriptFile($baseUrl.'/assets/js/MethodsForDateTime.js');
 Yii::app()->clientScript->registerScriptFile($baseUrl.'/assets/js/MethodsForStrings.js');
 
 Yii::app()->clientScript->registerScriptFile($baseUrl.'/assets/js/OTvideo.js');
+Yii::app()->clientScript->registerScriptFile($baseUrl.'/assets/js/literallycanvas.jquery.js');
+Yii::app()->clientScript->registerScriptFile($baseUrl.'/assets/js/whiteboard.js');
 //Yii::app()->clientScript->registerScriptFile('//static.opentok.com/webrtc/v2.2/js/opentok.min.js');
 Yii::app()->clientScript->registerScriptFile('//static.opentok.com/webrtc/v2.2/js/opentok.js');
 
@@ -90,6 +93,11 @@ $this->renderPartial('chat_gui_js', array(
 				<?php echo CHtml::htmlButton(Yii::t('general', 'Accept'), array('id' => 'btnAcceptVideoCall', 'class' => 'btn btn-primary')); ?>
 				<?php echo CHtml::htmlButton(Yii::t('general', 'Decline'), array('id' => 'btnDeclineVideoCall', 'class' => 'btn btn-primary')); ?>
 			</div>
+            <div id="whiteboardInviteButtons" style="display:none;">
+                <p><?php echo Yii::t('general', 'User wants to use a whiteboard'); ?></p>
+                <?php echo CHtml::htmlButton(Yii::t('general', 'Accept'), array('id' => 'btnAcceptWhiteboard', 'class' => 'btn btn-primary')); ?>
+                <?php echo CHtml::htmlButton(Yii::t('general', 'Decline'), array('id' => 'btnDeclineWhiteboard', 'class' => 'btn btn-primary')); ?>
+            </div>
 			<div id="messages"></div>
 			<div id="sending" style="visibility:hidden;">
 				<div id="userPanel">
@@ -130,6 +138,9 @@ $this->renderPartial('chat_gui_js', array(
             </a>
         </div>
 
+    </div>
+    <div id="whiteboard-container" style="display: none">
+        <div class="literally localstorage"><canvas></canvas></div>
     </div>
 </div>
 <?php

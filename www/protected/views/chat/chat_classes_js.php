@@ -10,6 +10,7 @@ Yii::app()->clientScript->registerScript(uniqid('chat_classes'), "
 		CHAT : 'chat',
 		GROUP_CHAT : 'groupchat',
 		VIDEO_CALL : 'videoCall',
+		DRAWING_CALL : 'drawingCall',
 		VIDEO_CALL_ACCEPTED : 'videoCallAccepted',
 		VIDEO_CALL_DECLINED : 'videoCallDeclined'
 	};
@@ -100,6 +101,7 @@ Yii::app()->clientScript->registerScript(uniqid('chat_classes'), "
 		this.id = id;
 		this.type = type; // MessageType
 		this.callinvite = false;
+		this.drawInvite = false;
 		this.fullName = fullName;
 		this.hidden = hidden;
 		this.unread = unread;

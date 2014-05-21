@@ -87,6 +87,7 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 //			Chat.conn.addHandler(RosterObj.on_roster_changed, Strophe.NS.ROSTER, 'iq', 'set');
 			
 			Chat.conn.addHandler(Chat.onVideoCall, null, 'message', MessageType.VIDEO_CALL);
+			Chat.conn.addHandler(Chat.onDrawingCall, null, 'message', MessageType.DRAWING_CALL);
 			Chat.conn.addHandler(Chat.onVideoCallAccepted, null, 'message', MessageType.VIDEO_CALL_ACCEPTED);
 			Chat.conn.addHandler(Chat.onVideoCallDeclined, null, 'message', MessageType.VIDEO_CALL_DECLINED);
 			
@@ -463,7 +464,6 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 			if (jBody.length == 0) return true;
 			
 			var text = jBody.text();
-			
 			if (type == MessageType.CHAT)
 			{
 				console.log('onDirectMessage: ' + from + ' > ' + to + ' > ' + text);
@@ -555,8 +555,10 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 //					Chat.sendMessage(ChatGUI.openedRoom.id, newMessage);
 //					
 					return true;
+				} else if (type == MessageType.DRAWING_CALL) {
+				    alert('drawing ep');
 				}
-				
+
 				if (room != null && sender != null)
 				{
 //					$.ionSound.play('sound_message');
@@ -614,7 +616,16 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 				}
 			});
 		},
-		
+		startWhiteboardDrawing : function() {
+            var newMessage = new InternalChatMessage(
+							MessageType.DRAWING_CALL,
+							MethodsForDateTime.dateToString(new Date()),
+							ChatGUI.openedRoom.id,
+							ChatGUI.openedRoom.fullName,
+							'Invite');
+						Chat.sendMessage(ChatGUI.openedRoom.id, newMessage);
+						return true;
+		},
 		onVideoCall : function(msg)
 		{
 			var to = $(msg).attr('to');
@@ -648,6 +659,33 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 			}
 
 			return true;
+		},
+		onDrawingCall : function(msg) {
+
+		    var to = $(msg).attr('to');
+			var from = $(msg).attr('from');
+			var type = $(msg).attr('type');
+			var jBody = $(msg).find('body');
+
+			console.log('onDrawingCall: ' + from + ', ' + type);
+
+			if (from != Chat.currentUser.fullJid)
+			{
+				var sender = ChatGUI.getUserByBareJid(Strophe.getBareJidFromJid(from));
+
+				var text = 'Start drawing with ' + sender.fullName + '?';
+
+				var newMessage = new InternalChatMessage(
+					MessageType.VIDEO_CALL,
+					MethodsForDateTime.dateToString(new Date()),
+					sender.bareJid,
+					sender.fullName,
+					text);
+
+				ChatGUI.addChatMessage(newMessage);
+
+				ChatGUI.addDrawingCallInvitationControls(sender.bareJid);
+		    }
 		},
 		
 		acceptVideoCall : function ()
