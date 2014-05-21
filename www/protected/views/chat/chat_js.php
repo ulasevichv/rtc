@@ -487,15 +487,12 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 			}
 			else if (type == MessageType.GROUP_CHAT)
 			{
-//				if ($(stanza).attr('videocall'))
-//				{
-//					console.log('--- groupcall request ---');
-//					var opentokIniJsonObj = $.parseJSON(text);
-//					console.log(bareJid);
-//					Chat.currentUser.addOpentokIniObject(bareJid, opentokIniJsonObj);
-//					console.log(Chat.currentUser);
-//				}
-				
+
+			    if ($(stanza).attr('drawingcontent')) {
+				    Chat.onDrawingContent(stanza);
+				    return true;
+				}
+
 				var roomJid = bareJid;
 				
 				var room = ChatGUI.getRoomById(roomJid);
@@ -694,7 +691,7 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 			var type = $(msg).attr('type');
 			var jBody = $(msg).find('body');
 
-			console.log(jBody.text());
+			console.log('onDrawingContent');
             window.whiteboard.loadSnapshotJSON(jBody.text());
 //    console.log(jBody.text().parseJSON());
 //            window.whiteboard.saveShape(jBody.text().parseJSON());
@@ -702,14 +699,25 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 		},
 		sendDrawingContent : function(json) {
 
-		    	var newMessage = new InternalChatMessage(
-					MessageType.DRAWING_CONTENT,
-					MethodsForDateTime.dateToString(new Date()),
-					ChatGUI.openedRoom.bareJid,
-					ChatGUI.openedRoom.fullName,
-					json);
-                Chat.sendMessage(ChatGUI.openedRoom.id, newMessage);
-//				ChatGUI.addChatMessage(newMessage);
+        if (ChatGUI.openedRoom.type == 'groupchat')
+					{
+						var xmppRoom = Chat.conn.muc.rooms[ChatGUI.openedRoom.id];
+
+						Chat.conn.muc.WhiteboardDrawingContentMessage(xmppRoom.name, null,'',json,'groupchat');
+
+						return true;
+					} else {
+					    var newMessage = new InternalChatMessage(
+                            MessageType.DRAWING_CONTENT,
+                            MethodsForDateTime.dateToString(new Date()),
+                            ChatGUI.openedRoom.bareJid,
+                            ChatGUI.openedRoom.fullName,
+                            json);
+                        Chat.sendMessage(ChatGUI.openedRoom.id, newMessage);
+        //				ChatGUI.addChatMessage(newMessage);
+					}
+
+
 
 		    console.log(json);
 		},
