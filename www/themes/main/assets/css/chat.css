@@ -487,3 +487,7 @@ body > div.container[role="main"] {
 .header .navbar-toggle {
 	padding: 5px;
 }
+#btnCloseWhiteboard {
+	float: right;
+	margin: 10px 5px 0 0;
+}

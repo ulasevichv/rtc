@@ -8,6 +8,8 @@ Yii::app()->clientScript->registerCssFile($baseUrl.'/assets/css/literally.css');
 Yii::app()->clientScript->registerScriptFile($baseUrl.'/assets/js/MethodsForDateTime.js');
 Yii::app()->clientScript->registerScriptFile($baseUrl.'/assets/js/MethodsForStrings.js');
 
+Yii::app()->clientScript->registerScriptFile($baseUrl.'/assets/js/json.js');
+Yii::app()->clientScript->registerScriptFile($baseUrl.'/assets/js/jquery.stringify.js');
 Yii::app()->clientScript->registerScriptFile($baseUrl.'/assets/js/OTvideo.js');
 Yii::app()->clientScript->registerScriptFile($baseUrl.'/assets/js/literallycanvas.jquery.js');
 Yii::app()->clientScript->registerScriptFile($baseUrl.'/assets/js/whiteboard.js');
@@ -141,6 +143,9 @@ $this->renderPartial('chat_gui_js', array(
     </div>
     <div id="whiteboard-container" style="display: none">
         <div class="literally localstorage"><canvas></canvas></div>
+        <a id="btnCloseWhiteboard" onclick="jQuery('whiteboard-container').hide(400)" class="btn btn-primary" href="javascript:void(0)"> <span class="glyphicon glyphicon-log-in">
+						</span> <?php echo Yii::t('general', 'Close Whiteboard') ?>
+        </a>
     </div>
 </div>
 <?php

@@ -88,6 +88,7 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 			
 			Chat.conn.addHandler(Chat.onVideoCall, null, 'message', MessageType.VIDEO_CALL);
 			Chat.conn.addHandler(Chat.onDrawingCall, null, 'message', MessageType.DRAWING_CALL);
+			Chat.conn.addHandler(Chat.onDrawingContent, null, 'message', MessageType.DRAWING_CONTENT);
 			Chat.conn.addHandler(Chat.onVideoCallAccepted, null, 'message', MessageType.VIDEO_CALL_ACCEPTED);
 			Chat.conn.addHandler(Chat.onVideoCallDeclined, null, 'message', MessageType.VIDEO_CALL_DECLINED);
 			
@@ -686,6 +687,31 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 
 				ChatGUI.addDrawingCallInvitationControls(sender.bareJid);
 		    }
+		},
+		onDrawingContent : function(msg) {
+		    var to = $(msg).attr('to');
+			var from = $(msg).attr('from');
+			var type = $(msg).attr('type');
+			var jBody = $(msg).find('body');
+
+			console.log(jBody.text());
+            window.whiteboard.loadSnapshotJSON(jBody.text());
+//    console.log(jBody.text().parseJSON());
+//            window.whiteboard.saveShape(jBody.text().parseJSON());
+		    return true;
+		},
+		sendDrawingContent : function(json) {
+
+		    	var newMessage = new InternalChatMessage(
+					MessageType.DRAWING_CONTENT,
+					MethodsForDateTime.dateToString(new Date()),
+					ChatGUI.openedRoom.bareJid,
+					ChatGUI.openedRoom.fullName,
+					json);
+                Chat.sendMessage(ChatGUI.openedRoom.id, newMessage);
+//				ChatGUI.addChatMessage(newMessage);
+
+		    console.log(json);
 		},
 		
 		acceptVideoCall : function ()
