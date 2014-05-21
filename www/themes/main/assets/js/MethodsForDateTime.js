@@ -69,12 +69,12 @@ var MethodsForDateTime =
 	//
 	dateToISO8601 : function(date)
 	{
-		return date.getFullYear() + '-' +
-			MethodsForDateTime.intToPadString(1 + date.getMonth(), 2) + '-' +
-			MethodsForDateTime.intToPadString(date.getDate(), 2) + 'T' +
-			MethodsForDateTime.intToPadString(date.getHours(), 2) + ':' +
-			MethodsForDateTime.intToPadString(date.getMinutes(), 2) + ':' +
-			MethodsForDateTime.intToPadString(date.getSeconds(), 2) + 'Z';
+		return date.getUTCFullYear() + '-' +
+			MethodsForDateTime.intToPadString(1 + date.getUTCMonth(), 2) + '-' +
+			MethodsForDateTime.intToPadString(date.getUTCDate(), 2) + 'T' +
+			MethodsForDateTime.intToPadString(date.getUTCHours(), 2) + ':' +
+			MethodsForDateTime.intToPadString(date.getUTCMinutes(), 2) + ':' +
+			MethodsForDateTime.intToPadString(date.getUTCSeconds(), 2) + 'Z';
 	},
 	
 	getDayBeginningDateTime : function(date)

@@ -600,9 +600,9 @@ Yii::app()->clientScript->registerScript(uniqid('chat_gui'), "
 				
 //				ChatGUI.setRoomLoadingState(room.id, true);
 				
-//				ChatGUI.loadChatHistory(room, ChatHistoryPeriod.YESTERDAY);
+				ChatGUI.loadChatHistory(room, ChatHistoryPeriod.YESTERDAY);
 //				ChatGUI.loadChatHistory(room, ChatHistoryPeriod.SEVEN_DAYS);
-				ChatGUI.loadChatHistory(room, ChatHistoryPeriod.THIRTY_DAYS);
+//				ChatGUI.loadChatHistory(room, ChatHistoryPeriod.THIRTY_DAYS);
 //				ChatGUI.loadChatHistory(room, ChatHistoryPeriod.THREE_MONTHS);
 //				ChatGUI.loadChatHistory(room, ChatHistoryPeriod.SIX_MONTHS);
 //				ChatGUI.loadChatHistory(room, ChatHistoryPeriod.ONE_YEAR);

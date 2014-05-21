@@ -935,7 +935,8 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 			}
 			else
 			{
-				listObj = { xmlns : 'urn:xmpp:archive', with : room.id, end : MethodsForDateTime.dateToISO8601(periodStartDateTime) };
+//				listObj = { xmlns : 'urn:xmpp:archive', with : room.id, start : MethodsForDateTime.dateToISO8601(periodStartDateTime), end : MethodsForDateTime.dateToISO8601(currentDateTime) };
+				listObj = { xmlns : 'urn:xmpp:archive', with : room.id, start : MethodsForDateTime.dateToISO8601(periodStartDateTime) };
 			}
 			
 			var iq = \$iq({type : 'get'})
@@ -945,12 +946,20 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 			
 			console.log(Strophe.serialize(iq));
 			
-//			Chat.conn.sendIQ(iq, Chat.onChatHistoryCollectionsReceived);
+			Chat.conn.sendIQ(iq, Chat.onChatHistoryCollectionsReceived);
 		},
 		
 		onChatHistoryCollectionsReceived : function(stanza)
 		{
 			console.log(stanza);
+			
+			var jConversations = $(stanza).find('chat');
+			
+			jConversations.each(function(index, jConversation)
+			{
+				console.log(index);
+				console.log(jConversation);
+			});
 		}
 	};
 	
