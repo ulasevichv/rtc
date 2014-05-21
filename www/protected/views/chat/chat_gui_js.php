@@ -410,6 +410,40 @@ Yii::app()->clientScript->registerScript(uniqid('chat_gui'), "
 				feed.push(	'<div class=\"period\">".Yii::t('chat', 'From Beginning')."</div>');
 				feed.push('</div>');
 				
+				for (var i = 0; i < ChatGUI.openedRoom.historyMessages.length; i++)
+				{
+					var historyMessage = ChatGUI.openedRoom.historyMessages[i];
+					
+					var blockType = (historyMessage.from == '' ? 'outgoing' : 'incoming');
+					
+					var senderFullName = '';
+					
+					if (historyMessage.from == '')
+					{
+						senderFullName = Chat.currentUser.fullName;
+					}
+					else
+					{
+						var user = ChatGUI.getUserByBareJid(historyMessage.from);
+						
+						if (user == null) senderFullName = historyMessage.from;
+						else senderFullName = user.fullName;
+						
+					}
+					
+					feed.push('<div class=\"message ' + blockType + '\">');
+					feed.push(	'<div class=\"from\">');
+					feed.push(		senderFullName);
+					feed.push(	'</div>');
+					feed.push(	'<div class=\"text\">');
+					feed.push(		historyMessage.text);
+					feed.push(	'</div>');
+					feed.push(	'<div class=\"time\">');
+					feed.push(		MethodsForDateTime.dateToString(historyMessage.dateTime));
+					feed.push(	'</div>');
+					feed.push('</div>');
+				}
+				
 				for (var i = 0; i < ChatGUI.openedRoom.messages.length; i++)
 				{
 					var message = ChatGUI.openedRoom.messages[i];
@@ -432,6 +466,15 @@ Yii::app()->clientScript->registerScript(uniqid('chat_gui'), "
 				jMsgContainerDiv.find('.text').html(feed.join(''));
 				
 				ChatGUI.resizeChatTextDiv();
+				
+				if (ChatGUI.openedRoom.currentHistoryPeriod != null)
+				{
+					var jMsgContainerDiv = ChatGUI.getRoomMessageContainerDiv(ChatGUI.openedRoom);
+					var jTextDiv = jMsgContainerDiv.find('.text');
+					var periodIndex = ChatHistoryPeriod.getPeriodIndex(ChatGUI.openedRoom.currentHistoryPeriod);
+					var jPeriodDiv = jTextDiv.find('> .chat_history_controls > .period:nth-child(' + (periodIndex + 3) + ')');
+					jPeriodDiv.attr('active', '');
+				}
 			}
 			
 			if (openedRoomWasUnread)
@@ -465,30 +508,14 @@ Yii::app()->clientScript->registerScript(uniqid('chat_gui'), "
 			}
 		},
 		
-		setRoomLoadingState : function(roomJid, value)
-		{
-			var room = ChatGUI.getRoomById(roomJid);
-			
-			var jMsgContainerDiv = ChatGUI.getRoomMessageContainerDiv(room);
-			var jTextDiv = jMsgContainerDiv.find('.text');
-			
-			if (value)
-			{
-				jTextDiv.attr('loading', '');
-				setTimeout(function() { ChatGUI.setRoomLoadingState(roomJid, false); }, 4000);
-			}
-			else
-			{
-				jTextDiv.removeAttr('loading');
-			}
-		},
-		
-		loadChatHistory : function(room, period)
+		loadChatRoomHistory : function(room, period)
 		{
 			var jMsgContainerDiv = ChatGUI.getRoomMessageContainerDiv(room);
 			var jTextDiv = jMsgContainerDiv.find('.text');
 			
 			jTextDiv.attr('loading', '');
+			
+			room.currentHistoryPeriod = period;
 			
 			var periodIndex = ChatHistoryPeriod.getPeriodIndex(period);
 			
@@ -496,7 +523,17 @@ Yii::app()->clientScript->registerScript(uniqid('chat_gui'), "
 			
 			jPeriodDiv.attr('active', '');
 			
-			Chat.loadChatHistory(room, period);
+			Chat.loadChatRoomHistory(room, period);
+		},
+		
+		onChatRoomHistoryLoaded : function(room)
+		{
+			var jMsgContainerDiv = ChatGUI.getRoomMessageContainerDiv(room);
+			var jTextDiv = jMsgContainerDiv.find('.text');
+			
+			jTextDiv.removeAttr('loading');
+			
+			ChatGUI.refreshRooms();
 		},
 		
 		startPageTitleAnimation : function()
@@ -593,20 +630,16 @@ Yii::app()->clientScript->registerScript(uniqid('chat_gui'), "
 				room = new InternalChatRoom(roomJid, MessageType.CHAT, user.fullName);
 				ChatGUI.rooms.push(room);
 				
-//				room.loading = true;
-				
 				ChatGUI.openedRoom = room;
 				ChatGUI.refreshRooms();
 				
-//				ChatGUI.setRoomLoadingState(room.id, true);
-				
-				ChatGUI.loadChatHistory(room, ChatHistoryPeriod.YESTERDAY);
-//				ChatGUI.loadChatHistory(room, ChatHistoryPeriod.SEVEN_DAYS);
-//				ChatGUI.loadChatHistory(room, ChatHistoryPeriod.THIRTY_DAYS);
-//				ChatGUI.loadChatHistory(room, ChatHistoryPeriod.THREE_MONTHS);
-//				ChatGUI.loadChatHistory(room, ChatHistoryPeriod.SIX_MONTHS);
-//				ChatGUI.loadChatHistory(room, ChatHistoryPeriod.ONE_YEAR);
-//				ChatGUI.loadChatHistory(room, ChatHistoryPeriod.FROM_BEGINNING);
+				ChatGUI.loadChatRoomHistory(room, ChatHistoryPeriod.YESTERDAY);
+//				ChatGUI.loadChatRoomHistory(room, ChatHistoryPeriod.SEVEN_DAYS);
+//				ChatGUI.loadChatRoomHistory(room, ChatHistoryPeriod.THIRTY_DAYS);
+//				ChatGUI.loadChatRoomHistory(room, ChatHistoryPeriod.THREE_MONTHS);
+//				ChatGUI.loadChatRoomHistory(room, ChatHistoryPeriod.SIX_MONTHS);
+//				ChatGUI.loadChatRoomHistory(room, ChatHistoryPeriod.ONE_YEAR);
+//				ChatGUI.loadChatRoomHistory(room, ChatHistoryPeriod.FROM_BEGINNING);
 			}
 			else
 			{

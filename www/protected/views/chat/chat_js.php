@@ -923,7 +923,7 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 			console.log(stanza);
 		},
 		
-		loadChatHistory : function(room, period)
+		loadChatRoomHistory : function(room, period)
 		{
 			var currentDateTime = new Date();
 			
@@ -943,8 +943,8 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 			}
 			else
 			{
-//				listObj = { xmlns : 'urn:xmpp:archive', with : room.id, start : MethodsForDateTime.dateToISO8601(periodStartDateTime), end : MethodsForDateTime.dateToISO8601(currentDateTime) };
-				listObj = { xmlns : 'urn:xmpp:archive', with : room.id, start : MethodsForDateTime.dateToISO8601(periodStartDateTime) };
+//				listObj = { xmlns : 'urn:xmpp:archive', 'with' : room.id, 'start' : MethodsForDateTime.dateToISO8601(periodStartDateTime), 'end' : MethodsForDateTime.dateToISO8601(currentDateTime) };
+				listObj = { xmlns : 'urn:xmpp:archive', 'with' : room.id, 'start' : MethodsForDateTime.dateToISO8601(periodStartDateTime) };
 			}
 			
 			var iq = \$iq({type : 'get'})
@@ -954,20 +954,107 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 			
 			console.log(Strophe.serialize(iq));
 			
-			Chat.conn.sendIQ(iq, Chat.onChatHistoryCollectionsReceived);
+			Chat.conn.sendIQ(iq, function(stanza) { Chat.onHistoryCollectionsReceived(stanza, room); });
 		},
 		
-		onChatHistoryCollectionsReceived : function(stanza)
+		onHistoryCollectionsReceived : function(stanza, room)
 		{
-			console.log(stanza);
-			
 			var jConversations = $(stanza).find('chat');
 			
-			jConversations.each(function(index, jConversation)
+			for (var i = 0; i < jConversations.length; i++)
 			{
-				console.log(index);
-				console.log(jConversation);
-			});
+				var jConversation = jConversations.eq(i);
+				
+				var conversation = new ChatRoomHistoryConversation(jConversation.attr('with'), jConversation.attr('start'));
+				
+				room.historyConversations.push(conversation);
+			}
+			
+			room.historyConversations.sort(function(a, b) { return a.start.localeCompare(b.start); });
+			
+			console.log(room.historyConversations);
+			
+			Chat.loadHistoryMessages(room);
+		},
+		
+		loadHistoryMessages : function(room)
+		{
+			var everythingLoaded = true;
+			
+			for (var i = 0; i < room.historyConversations.length; i++)
+			{
+				var conversation = room.historyConversations[i];
+				
+				if (!conversation.loaded)
+				{
+					everythingLoaded = false;
+					
+					var iq = \$iq({type : 'get'})
+						.c('retrieve', {xmlns : 'urn:xmpp:archive', with : conversation.with, start : conversation.start})
+						.c('set', {xmlns : 'http://jabber.org/protocol/rsm'})
+						.c('max').t(500);
+					
+					console.log(Strophe.serialize(iq));
+					
+					Chat.conn.sendIQ(iq, function(stanza) { Chat.onHistoryMessagesLoaded(stanza, room, conversation); });
+					
+					break;
+				}
+			}
+			
+			if (everythingLoaded)
+			{
+				console.log('EVERYTHING LOADED');
+				
+//				room.historyMessages.sort(function(a, b) { return a.start.localeCompare(b.start); });
+				
+//				console.log(room.historyMessages);
+				
+				ChatGUI.onChatRoomHistoryLoaded(room);
+			}
+		},
+		
+		onHistoryMessagesLoaded : function(stanza, room, conversation)
+		{
+			var jChat = $(stanza).find('chat');
+			var jMessagesTo = $(stanza).find('to');
+			var jMessagesFrom = $(stanza).find('from');
+			
+			var startDateTime = new Date(jChat.attr('start'));
+			
+			var messageDateTime = new Date(startDateTime.getTime());
+			
+			for (var i = 0; i < jMessagesTo.length; i++)
+			{
+				var jMessageTo = jMessagesTo.eq(i);
+				
+				var seconds = parseInt(jMessageTo.attr('secs'));
+				
+				messageDateTime.setSeconds(messageDateTime.getSeconds() + seconds);
+				
+				var message = new ChatRoomHistoryMessage('', messageDateTime, jMessageTo.find('body').text());
+				
+				room.historyMessages.push(message);
+			}
+			
+			var messageDateTime = new Date(startDateTime.getTime());
+			
+			for (var i = 0; i < jMessagesFrom.length; i++)
+			{
+				var jMessageFrom = jMessagesFrom.eq(i);
+				
+				var seconds = parseInt(jMessageFrom.attr('secs'));
+				
+				messageDateTime.setSeconds(messageDateTime.getSeconds() + seconds);
+				
+				var message = new ChatRoomHistoryMessage(jMessageFrom.attr('jid'), messageDateTime, jMessageTo.find('body').text());
+				
+				room.historyMessages.push(message);
+			}
+			
+			conversation.loaded = true;
+			
+			Chat.loadHistoryMessages(room);
 		}
 	};
 	

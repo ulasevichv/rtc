@@ -181,7 +181,11 @@ Yii::app()->clientScript->registerScript(uniqid('chat_classes'), "
 		this.unread = unread;
 		this.messages = []; // InternalChatMessage
 		this.onlineUserNicknames = [];
-		this.loading = false;
+		
+		this.currentHistoryPeriod = null;
+		this.historyConversations = []; // ChatRoomHistoryConversation
+		this.historyMessages = []; // ChatRoomMessage
+		
 	}
 	
 	InternalChatRoom.prototype.changeParticipantOnlineStatus = function(nickname, online)
@@ -217,6 +221,34 @@ Yii::app()->clientScript->registerScript(uniqid('chat_classes'), "
 		this.jid = jid;
 		this.name = name;
 		this.fullName = fullName;
+	}
+	
+	//==================================================
+	// Chat room history conversation.
+	//==================================================
+	
+	ChatRoomHistoryConversation.prototype = new Object();
+	
+	function ChatRoomHistoryConversation(with_, start, loaded)
+	{
+		loaded = (typeof(loaded) == 'undefined' ? false : loaded);
+		
+		this.with = with_;
+		this.start = start;
+		this.loaded = loaded;
+	}
+	
+	//==================================================
+	// Chat room history message.
+	//==================================================
+	
+	ChatRoomHistoryMessage.prototype = new Object();
+	
+	function ChatRoomHistoryMessage(from, dateTime, text)
+	{
+		this.from = from;
+		this.dateTime = dateTime;
+		this.text = text;
 	}
 	
 ", CClientScript::POS_HEAD);
