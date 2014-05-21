@@ -142,8 +142,8 @@ $this->renderPartial('chat_gui_js', array(
 
     </div>
     <div id="whiteboard-container" style="display: none">
-        <div class="literally localstorage"><canvas></canvas></div>
-        <a id="btnCloseWhiteboard" onclick="jQuery('whiteboard-container').hide(400)" class="btn btn-primary" href="javascript:void(0)"> <span class="glyphicon glyphicon-log-in">
+        <div class="literally localstorage"></div>
+        <a id="btnCloseWhiteboard" onclick="jQuery('#whiteboard-container').hide(400)" class="btn btn-primary" href="javascript:void(0)"> <span class="glyphicon glyphicon-log-in">
 						</span> <?php echo Yii::t('general', 'Close Whiteboard') ?>
         </a>
     </div>

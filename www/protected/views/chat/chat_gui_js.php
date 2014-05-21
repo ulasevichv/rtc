@@ -925,6 +925,7 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 
 	$('#btnWhiteboard').on('click', function(e)
 	{
+	    jQuery('#whiteboard-container .literally.localstorage').html('<canvas></canvas>');
         $('#whiteboard-container').show();
         var whiteboard = $('.literally.localstorage').literallycanvas({
           backgroundColor: 'whiteSmoke',
@@ -954,6 +955,7 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 	});
 	$('#btnAcceptWhiteboard').on('click', function(e)
 	{
+	    jQuery('#whiteboard-container .literally.localstorage').html('<canvas></canvas>');
 		$('#whiteboardInviteButtons').hide(400);
 		$('#whiteboard-container').show();
           $('.literally.localstorage').literallycanvas({
