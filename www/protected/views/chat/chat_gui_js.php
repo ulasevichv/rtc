@@ -889,6 +889,12 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 		);
 		return false;
 	});
+
+	$('#btnWhiteboard').on('click', function(e)
+	{
+		
+		return false;
+	});
 	
 	$('#btnAcceptVideoCall').on('click', function(e)
 	{

@@ -106,6 +106,9 @@ $this->renderPartial('chat_gui_js', array(
                     <a id="btnShowHistory" class="btn btn-primary" href="javascript:void(0)"> <span class="glyphicon glyphicon-dashboard">
 						</span> <?php echo Yii::t('general', 'Show Chat History') ?>
                     </a>
+                    <a id="btnWhiteboard" class="btn btn-primary" href="javascript:void(0)"> <span class="glyphicon glyphicon-dashboard">
+						</span> <?php echo Yii::t('general', 'Start Drawing') ?>
+                    </a>
 				</div>
 				<div class="controls">
 					<?php echo CHtml::textArea(null, '', array('id' => 'inputMessage')); ?>
