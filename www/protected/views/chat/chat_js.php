@@ -540,24 +540,10 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 //					$.ionSound.play('sound_message');
 					
 					ChatGUI.addVideoCallInvitationControls(Chat.currentUser.bareJid);
-					
-//					var msgText = 'Start a group call?';
-//					
-//					var newMessage = new InternalChatMessage(
-//						MessageType.GROUP_CHAT,
-//						MethodsForDateTime.dateToString(new Date()),
-//						ChatGUI.openedRoom.id,
-//						ChatGUI.openedRoom.fullName,
-//						msgText,
-//						ChatGUI.openedRoom.id);
-//					
-//					console.log(newMessage);
-//					
-//					Chat.sendMessage(ChatGUI.openedRoom.id, newMessage);
-//					
+								
 					return true;
-				} else if (type == MessageType.DRAWING_CALL) {
-				    alert('drawing ep');
+				} else if ($(stanza).attr('whiteboard')) {
+				    ChatGUI.addDrawingCallInvitationControls(ChatGUI.openedRoom.id);
 				}
 
 				if (room != null && sender != null)
@@ -618,13 +604,27 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 			});
 		},
 		startWhiteboardDrawing : function() {
-            var newMessage = new InternalChatMessage(
+
+		if (ChatGUI.openedRoom.type == 'groupchat')
+					{
+						var xmppRoom = Chat.conn.muc.rooms[ChatGUI.openedRoom.id];
+
+						Chat.conn.muc.WhiteboardCallInviteMessage(xmppRoom.name, null,'','Do you want to join my drawing demonstration?','groupchat');
+
+						return true;
+					}
+					else
+					{
+					     var newMessage = new InternalChatMessage(
 							MessageType.DRAWING_CALL,
 							MethodsForDateTime.dateToString(new Date()),
 							ChatGUI.openedRoom.id,
 							ChatGUI.openedRoom.fullName,
 							'Invite');
 						Chat.sendMessage(ChatGUI.openedRoom.id, newMessage);
+					}
+
+
 						return true;
 		},
 		onVideoCall : function(msg)
