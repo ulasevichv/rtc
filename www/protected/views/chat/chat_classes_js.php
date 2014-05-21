@@ -21,6 +21,79 @@ Yii::app()->clientScript->registerScript(uniqid('chat_classes'), "
 		UNAVAILABLE : 'unavailable'
 	};
 	
+	var ChatHistoryPeriod = {
+		YESTERDAY : 'yesterday',
+		SEVEN_DAYS : 'seven days',
+		THIRTY_DAYS : 'thirty days',
+		THREE_MONTHS : 'three months',
+		SIX_MONTHS : 'six months',
+		ONE_YEAR : 'one year',
+		FROM_BEGINNING : 'from beginning',
+		
+		getPeriodIndex : function(period)
+		{
+			switch (period)
+			{
+				case ChatHistoryPeriod.YESTERDAY: return 0;
+				case ChatHistoryPeriod.SEVEN_DAYS: return 1;
+				case ChatHistoryPeriod.THIRTY_DAYS: return 2;
+				case ChatHistoryPeriod.THREE_MONTHS: return 3;
+				case ChatHistoryPeriod.SIX_MONTHS: return 4;
+				case ChatHistoryPeriod.ONE_YEAR: return 5;
+				case ChatHistoryPeriod.FROM_BEGINNING: return 6;
+			}
+			
+			return -1;
+		},
+		
+		getPeriodStartDate : function(originalDate, period)
+		{
+			var dayBeginningDateTime = MethodsForDateTime.getDayBeginningDateTime(originalDate);
+			
+			var newDateTime = new Date(dayBeginningDateTime.getTime());
+			
+			switch (period)
+			{
+				case ChatHistoryPeriod.YESTERDAY:
+				{
+					newDateTime.setHours(-24);
+					return newDateTime;
+				}
+				case ChatHistoryPeriod.SEVEN_DAYS:
+				{
+					newDateTime.setHours(-24 * 7);
+					return newDateTime;
+				}
+				case ChatHistoryPeriod.THIRTY_DAYS:
+				{
+					newDateTime.setHours(-24 * 30);
+					return newDateTime;
+				}
+				case ChatHistoryPeriod.THREE_MONTHS:
+				{
+					newDateTime.setMonth(newDateTime.getMonth() - 3);
+					return newDateTime;
+				}
+				case ChatHistoryPeriod.SIX_MONTHS:
+				{
+					newDateTime.setMonth(newDateTime.getMonth() - 6);
+					return newDateTime;
+				}
+				case ChatHistoryPeriod.ONE_YEAR:
+				{
+					newDateTime.setFullYear(newDateTime.getFullYear() - 1);
+					return newDateTime;
+				}
+				case ChatHistoryPeriod.FROM_BEGINNING:
+				{
+					return originalDate;
+				}
+			}
+			
+			return null;
+		}
+	};
+	
 	//==================================================
 	// Chat user.
 	//==================================================

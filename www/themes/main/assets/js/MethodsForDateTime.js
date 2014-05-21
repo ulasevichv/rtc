@@ -42,7 +42,7 @@ var MethodsForDateTime =
 		return str + strValue;
 	},
 	
-	// Expected format is: 2001-01-01 00:00:00
+	// Expected format is canonical: 2001-01-01 00:00:00
 	//
 	stringToDate : function(str)
 	{
@@ -63,5 +63,29 @@ var MethodsForDateTime =
 		result = result.substring(0, 4) + '-' + result.substring(4, 6) + '-' + result.substring(6, 8) + ' ' + result.substring(9);
 		
 		return result;
+	},
+	
+	// Difference between this and Date.toISOString() is absence of milliseconds in the result.
+	//
+	dateToISO8601 : function(date)
+	{
+		return date.getFullYear() + '-' +
+			MethodsForDateTime.intToPadString(1 + date.getMonth(), 2) + '-' +
+			MethodsForDateTime.intToPadString(date.getDate(), 2) + 'T' +
+			MethodsForDateTime.intToPadString(date.getHours(), 2) + ':' +
+			MethodsForDateTime.intToPadString(date.getMinutes(), 2) + ':' +
+			MethodsForDateTime.intToPadString(date.getSeconds(), 2) + 'Z';
+	},
+	
+	getDayBeginningDateTime : function(date)
+	{
+		var newDate = new Date(date.getTime());
+		
+		newDate.setHours(0);
+		newDate.setMinutes(0);
+		newDate.setSeconds(0);
+		newDate.setMilliseconds(0);
+		
+		return newDate;
 	}
 };
