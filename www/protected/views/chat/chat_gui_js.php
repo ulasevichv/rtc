@@ -989,6 +989,9 @@ Yii::app()->clientScript->registerScript(uniqid(), "
             lc.on('drawingChange', function() {
                 return false;
                 //console.log(lc.getSnapshotJSON());
+	        }),
+	        lc.on('drawStart',function(){
+	            return false;
 	        });
           }
     });
