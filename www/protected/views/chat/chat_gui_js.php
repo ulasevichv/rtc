@@ -864,6 +864,8 @@ Yii::app()->clientScript->registerScript(uniqid('chat_gui'), "
 				$('#whiteboardInviteButtons').show(400);
 			}
 
+
+
 			return true;
 		},
 	};
@@ -1033,9 +1035,50 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 	        });
           }
     });
+
+
+
+            var msg = Chat.currentUser.fullName + ' joined whiteboard.';
+			var newMessage = new InternalChatMessage(
+				MessageType.SYSTEM,
+				MethodsForDateTime.dateToString(new Date()),
+				ChatGUI.openedRoom.id,
+				ChatGUI.openedRoom.fullName,
+				msg);
+
+		    Chat.sendMessage(ChatGUI.openedRoom.id, newMessage);
 		return false;
 	});
-	
+
+	$('#btnDeclineWhiteboard').on('click', function(e) {
+        $('#whiteboardInviteButtons').hide(400);
+
+         var msg = Chat.currentUser.fullName + ' declined your invitation.';
+			var newMessage = new InternalChatMessage(
+				MessageType.SYSTEM,
+				MethodsForDateTime.dateToString(new Date()),
+				ChatGUI.openedRoom.id,
+				ChatGUI.openedRoom.fullName,
+				msg);
+
+		    Chat.sendMessage(ChatGUI.openedRoom.id, newMessage);
+		return false;
+    });
+
+	$('#btnCloseWhiteboard').on('click', function(e) {
+        jQuery('#whiteboard-container').hide(400);
+
+         var msg = Chat.currentUser.fullName + ' leaved whiteboard.';
+			var newMessage = new InternalChatMessage(
+				MessageType.SYSTEM,
+				MethodsForDateTime.dateToString(new Date()),
+				ChatGUI.openedRoom.id,
+				ChatGUI.openedRoom.fullName,
+				msg);
+
+		    Chat.sendMessage(ChatGUI.openedRoom.id, newMessage);
+		    return true;
+	});
 	$('#btnDeclineVideoCall').on('click', function(e)
 	{
 //		Chat.sendMessage(ChatGUI.openedRoom.id, '', MessageType.VIDEO_CALL_DECLINED);
@@ -1129,6 +1172,10 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 			ChatGUI.refreshRooms();
 		}
 		ChatGUI.resizeChatTextDiv();
+	});
+
+	$('#system-messages').on('mouseover', function(){
+        jQuery('#system-messages').hide(800);
 	});
 	
 	$(window).on('beforeunload', function()

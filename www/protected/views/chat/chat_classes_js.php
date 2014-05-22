@@ -10,6 +10,7 @@ Yii::app()->clientScript->registerScript(uniqid('chat_classes'), "
 		CHAT : 'chat',
 		GROUP_CHAT : 'groupchat',
 		VIDEO_CALL : 'videoCall',
+		SYSTEM : 'system',
 		DRAWING_CALL : 'drawingCall',
 		DRAWING_CONTENT : 'drawingContent',
 		VIDEO_CALL_ACCEPTED : 'videoCallAccepted',

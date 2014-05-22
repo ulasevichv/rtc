@@ -85,7 +85,8 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 //			var iq = \$iq({type: 'get'}).c('query', {xmlns: Strophe.NS.ROSTER});
 //			Chat.conn.sendIQ(iq, RosterObj.on_roster);
 //			Chat.conn.addHandler(RosterObj.on_roster_changed, Strophe.NS.ROSTER, 'iq', 'set');
-			
+
+			Chat.conn.addHandler(Chat.onSystemMessage, null, 'message', MessageType.SYSTEM);
 			Chat.conn.addHandler(Chat.onVideoCall, null, 'message', MessageType.VIDEO_CALL);
 			Chat.conn.addHandler(Chat.onDrawingCall, null, 'message', MessageType.DRAWING_CALL);
 			Chat.conn.addHandler(Chat.onDrawingContent, null, 'message', MessageType.DRAWING_CONTENT);
@@ -691,10 +692,10 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 			var type = $(msg).attr('type');
 			var jBody = $(msg).find('body');
 
-			console.log('onDrawingContent');
-			console.log(jBody.text());
 			if (jQuery('.literally.localstorage').is(':visible')) {
                 window.whiteboard.loadSnapshotJSON(jBody.text());
+			} else {
+                ChatGUI.addDrawingCallInvitationControls(from);
 			}
 		    return true;
 		},
@@ -722,7 +723,21 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 
 		    console.log(json);
 		},
-		
+		onSystemMessage : function(msg){
+		    var to = $(msg).attr('to');
+			var from = $(msg).attr('from');
+			var type = $(msg).attr('type');
+			var jBody = $(msg).find('body');
+            Chat.addSystemMessage(jBody.text());
+
+            return true;
+
+		},
+		addSystemMessage : function(text) {
+            jQuery('#system-messages').html('<div class=\"alert alert-success alert-dismissable\">' +
+  '<button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-hidden=\"true\">&times;</button>'+
+  '<strong> Information!</strong>'+text+'</div>');
+		},
 		acceptVideoCall : function ()
 		{
 			var opentokIniObject = Chat.currentUser.getOpentokIniObject(ChatGUI.openedRoom.id);
