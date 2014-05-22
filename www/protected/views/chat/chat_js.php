@@ -736,8 +736,8 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 		addSystemMessage : function(text) {
             jQuery('#system-messages').html('<div class=\"alert alert-success alert-dismissable\">' +
   '<button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-hidden=\"true\">&times;</button>'+
-  '<strong> Information!</strong>'+text+'</div>');
-
+  '<strong> Information! </strong>'+text+'</div>');
+          jQuery('#system-messages').show('slow');
           setTimeout(function() { $('#system-messages').fadeOut('slow');}, 5000);
 
           return true;
