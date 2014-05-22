@@ -1175,9 +1175,8 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 	});
 
 	$('#system-messages').on('mouseover', function(){
-//        jQuery('#system-messages').hide(800);
-        setTimeout(function() {
-    $('#system-messages').fadeOut('fast');}, 5000);
+
+
 	});
 	
 	$(window).on('beforeunload', function()

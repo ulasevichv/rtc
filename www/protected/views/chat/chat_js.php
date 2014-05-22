@@ -737,6 +737,10 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
             jQuery('#system-messages').html('<div class=\"alert alert-success alert-dismissable\">' +
   '<button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-hidden=\"true\">&times;</button>'+
   '<strong> Information!</strong>'+text+'</div>');
+
+          setTimeout(function() { $('#system-messages').fadeOut('slow');}, 5000);
+
+          return true;
 		},
 		acceptVideoCall : function ()
 		{
