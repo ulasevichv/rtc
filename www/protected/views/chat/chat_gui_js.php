@@ -428,7 +428,6 @@ Yii::app()->clientScript->registerScript(uniqid('chat_gui'), "
 						
 						if (user == null) senderFullName = historyMessage.from;
 						else senderFullName = user.fullName;
-						
 					}
 					
 					feed.push('<div class=\"message ' + blockType + '\">');
@@ -1135,7 +1134,7 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 	
 	$('.chatRoot .header-title').on('click', function()
 	{
-		Chat.loadMessageCollections();
+//		Chat.loadMessageCollections();
 	});
 	
 	// Starting chat.

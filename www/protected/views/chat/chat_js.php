@@ -867,73 +867,67 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 			console.log(stanza);
 		},
 		
-		loadMessageCollections : function()
-		{
-//			var iq = \$iq({type: 'get'}).c('query', {xmlns: Strophe.NS.ROSTER});
-			
-			Chat.conn.sendIQ(
-//				\$iq({type : 'get', with : 'marina@192.237.219.76'})
-//				\$iq({type : 'get', with : 'room01@conference.192.237.219.76'})
-				\$iq({type : 'get'})
-//				.c('list', {xmlns : 'urn:xmpp:archive', with : 'nastassia' + '@' + Chat.domain})
-//				.c('list', {xmlns : 'urn:xmpp:archive', with : 'nastassia' + '@' + Chat.domain, start : '2014-05-16T00:00:00Z'})
-//				.c('list', {xmlns : 'urn:xmpp:archive', with : 'nastassia' + '@' + Chat.domain, start : '2014-05-16T07:01:40.513Z'})
-//				.c('list', {xmlns : 'urn:xmpp:archive', with : 'nastassia' + '@' + Chat.domain, start : '2014-05-13T00:00:00Z', end : '2014-05-25T00:00:00Z'})
-				.c('list', {xmlns : 'urn:xmpp:archive', with : 'nastassia' + '@' + Chat.domain, end : '2014-05-17T00:00:00Z'})
-				.c('set', {xmlns : 'http://jabber.org/protocol/rsm'})
-				.c('max').t(25).up()
-//				.c('after').t('2014-05-16T00:00:00Z' + 'nastassia' + '@' + Chat.domain),
-//				.c('after').t(0)
-//				.c('start').t('2014-05-16T00:00:00Z')
-			, Chat.onLoadMessageCollections);
-		},
+//		loadMessageCollections : function()
+//		{
+////			var iq = \$iq({type: 'get'}).c('query', {xmlns: Strophe.NS.ROSTER});
+//			
+//			Chat.conn.sendIQ(
+////				\$iq({type : 'get', with : 'marina@192.237.219.76'})
+////				\$iq({type : 'get', with : 'room01@conference.192.237.219.76'})
+//				\$iq({type : 'get'})
+////				.c('list', {xmlns : 'urn:xmpp:archive', with : 'nastassia' + '@' + Chat.domain})
+////				.c('list', {xmlns : 'urn:xmpp:archive', with : 'nastassia' + '@' + Chat.domain, start : '2014-05-16T00:00:00Z'})
+////				.c('list', {xmlns : 'urn:xmpp:archive', with : 'nastassia' + '@' + Chat.domain, start : '2014-05-16T07:01:40.513Z'})
+////				.c('list', {xmlns : 'urn:xmpp:archive', with : 'nastassia' + '@' + Chat.domain, start : '2014-05-13T00:00:00Z', end : '2014-05-25T00:00:00Z'})
+//				.c('list', {xmlns : 'urn:xmpp:archive', with : 'nastassia' + '@' + Chat.domain, end : '2014-05-17T00:00:00Z'})
+//				.c('set', {xmlns : 'http://jabber.org/protocol/rsm'})
+//				.c('max').t(25).up()
+////				.c('after').t('2014-05-16T00:00:00Z' + 'nastassia' + '@' + Chat.domain),
+////				.c('after').t(0)
+////				.c('start').t('2014-05-16T00:00:00Z')
+//			, Chat.onLoadMessageCollections);
+//		},
 		
-		onLoadMessageCollections : function(stanza)
-		{
-			console.log('onLoadMessageCollections()');
-			console.log(stanza);
-			
-//			var jCollections = $(stanza).find('list chat');
+//		onLoadMessageCollections : function(stanza)
+//		{
+//			console.log('onLoadMessageCollections()');
+//			console.log(stanza);
 //			
-////			console.log(jCollections.length);
-//			
-//			var jCollection = jCollections.eq(1);
-//			
-//			var jid = jCollection.attr('with');
-//			var startTime = jCollection.attr('start');
-//			
-//			console.log(jid + ', ' + startTime);
-//			
-//			setTimeout(function() { Chat.loadMessages(jid, startTime); }, 20);
-		},
+////			var jCollections = $(stanza).find('list chat');
+////			
+//////			console.log(jCollections.length);
+////			
+////			var jCollection = jCollections.eq(1);
+////			
+////			var jid = jCollection.attr('with');
+////			var startTime = jCollection.attr('start');
+////			
+////			console.log(jid + ', ' + startTime);
+////			
+////			setTimeout(function() { Chat.loadMessages(jid, startTime); }, 20);
+//		},
 		
-		loadMessages : function(jid, startTime)
-		{
-			Chat.conn.sendIQ(
-				\$iq({type : 'get'})
-				.c('retrieve', {xmlns : 'urn:xmpp:archive', with : jid, start : startTime})
-				.c('set', {xmlns : 'http://jabber.org/protocol/rsm'})
-				.c('max').t(100),
-			Chat.onLoadMessages);
-		},
-		
-		onLoadMessages : function(stanza)
-		{
-			console.log('onLoadMessages()');
-			console.log(stanza);
-		},
+//		loadMessages : function(jid, startTime)
+//		{
+//			Chat.conn.sendIQ(
+//				\$iq({type : 'get'})
+//				.c('retrieve', {xmlns : 'urn:xmpp:archive', with : jid, start : startTime})
+//				.c('set', {xmlns : 'http://jabber.org/protocol/rsm'})
+//				.c('max').t(100),
+//			Chat.onLoadMessages);
+//		},
+//		
+//		onLoadMessages : function(stanza)
+//		{
+//			console.log('onLoadMessages()');
+//			console.log(stanza);
+//		},
 		
 		loadChatRoomHistory : function(room, period)
 		{
 			var currentDateTime = new Date();
 			
-			console.log(currentDateTime);
-			console.log(MethodsForDateTime.dateToISO8601(currentDateTime));
-			
 			var periodStartDateTime = ChatHistoryPeriod.getPeriodStartDate(currentDateTime, period);
-			
-			console.log(periodStartDateTime);
-			console.log(MethodsForDateTime.dateToISO8601(periodStartDateTime));
 			
 			var listObj = null;
 			
@@ -943,7 +937,8 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 			}
 			else
 			{
-//				listObj = { xmlns : 'urn:xmpp:archive', 'with' : room.id, 'start' : MethodsForDateTime.dateToISO8601(periodStartDateTime), 'end' : MethodsForDateTime.dateToISO8601(currentDateTime) };
+//				listObj = { xmlns : 'urn:xmpp:archive', 'with' : room.id, 'start' : MethodsForDateTime.dateToISO8601(periodStartDateTime),
+// 					'end' : MethodsForDateTime.dateToISO8601(currentDateTime) };
 				listObj = { xmlns : 'urn:xmpp:archive', 'with' : room.id, 'start' : MethodsForDateTime.dateToISO8601(periodStartDateTime) };
 			}
 			
@@ -965,14 +960,16 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 			{
 				var jConversation = jConversations.eq(i);
 				
-				var conversation = new ChatRoomHistoryConversation(jConversation.attr('with'), jConversation.attr('start'));
+				var withAttr = jConversation.attr('with');
+				
+				if (withAttr != room.id) continue;
+				
+				var conversation = new ChatRoomHistoryConversation(withAttr, jConversation.attr('start'));
 				
 				room.historyConversations.push(conversation);
 			}
 			
 			room.historyConversations.sort(function(a, b) { return a.start.localeCompare(b.start); });
-			
-			console.log(room.historyConversations);
 			
 			Chat.loadHistoryMessages(room);
 		},
@@ -1006,9 +1003,7 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 			{
 				console.log('EVERYTHING LOADED');
 				
-//				room.historyMessages.sort(function(a, b) { return a.start.localeCompare(b.start); });
-				
-//				console.log(room.historyMessages);
+				room.historyMessages.sort(function(a, b) { return a.dateTime > b.dateTime; });
 				
 				ChatGUI.onChatRoomHistoryLoaded(room);
 			}
@@ -1022,32 +1017,25 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 			
 			var startDateTime = new Date(jChat.attr('start'));
 			
-			var messageDateTime = new Date(startDateTime.getTime());
+			var previousMessageDateTime = new Date(startDateTime.getTime());
 			
-			for (var i = 0; i < jMessagesTo.length; i++)
+			var jNodes = jChat.children();
+			
+			for (var i = 0; i < jNodes.length; i++)
 			{
-				var jMessageTo = jMessagesTo.eq(i);
+				var jNode = jNodes.eq(i);
+				var nodeName = jNode.get(0).nodeName;
 				
-				var seconds = parseInt(jMessageTo.attr('secs'));
+				if (nodeName != 'to' && nodeName != 'from') continue;
 				
-				messageDateTime.setSeconds(messageDateTime.getSeconds() + seconds);
+				var seconds = parseInt(jNode.attr('secs'));
 				
-				var message = new ChatRoomHistoryMessage('', messageDateTime, jMessageTo.find('body').text());
+				previousMessageDateTime.setSeconds(previousMessageDateTime.getSeconds() + seconds);
+				var messageDateTime = new Date(previousMessageDateTime.getTime());
 				
-				room.historyMessages.push(message);
-			}
-			
-			var messageDateTime = new Date(startDateTime.getTime());
-			
-			for (var i = 0; i < jMessagesFrom.length; i++)
-			{
-				var jMessageFrom = jMessagesFrom.eq(i);
+				var from = (nodeName == 'from' ? jNode.attr('jid') : '');
 				
-				var seconds = parseInt(jMessageFrom.attr('secs'));
-				
-				messageDateTime.setSeconds(messageDateTime.getSeconds() + seconds);
-				
-				var message = new ChatRoomHistoryMessage(jMessageFrom.attr('jid'), messageDateTime, jMessageTo.find('body').text());
+				var message = new ChatRoomHistoryMessage(from, messageDateTime, jNode.find('body').text());
 				
 				room.historyMessages.push(message);
 			}
