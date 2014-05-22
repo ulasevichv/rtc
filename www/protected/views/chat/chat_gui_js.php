@@ -987,6 +987,7 @@ Yii::app()->clientScript->registerScript(uniqid(), "
           imageURLPrefix: '".Yii::app()->theme->baseUrl."/assets/images/whiteboard',
           onInit: function(lc) {
             lc.on('drawingChange', function() {
+            //TODO: send only new shape
                 Chat.sendDrawingContent(lc.getSnapshotJSON());
 //                console.log(lc.getSnapshotJSON());
 	        });
@@ -1014,13 +1015,18 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 		$('#whiteboardInviteButtons').hide(400);
 		$('#whiteboard-container').show();
           $('.literally.localstorage').literallycanvas({
+          keyboardShortcuts: false,
+          toolClasses: [LC.PanWidget],
           backgroundColor: 'whiteSmoke',
           imageURLPrefix: '".Yii::app()->theme->baseUrl."/assets/images/whiteboard',
           onInit: function(lc) {
             window.whiteboard = lc;
+            jQuery('.button.clear-button.danger').remove();
+            jQuery('.toolbar-row-left').remove();
+            jQuery('#whiteboard-container .undo-button').remove();
+            jQuery('#whiteboard-container.redo-button').remove();
             lc.on('drawingChange', function() {
                 return false;
-                //console.log(lc.getSnapshotJSON());
 	        }),
 	        lc.on('drawStart',function(){
 	            return false;

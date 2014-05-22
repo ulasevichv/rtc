@@ -692,9 +692,10 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 			var jBody = $(msg).find('body');
 
 			console.log('onDrawingContent');
-            window.whiteboard.loadSnapshotJSON(jBody.text());
-//    console.log(jBody.text().parseJSON());
-//            window.whiteboard.saveShape(jBody.text().parseJSON());
+			console.log(jBody.text());
+			if (jQuery('.literally.localstorage').is(':visible')) {
+                window.whiteboard.loadSnapshotJSON(jBody.text());
+			}
 		    return true;
 		},
 		sendDrawingContent : function(json) {
