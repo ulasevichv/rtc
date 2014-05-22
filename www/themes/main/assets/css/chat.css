@@ -255,8 +255,8 @@ body > div.container[role="main"] {
 	cursor: default;
 }
 #messages > .msgContainer > .text[loading] {
-	background: linear-gradient(to bottom, #cccccc 0px, #eeeeee 100%) repeat scroll 0 0;
-	text-align: center;
+	/*background: linear-gradient(to bottom, #cccccc 0px, #eeeeee 100%) repeat scroll 0 0;*/
+	/*text-align: center;*/
 }
 /*#messages > .msgContainer > .text[loading] .loading {*/
 	/*display: inline-block;*/

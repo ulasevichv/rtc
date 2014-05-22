@@ -398,6 +398,8 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 						ChatGUI.openedRoom = room;
 						
 						ChatGUI.refreshRooms();
+						
+						ChatGUI.loadChatRoomHistory(room);
 					}
 					
 					// Saving participants statuses for not existing group.
@@ -465,6 +467,7 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 			if (jBody.length == 0) return true;
 			
 			var text = jBody.text();
+			
 			if (type == MessageType.CHAT)
 			{
 				console.log('onDirectMessage: ' + from + ' > ' + to + ' > ' + text);
@@ -925,6 +928,10 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 		
 		loadChatRoomHistory : function(room, period)
 		{
+			room.historyLoading = true;
+			room.historyConversations = [];
+			room.historyMessages = [];
+			
 			var currentDateTime = new Date();
 			
 			var periodStartDateTime = ChatHistoryPeriod.getPeriodStartDate(currentDateTime, period);
@@ -1004,6 +1011,8 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 				console.log('EVERYTHING LOADED');
 				
 				room.historyMessages.sort(function(a, b) { return a.dateTime > b.dateTime; });
+				
+				room.historyLoading = false;
 				
 				ChatGUI.onChatRoomHistoryLoaded(room);
 			}

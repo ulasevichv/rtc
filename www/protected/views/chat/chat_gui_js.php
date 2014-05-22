@@ -401,13 +401,13 @@ Yii::app()->clientScript->registerScript(uniqid('chat_gui'), "
 				feed.push('<div class=\"chat_history_controls\">');
 				feed.push(	'<div class=\"clock\"></div>');
 				feed.push(	'<div class=\"descr\">".Yii::t('chat', 'Show messages from').":</div>');
-				feed.push(	'<div class=\"period\">".Yii::t('chat', 'Yesterday')."</div>');
-				feed.push(	'<div class=\"period\">".Yii::t('chat', '7 days')."</div>');
-				feed.push(	'<div class=\"period\">".Yii::t('chat', '30 days')."</div>');
-				feed.push(	'<div class=\"period\">".Yii::t('chat', '3 months')."</div>');
-				feed.push(	'<div class=\"period\">".Yii::t('chat', '6 months')."</div>');
-				feed.push(	'<div class=\"period\">".Yii::t('chat', '1 year')."</div>');
-				feed.push(	'<div class=\"period\">".Yii::t('chat', 'From Beginning')."</div>');
+				feed.push(	'<div class=\"period\" period_index=\"0\">".Yii::t('chat', 'Yesterday')."</div>');
+				feed.push(	'<div class=\"period\" period_index=\"1\">".Yii::t('chat', '7 days')."</div>');
+				feed.push(	'<div class=\"period\" period_index=\"2\">".Yii::t('chat', '30 days')."</div>');
+				feed.push(	'<div class=\"period\" period_index=\"3\">".Yii::t('chat', '3 months')."</div>');
+				feed.push(	'<div class=\"period\" period_index=\"4\">".Yii::t('chat', '6 months')."</div>');
+				feed.push(	'<div class=\"period\" period_index=\"5\">".Yii::t('chat', '1 year')."</div>');
+				feed.push(	'<div class=\"period\" period_index=\"6\">".Yii::t('chat', 'From Beginning')."</div>');
 				feed.push('</div>');
 				
 				for (var i = 0; i < ChatGUI.openedRoom.historyMessages.length; i++)
@@ -509,6 +509,9 @@ Yii::app()->clientScript->registerScript(uniqid('chat_gui'), "
 		
 		loadChatRoomHistory : function(room, period)
 		{
+			period = (typeof(period) != 'undefined' ? period : ChatHistoryPeriod.YESTERDAY);
+			
+			
 			var jMsgContainerDiv = ChatGUI.getRoomMessageContainerDiv(room);
 			var jTextDiv = jMsgContainerDiv.find('.text');
 			
@@ -516,11 +519,20 @@ Yii::app()->clientScript->registerScript(uniqid('chat_gui'), "
 			
 			room.currentHistoryPeriod = period;
 			
-			var periodIndex = ChatHistoryPeriod.getPeriodIndex(period);
+			var jPeriods = jTextDiv.find('> .chat_history_controls > .period');
 			
-			var jPeriodDiv = jTextDiv.find('> .chat_history_controls > .period:nth-child(' + (periodIndex + 3) + ')');
+			for (var i = 0; i < jPeriods.length; i++)
+			{
+				var jPeriod = jPeriods.eq(i);
+				
+				jPeriod.removeAttr('active');
+			}
 			
-			jPeriodDiv.attr('active', '');
+			var activePeriodIndex = ChatHistoryPeriod.getPeriodIndex(period);
+			
+			var jActivePeriod = jTextDiv.find('> .chat_history_controls > .period:nth-child(' + (activePeriodIndex + 3) + ')');
+			
+			jActivePeriod.attr('active', '');
 			
 			Chat.loadChatRoomHistory(room, period);
 		},
@@ -533,6 +545,8 @@ Yii::app()->clientScript->registerScript(uniqid('chat_gui'), "
 			jTextDiv.removeAttr('loading');
 			
 			ChatGUI.refreshRooms();
+			
+			ChatGUI.scrollOpenedMessagesToBottom();
 		},
 		
 		startPageTitleAnimation : function()
@@ -572,7 +586,7 @@ Yii::app()->clientScript->registerScript(uniqid('chat_gui'), "
 		{
 			if (!window.webkitNotifications)
 			{
-				alert('".Yii::t('general', 'Notifications are not allowed')."');
+//				alert('".Yii::t('general', 'Notifications are not allowed')."');
 				return;
 			}
 			
@@ -633,6 +647,7 @@ Yii::app()->clientScript->registerScript(uniqid('chat_gui'), "
 				ChatGUI.refreshRooms();
 				
 				ChatGUI.loadChatRoomHistory(room, ChatHistoryPeriod.YESTERDAY);
+				
 //				ChatGUI.loadChatRoomHistory(room, ChatHistoryPeriod.SEVEN_DAYS);
 //				ChatGUI.loadChatRoomHistory(room, ChatHistoryPeriod.THIRTY_DAYS);
 //				ChatGUI.loadChatRoomHistory(room, ChatHistoryPeriod.THREE_MONTHS);
@@ -907,7 +922,17 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 			if (!wasOpened)
 			{
 				$(this).attr('opened', '');
+				
 				ChatGUI.openedRoom = room;
+				
+				if (room.currentHistoryPeriod == null)
+				{
+					ChatGUI.refreshRooms();
+					
+					ChatGUI.loadChatRoomHistory(room);
+					
+					return;
+				}
 			}
 			else
 			{
@@ -934,6 +959,29 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 		}
 		
 		ChatGUI.refreshRooms();
+	});
+	
+	$('#staticRooms').on('click', '> .room', function(e)
+	{
+		var staticRoomName = $(this).attr('roomName');
+		
+		var staticRoom = ChatGUI.getStaticRoomByName(staticRoomName);
+		
+		var room = ChatGUI.getRoomById(staticRoom.jid);
+		
+		if (room == null)
+		{
+			Chat.connectToRoom(staticRoom.name);
+		}
+		else
+		{
+			if (ChatGUI.openedRoom == room) return;
+			
+			ChatGUI.openedRoom = room;
+			ChatGUI.refreshRooms();
+		}
+		
+		ChatGUI.resizeChatTextDiv();
 	});
 	
 	$('#users').on('click', '> .user', function(e)
@@ -964,19 +1012,19 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 		Chat.startWhiteboardDrawing();
 	});
 	
-	$('#btnShowHistory').on('click', function(e)
-	{
-		$.post(
-		'index.php?r=chat/getUserChatHistory',
-		{userJid:Chat.currentUser.bareJid, openedRoom: ChatGUI.openedRoom.id},
-		function (data) {
-			$('#chat-history-dialog-container').html(data);
-			$('#chat-history-dialog').dialog('open');
-		},
-		'html'
-		);
-		return false;
-	});
+//	$('#btnShowHistory').on('click', function(e)
+//	{
+//		$.post(
+//		'index.php?r=chat/getUserChatHistory',
+//		{userJid:Chat.currentUser.bareJid, openedRoom: ChatGUI.openedRoom.id},
+//		function (data) {
+//			$('#chat-history-dialog-container').html(data);
+//			$('#chat-history-dialog').dialog('open');
+//		},
+//		'html'
+//		);
+//		return false;
+//	});
 
 	$('#btnWhiteboard').on('click', function(e)
 	{
@@ -1008,6 +1056,7 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 		ChatGUI.openedRoom.callinvite = false;
 		$('#videoChatInviteButtons').hide(400);
 	});
+	
 	$('#btnAcceptWhiteboard').on('click', function(e)
 	{
 	    jQuery('#whiteboard-container .literally.localstorage').html('<canvas></canvas>');
@@ -1098,33 +1147,6 @@ Yii::app()->clientScript->registerScript(uniqid(), "
             return true;
 	});
 	
-	$('#staticRooms').on('click', '> .room', function(e)
-	{
-		var staticRoomName = $(this).attr('roomName');
-		
-		var staticRoom = ChatGUI.getStaticRoomByName(staticRoomName);
-		
-		var room = ChatGUI.getRoomById(staticRoom.jid);
-		
-		if (room == null)
-		{
-			Chat.connectToRoom(staticRoom.name);
-		}
-		else
-		{
-			if (ChatGUI.openedRoom == room) return;
-			
-//			if (room.hidden) // OLD code
-//			{
-//				ChatGUI.revealRoom(room);
-//			}
-			
-			ChatGUI.openedRoom = room;
-			ChatGUI.refreshRooms();
-		}
-		ChatGUI.resizeChatTextDiv();
-	});
-	
 	$(window).on('beforeunload', function()
 	{
 		console.log('beforeunload');
@@ -1135,6 +1157,17 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 	$('.chatRoot .header-title').on('click', function()
 	{
 //		Chat.loadMessageCollections();
+	});
+	
+	$('#messages').on('click', '.text .chat_history_controls .period', function()
+	{
+		var periodIndex = parseInt($(this).attr('period_index'));
+		var period = ChatHistoryPeriod.getPeriodByIndex(periodIndex);
+		
+		if (!ChatGUI.openedRoom.historyLoading && ChatGUI.openedRoom.currentHistoryPeriod != period)
+		{
+			ChatGUI.loadChatRoomHistory(ChatGUI.openedRoom, period);
+		}
 	});
 	
 	// Starting chat.

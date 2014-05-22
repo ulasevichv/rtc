@@ -46,6 +46,22 @@ Yii::app()->clientScript->registerScript(uniqid('chat_classes'), "
 			return -1;
 		},
 		
+		getPeriodByIndex : function(index)
+		{
+			switch (index)
+			{
+				case 0: return ChatHistoryPeriod.YESTERDAY;
+				case 1: return ChatHistoryPeriod.SEVEN_DAYS;
+				case 2: return ChatHistoryPeriod.THIRTY_DAYS;
+				case 3: return ChatHistoryPeriod.THREE_MONTHS;
+				case 4: return ChatHistoryPeriod.SIX_MONTHS;
+				case 5: return ChatHistoryPeriod.ONE_YEAR;
+				case 6: return ChatHistoryPeriod.FROM_BEGINNING;
+			}
+			
+			return null;
+		},
+		
 		getPeriodStartDate : function(originalDate, period)
 		{
 			var dayBeginningDateTime = MethodsForDateTime.getDayBeginningDateTime(originalDate);
@@ -182,10 +198,10 @@ Yii::app()->clientScript->registerScript(uniqid('chat_classes'), "
 		this.messages = []; // InternalChatMessage
 		this.onlineUserNicknames = [];
 		
+		this.historyLoading = false;
 		this.currentHistoryPeriod = null;
 		this.historyConversations = []; // ChatRoomHistoryConversation
 		this.historyMessages = []; // ChatRoomMessage
-		
 	}
 	
 	InternalChatRoom.prototype.changeParticipantOnlineStatus = function(nickname, online)

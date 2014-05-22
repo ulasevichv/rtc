@@ -113,9 +113,9 @@ $this->renderPartial('chat_gui_js', array(
 					<?php //echo CHtml::htmlButton(Yii::t('general', 'Video Call'), array('id' => 'btnStartVideoCall', 'class' => 'btn btn-primary')); ?>
 					<?php //echo CHtml::htmlButton(Yii::t('general', 'End Call'), array('id' => 'btnEndCall', 'class' => 'btn btn-primary', 'onclick' => 'OTvideo.session.disconnect();',
 //						'style' => 'display:none;')); ?>
-                    <a id="btnShowHistory" class="btn btn-primary" href="javascript:void(0)"> <span class="glyphicon glyphicon-dashboard">
-						</span> <?php echo Yii::t('general', 'Show Chat History') ?>
-                    </a>
+<!--                    <a id="btnShowHistory" class="btn btn-primary" href="javascript:void(0)"> <span class="glyphicon glyphicon-dashboard">-->
+<!--						</span> --><?php //echo Yii::t('general', 'Show Chat History') ?>
+<!--                    </a>-->
                     <a id="btnWhiteboard" class="btn btn-primary" href="javascript:void(0)"> <span class="glyphicon glyphicon-dashboard">
 						</span> <?php echo Yii::t('general', 'Start Drawing') ?>
                     </a>
