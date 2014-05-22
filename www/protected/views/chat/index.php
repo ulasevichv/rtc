@@ -11,6 +11,7 @@ Yii::app()->clientScript->registerScriptFile($baseUrl.'/assets/js/MethodsForStri
 Yii::app()->clientScript->registerScriptFile($baseUrl.'/assets/js/json.js');
 Yii::app()->clientScript->registerScriptFile($baseUrl.'/assets/js/jquery.stringify.js');
 Yii::app()->clientScript->registerScriptFile($baseUrl.'/assets/js/OTvideo.js');
+Yii::app()->clientScript->registerScriptFile($baseUrl.'/assets/js/literallycanvas.js');
 Yii::app()->clientScript->registerScriptFile($baseUrl.'/assets/js/literallycanvas.jquery.js');
 Yii::app()->clientScript->registerScriptFile($baseUrl.'/assets/js/whiteboard.js');
 //Yii::app()->clientScript->registerScriptFile('//static.opentok.com/webrtc/v2.2/js/opentok.min.js');
