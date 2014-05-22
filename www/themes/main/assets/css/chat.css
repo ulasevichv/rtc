@@ -495,3 +495,10 @@ body > div.container[role="main"] {
 	float: right;
 	margin: 10px 5px 0 0;
 }
+#system-messages {
+	z-index: 10000;
+	position: absolute;
+	top: 0;
+	width: 100%;
+	overflow: hidden;
+}

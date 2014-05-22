@@ -288,3 +288,6 @@
     margin-left: 2em; }
   .tool-options-text #font-size {
     width: 30px; }
+.colorpicker {
+	z-index: 999;
+}
