@@ -1072,7 +1072,7 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 			
 			if (everythingLoaded)
 			{
-				console.log('EVERYTHING LOADED');
+				console.log('HISTORY LOADED');
 				
 				room.historyMessages.sort(function(a, b) { return a.dateTime > b.dateTime; });
 				
@@ -1080,7 +1080,46 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 				
 				// Removing redundant history messages.
 				
-//				for (
+				if (room.messages.length > 0)
+				{
+					for (var i = 0; i < room.messages.length; i++)
+					{
+						var message = room.messages[i];
+						
+						var roundedMessageDateTime = new Date(message.dateTime.getTime());
+						roundedMessageDateTime.setMilliseconds(0);
+						
+						console.log('i: ' + i);
+						console.log(message.senderJid + ' # ' + message.text + ' # ' + MethodsForDateTime.dateToString(message.dateTime, true) + ' (' +
+							MethodsForDateTime.dateToString(roundedMessageDateTime, true) + ')');
+						
+						for (var j = room.historyMessages.length - 1; j >= 0; j--)
+						{
+							var historyMessage = room.historyMessages[j];
+							
+							var roundedHistoryMessageDateTime = new Date(historyMessage.dateTime.getTime());
+							roundedHistoryMessageDateTime.setMilliseconds(0);
+							
+							console.log('j: ' + j);
+							console.log(historyMessage.from + ' # ' + historyMessage.text + ' # ' + MethodsForDateTime.dateToString(historyMessage.dateTime, true) + ' (' +
+								MethodsForDateTime.dateToString(roundedHistoryMessageDateTime, true));
+							
+							if (historyMessage.from == message.senderJid && historyMessage.text == message.text && roundedMessageDateTime.getTime() == roundedHistoryMessageDateTime.getTime())
+							{
+								console.log('!!!!!!!!!!!!!');
+								
+								room.historyMessages.splice(j, 1);
+								j--;
+								continue;
+							}
+							
+							if (roundedMessageDateTime.getTime() > roundedHistoryMessageDateTime.getTime())
+							{
+								break;
+							}
+						}
+					}
+				}
 				
 				ChatGUI.onChatRoomHistoryLoaded(room);
 			}
