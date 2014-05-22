@@ -166,11 +166,12 @@ Yii::app()->clientScript->registerScript(uniqid('chat_classes'), "
 	
 	InternalChatMessage.prototype = new Object();
 	
-	function InternalChatMessage(type, time, senderJid, senderFullName, text, roomJid)
+	function InternalChatMessage(type, dateTime, time, senderJid, senderFullName, text, roomJid)
 	{
 		roomJid = (typeof(roomJid) == 'undefined' ? null : roomJid);
 		
 		this.type = type;
+		this.dateTime = dateTime;
 		this.time = time;
 		this.senderJid = senderJid;
 		this.senderFullName = senderFullName;

@@ -56,13 +56,25 @@ var MethodsForDateTime =
 		return new Date(year, month - 1, day, hour, minute, second);
 	},
 	
+//	xmppStampToDateString_ : function(stamp)
+//	{
+//		var result = stamp;
+//		
+//		result = result.substring(0, 4) + '-' + result.substring(4, 6) + '-' + result.substring(6, 8) + ' ' + result.substring(9);
+//		
+//		return result;
+//	},
+	
 	xmppStampToDateString : function(stamp)
 	{
-		var result = stamp;
+		var date = new Date(stamp);
+
+//		console.log('#####');
+//		console.log(stamp);
+//		console.log(date);
+//		console.log('#####');
 		
-		result = result.substring(0, 4) + '-' + result.substring(4, 6) + '-' + result.substring(6, 8) + ' ' + result.substring(9);
-		
-		return result;
+		return MethodsForDateTime.dateToString(date);
 	},
 	
 	// Difference between this and Date.toISOString() is absence of milliseconds in the result.

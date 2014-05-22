@@ -475,46 +475,54 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 				
 				var user = ChatGUI.getUserByBareJid(Strophe.getBareJidFromJid(from));
 				
+				var sendDate = new Date();
+				
+				var jX = $(stanza).find('delay[xmlns=\"urn:xmpp:delay\"]');
+				
+				if (jX.length != 0)
+				{
+					var xmppStamp = jX.attr('stamp');
+					
+					sendDate = new Date(xmppStamp);
+				}
+				
 				if (user != null)
 				{
 					var newMessage = new InternalChatMessage(
 						MessageType.CHAT,
-						MethodsForDateTime.dateToString(new Date()),
+						sendDate,
+						MethodsForDateTime.dateToString(sendDate),
 						user.bareJid,
 						user.fullName,
 						text);
-					
-//					$.ionSound.play('sound_message');
 					
 					ChatGUI.addChatMessage(newMessage);
 				}
 			}
 			else if (type == MessageType.GROUP_CHAT)
 			{
-
-			    if ($(stanza).attr('drawingcontent')) {
-				    Chat.onDrawingContent(stanza);
-				    return true;
+				if ($(stanza).attr('drawingcontent')) {
+					Chat.onDrawingContent(stanza);
+					return true;
 				}
-
+				
 				var roomJid = bareJid;
 				
 				var room = ChatGUI.getRoomById(roomJid);
 				
 				console.log('onRoomMessage: [' + roomJid + '] ' + from + ' > ' + to + ' > ' + text);
 				
-				var sendDateString = '';
+				var sendDate = new Date();
 				
-				var jX = $(stanza).find('x[xmlns=\"jabber:x:delay\"]');
+//				var jX = $(stanza).find('x[xmlns=\"jabber:x:delay\"]');
+				var jX = $(stanza).find('delay[xmlns=\"urn:xmpp:delay\"]');
 				
 				if (jX.length != 0)
 				{
 					var xmppStamp = jX.attr('stamp');
 					
-					sendDateString = MethodsForDateTime.xmppStampToDateString(xmppStamp);
+					sendDate = new Date(xmppStamp);
 				}
-				
-				if (sendDateString == '') sendDateString = MethodsForDateTime.dateToString(new Date());
 				
 				var senderBareJid = resource + '@' + Strophe.getDomainFromJid(from).replace('conference.', '');
 				
@@ -541,19 +549,22 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 //					$.ionSound.play('sound_message');
 					
 					ChatGUI.addVideoCallInvitationControls(Chat.currentUser.bareJid);
-								
+					
 					return true;
-				} else if ($(stanza).attr('whiteboard')) {
+				}
+				else if ($(stanza).attr('whiteboard'))
+				{
 				    ChatGUI.addDrawingCallInvitationControls(ChatGUI.openedRoom.id);
 				}
-
+				
 				if (room != null && sender != null)
 				{
 //					$.ionSound.play('sound_message');
 					
 					var newMessage = new InternalChatMessage(
 						MessageType.GROUP_CHAT,
-						sendDateString,
+						sendDate,
+						MethodsForDateTime.dateToString(sendDate),
 						sender.bareJid,
 						sender.fullName,
 						text,
@@ -590,9 +601,12 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 					}
 					else
 					{
+						var sendDate = new Date();
+						
 						var newMessage = new InternalChatMessage(
 							MessageType.VIDEO_CALL,
-							MethodsForDateTime.dateToString(new Date()),
+							sendDate,
+							MethodsForDateTime.dateToString(sendDate),
 							ChatGUI.openedRoom.id,
 							ChatGUI.openedRoom.fullName,
 							json);
@@ -604,151 +618,174 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 				}
 			});
 		},
-		startWhiteboardDrawing : function() {
-
-		if (ChatGUI.openedRoom.type == 'groupchat')
-					{
-						var xmppRoom = Chat.conn.muc.rooms[ChatGUI.openedRoom.id];
-
-						Chat.conn.muc.WhiteboardCallInviteMessage(xmppRoom.name, null,'','Do you want to join my drawing demonstration?','groupchat');
-
-						return true;
-					}
-					else
-					{
-					     var newMessage = new InternalChatMessage(
-							MessageType.DRAWING_CALL,
-							MethodsForDateTime.dateToString(new Date()),
-							ChatGUI.openedRoom.id,
-							ChatGUI.openedRoom.fullName,
-							'Invite');
-						Chat.sendMessage(ChatGUI.openedRoom.id, newMessage);
-					}
-
-
-						return true;
+		
+		startWhiteboardDrawing : function()
+		{
+			if (ChatGUI.openedRoom.type == 'groupchat')
+			{
+				var xmppRoom = Chat.conn.muc.rooms[ChatGUI.openedRoom.id];
+				
+				Chat.conn.muc.WhiteboardCallInviteMessage(xmppRoom.name, null,'','Do you want to join my drawing demonstration?','groupchat');
+				
+				return true;
+			}
+			else
+			{
+				var sendDate = new Date();
+				
+				 var newMessage = new InternalChatMessage(
+					MessageType.DRAWING_CALL,
+					sendDate,
+					MethodsForDateTime.dateToString(sendDate),
+					ChatGUI.openedRoom.id,
+					ChatGUI.openedRoom.fullName,
+					'Invite');
+				Chat.sendMessage(ChatGUI.openedRoom.id, newMessage);
+			}
+			
+			return true;
 		},
+		
 		onVideoCall : function(msg)
 		{
 			var to = $(msg).attr('to');
 			var from = $(msg).attr('from');
 			var type = $(msg).attr('type');
 			var jBody = $(msg).find('body');
-
+			
 			console.log('onVideoCall: ' + from + ', ' + type);
-
+			
 			if (from != Chat.currentUser.fullJid)
 			{
 				var sender = ChatGUI.getUserByBareJid(Strophe.getBareJidFromJid(from));
-
+				
 				var text = 'Start video call with ' + sender.fullName + '?';
-
+				
+				var sendDate = new Date();
+				
 				var newMessage = new InternalChatMessage(
 					MessageType.VIDEO_CALL,
-					MethodsForDateTime.dateToString(new Date()),
+					sendDate,
+					MethodsForDateTime.dateToString(sendDate),
 					sender.bareJid,
 					sender.fullName,
 					text);
-
+				
 				ChatGUI.addChatMessage(newMessage);
 				ChatGUI.addVideoCallInvitationControls(sender.bareJid);
-
+				
 				var opentokIniJsonObj = $.parseJSON(jBody.text());
-
+				
 //				console.log(opentokIniJsonObj);
-
+				
 				Chat.currentUser.addOpentokIniObject(Strophe.getBareJidFromJid(from), opentokIniJsonObj);
 			}
-
+			
 			return true;
 		},
-		onDrawingCall : function(msg) {
-
-		    var to = $(msg).attr('to');
+		
+		onDrawingCall : function(msg)
+		{
+			var to = $(msg).attr('to');
 			var from = $(msg).attr('from');
 			var type = $(msg).attr('type');
 			var jBody = $(msg).find('body');
-
+			
 			console.log('onDrawingCall: ' + from + ', ' + type);
-
+			
 			if (from != Chat.currentUser.fullJid)
 			{
 				var sender = ChatGUI.getUserByBareJid(Strophe.getBareJidFromJid(from));
-
+				
 				var text = 'Start drawing with ' + sender.fullName + '?';
-
+				
+				var sendDate = new Date();
+				
 				var newMessage = new InternalChatMessage(
 					MessageType.VIDEO_CALL,
-					MethodsForDateTime.dateToString(new Date()),
+					sendDate,
+					MethodsForDateTime.dateToString(sendDate),
 					sender.bareJid,
 					sender.fullName,
 					text);
-
+				
 				ChatGUI.addChatMessage(newMessage);
-
+				
 				ChatGUI.addDrawingCallInvitationControls(sender.bareJid);
 		    }
 		},
-		onDrawingContent : function(msg) {
-		    var to = $(msg).attr('to');
+		
+		onDrawingContent : function(msg)
+		{
+			var to = $(msg).attr('to');
 			var from = $(msg).attr('from');
 			var type = $(msg).attr('type');
 			var jBody = $(msg).find('body');
-
-			if (jQuery('.literally.localstorage').is(':visible')) {
-                window.whiteboard.loadSnapshotJSON(jBody.text());
+			
+			if (jQuery('.literally.localstorage').is(':visible'))
+			{
+				window.whiteboard.loadSnapshotJSON(jBody.text());
 			} else {
-                ChatGUI.addDrawingCallInvitationControls(from);
+				ChatGUI.addDrawingCallInvitationControls(from);
 			}
-		    return true;
+			
+			return true;
 		},
-		sendDrawingContent : function(json) {
-
-        if (ChatGUI.openedRoom.type == 'groupchat')
-					{
-						var xmppRoom = Chat.conn.muc.rooms[ChatGUI.openedRoom.id];
-
-						Chat.conn.muc.WhiteboardDrawingContentMessage(xmppRoom.name, null,'',json,'groupchat');
-
-						return true;
-					} else {
-					    var newMessage = new InternalChatMessage(
-                            MessageType.DRAWING_CONTENT,
-                            MethodsForDateTime.dateToString(new Date()),
-                            ChatGUI.openedRoom.bareJid,
-                            ChatGUI.openedRoom.fullName,
-                            json);
-                        Chat.sendMessage(ChatGUI.openedRoom.id, newMessage);
-        //				ChatGUI.addChatMessage(newMessage);
-					}
-
-
-
-		    console.log(json);
+		
+		sendDrawingContent : function(json)
+		{
+			if (ChatGUI.openedRoom.type == 'groupchat')
+			{
+				var xmppRoom = Chat.conn.muc.rooms[ChatGUI.openedRoom.id];
+				
+				Chat.conn.muc.WhiteboardDrawingContentMessage(xmppRoom.name, null,'',json,'groupchat');
+				
+				return true;
+			}
+			else
+			{
+				var sendDate = new Date();
+				
+				var newMessage = new InternalChatMessage(
+					MessageType.DRAWING_CONTENT,
+					sendDate,
+					MethodsForDateTime.dateToString(sendDate),
+					ChatGUI.openedRoom.bareJid,
+					ChatGUI.openedRoom.fullName,
+					json);
+				
+				Chat.sendMessage(ChatGUI.openedRoom.id, newMessage);
+//				ChatGUI.addChatMessage(newMessage);
+			}
+			
+			console.log(json);
 		},
-		onSystemMessage : function(msg){
-		    var to = $(msg).attr('to');
+		
+		onSystemMessage : function(msg)
+		{
+			var to = $(msg).attr('to');
 			var from = $(msg).attr('from');
 			var type = $(msg).attr('type');
 			var jBody = $(msg).find('body');
-            Chat.addSystemMessage(jBody.text());
-
-            return true;
-
+			Chat.addSystemMessage(jBody.text());
+			
+			return true;
 		},
-		addSystemMessage : function(text) {
-            jQuery('#system-messages').html('<div class=\"alert alert-success alert-dismissable\">' +
-  '<button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-hidden=\"true\">&times;</button>'+
-  '<strong> Information! </strong>'+text+'</div>');
-          jQuery('#system-messages').show('slow');
-          setTimeout(function() { $('#system-messages').fadeOut('slow');}, 5000);
-
-          return true;
+		
+		addSystemMessage : function(text)
+		{
+			jQuery('#system-messages').html('<div class=\"alert alert-success alert-dismissable\">' +
+				'<button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-hidden=\"true\">&times;</button>'+
+				'<strong> Information! </strong>'+text+'</div>');
+			jQuery('#system-messages').show('slow');
+			setTimeout(function() { $('#system-messages').fadeOut('slow');}, 5000);
+			
+			return true;
 		},
+		
 		acceptVideoCall : function ()
 		{
 			var opentokIniObject = Chat.currentUser.getOpentokIniObject(ChatGUI.openedRoom.id);
-
 			
 			$.ajax({
 				type: 'POST',
@@ -765,18 +802,21 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 		
 //		acceptVideoCall : function ()
 //		{
+//			var sendDate = new Date();
+//			
 //			var newMessage = new InternalChatMessage(
 //				MessageType.VIDEO_CALL_ACCEPTED,
-//				MethodsForDateTime.dateToString(new Date()),
+//				sendDate,
+//				MethodsForDateTime.dateToString(sendDate),
 //				ChatGUI.openedRoom.id,
 //				ChatGUI.openedRoom.fullName,
 //				'');
 //			
-//		    Chat.sendMessage(ChatGUI.openedRoom.id, newMessage);
-//		    
-//		    console.log(ChatGUI.openedRoom.id);
-//		    
-//		    return true;
+//			Chat.sendMessage(ChatGUI.openedRoom.id, newMessage);
+//			
+//			console.log(ChatGUI.openedRoom.id);
+//			
+//			return true;
 //		},
 		
 		onVideoCallAccepted : function(message)
@@ -814,9 +854,13 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 						Chat.openTokInit($.parseJSON(json));
 						
 						var to = $(message).attr('from');
+						
+						var sendDate = new Date();
+						
 						var newMessage = new InternalChatMessage(
 							MessageType.VIDEO_CALL_ACCEPTED,
-							MethodsForDateTime.dateToString(new Date()),
+							sendDate,
+							MethodsForDateTime.dateToString(sendDate),
 							ChatGUI.openedRoom.id,
 							ChatGUI.openedRoom.fullName,
 							json);
@@ -1034,6 +1078,10 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 				
 				room.historyLoading = false;
 				
+				// Removing redundant history messages.
+				
+//				for (
+				
 				ChatGUI.onChatRoomHistoryLoaded(room);
 			}
 		},
@@ -1046,7 +1094,7 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 			
 			var startDateTime = new Date(jChat.attr('start'));
 			
-			var previousMessageDateTime = new Date(startDateTime.getTime());
+//			var previousMessageDateTime = new Date(startDateTime.getTime());
 			
 			var jNodes = jChat.children();
 			
@@ -1059,8 +1107,11 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 				
 				var seconds = parseInt(jNode.attr('secs'));
 				
-				previousMessageDateTime.setSeconds(previousMessageDateTime.getSeconds() + seconds);
-				var messageDateTime = new Date(previousMessageDateTime.getTime());
+//				previousMessageDateTime.setSeconds(previousMessageDateTime.getSeconds() + seconds);
+//				var messageDateTime = new Date(previousMessageDateTime.getTime());
+				
+				var messageDateTime = new Date(startDateTime.getTime());
+				messageDateTime.setSeconds(messageDateTime.getSeconds() + seconds);
 				
 				var from = (nodeName == 'from' ? jNode.attr('jid') : '');
 				

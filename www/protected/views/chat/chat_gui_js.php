@@ -744,6 +744,7 @@ Yii::app()->clientScript->registerScript(uniqid('chat_gui'), "
 				
 				var newMessage = new InternalChatMessage(
 					ChatGUI.openedRoom.type,
+					new Date(),
 					MethodsForDateTime.dateToString(new Date()),
 					Chat.currentUser.bareJid,
 					Chat.currentUser.fullName,
@@ -776,6 +777,7 @@ Yii::app()->clientScript->registerScript(uniqid('chat_gui'), "
 			
 			var newMessage = new InternalChatMessage(
 				MessageType.VIDEO_CALL,
+				new Date(),
 				MethodsForDateTime.dateToString(new Date()),
 				Chat.currentUser.bareJid,
 				Chat.currentUser.fullName,
@@ -1065,69 +1067,76 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 	    jQuery('#whiteboard-container .literally.localstorage').html('<canvas></canvas>');
 		$('#whiteboardInviteButtons').hide(400);
 		$('#whiteboard-container').show();
-          $('.literally.localstorage').literallycanvas({
-          keyboardShortcuts: false,
-          toolClasses: [LC.PanWidget],
-          backgroundColor: 'whiteSmoke',
-          imageURLPrefix: '".Yii::app()->theme->baseUrl."/assets/images/whiteboard',
-          onInit: function(lc) {
-            window.whiteboard = lc;
-            jQuery('.button.clear-button.danger').remove();
-            jQuery('.toolbar-row-left').remove();
-            jQuery('#whiteboard-container .undo-button').remove();
-            jQuery('#whiteboard-container.redo-button').remove();
-            lc.on('drawingChange', function() {
-                return false;
-	        }),
-	        lc.on('drawStart',function(){
-	            return false;
-	        });
-          }
-    });
-
-
-
-            var msg = Chat.currentUser.fullName + ' joined whiteboard.';
-			var newMessage = new InternalChatMessage(
-				MessageType.SYSTEM,
-				MethodsForDateTime.dateToString(new Date()),
-				ChatGUI.openedRoom.id,
-				ChatGUI.openedRoom.fullName,
-				msg);
-
-		    Chat.sendMessage(ChatGUI.openedRoom.id, newMessage);
+		$('.literally.localstorage').literallycanvas({
+			keyboardShortcuts: false,
+			toolClasses: [LC.PanWidget],
+			backgroundColor: 'whiteSmoke',
+			imageURLPrefix: '".Yii::app()->theme->baseUrl."/assets/images/whiteboard',
+			onInit: function(lc) {
+				window.whiteboard = lc;
+				jQuery('.button.clear-button.danger').remove();
+				jQuery('.toolbar-row-left').remove();
+				jQuery('#whiteboard-container .undo-button').remove();
+				jQuery('#whiteboard-container.redo-button').remove();
+				lc.on('drawingChange', function() {
+					return false;
+				}),
+				lc.on('drawStart',function(){
+					return false;
+				});
+			}
+		});
+		
+		var msg = Chat.currentUser.fullName + ' joined whiteboard.';
+		var newMessage = new InternalChatMessage(
+			MessageType.SYSTEM,
+			new Date(),
+			MethodsForDateTime.dateToString(new Date()),
+			ChatGUI.openedRoom.id,
+			ChatGUI.openedRoom.fullName,
+			msg);
+		
+		Chat.sendMessage(ChatGUI.openedRoom.id, newMessage);
+		
 		return false;
 	});
-
-	$('#btnDeclineWhiteboard').on('click', function(e) {
-        $('#whiteboardInviteButtons').hide(400);
-
-         var msg = Chat.currentUser.fullName + ' declined your invitation.';
-			var newMessage = new InternalChatMessage(
-				MessageType.SYSTEM,
-				MethodsForDateTime.dateToString(new Date()),
-				ChatGUI.openedRoom.id,
-				ChatGUI.openedRoom.fullName,
-				msg);
-
-		    Chat.sendMessage(ChatGUI.openedRoom.id, newMessage);
+	
+	$('#btnDeclineWhiteboard').on('click', function(e)
+	{
+		$('#whiteboardInviteButtons').hide(400);
+		
+		var msg = Chat.currentUser.fullName + ' declined your invitation.';
+		
+		var newMessage = new InternalChatMessage(
+			MessageType.SYSTEM,
+			new Date(),
+			MethodsForDateTime.dateToString(new Date()),
+			ChatGUI.openedRoom.id,
+			ChatGUI.openedRoom.fullName,
+			msg);
+			
+			Chat.sendMessage(ChatGUI.openedRoom.id, newMessage);
 		return false;
-    });
-
-	$('#btnCloseWhiteboard').on('click', function(e) {
-        jQuery('#whiteboard-container').hide(400);
-
-         var msg = Chat.currentUser.fullName + ' leaved whiteboard.';
-			var newMessage = new InternalChatMessage(
-				MessageType.SYSTEM,
-				MethodsForDateTime.dateToString(new Date()),
-				ChatGUI.openedRoom.id,
-				ChatGUI.openedRoom.fullName,
-				msg);
-
-		    Chat.sendMessage(ChatGUI.openedRoom.id, newMessage);
-		    return true;
 	});
+	
+	$('#btnCloseWhiteboard').on('click', function(e)
+	{
+		jQuery('#whiteboard-container').hide(400);
+		
+		var msg = Chat.currentUser.fullName + ' leaved whiteboard.';
+		
+		var newMessage = new InternalChatMessage(
+			MessageType.SYSTEM,
+			new Date(),
+			MethodsForDateTime.dateToString(new Date()),
+			ChatGUI.openedRoom.id,
+			ChatGUI.openedRoom.fullName,
+			msg);
+		
+		Chat.sendMessage(ChatGUI.openedRoom.id, newMessage);
+		return true;
+	});
+	
 	$('#btnDeclineVideoCall').on('click', function(e)
 	{
 //		Chat.sendMessage(ChatGUI.openedRoom.id, '', MessageType.VIDEO_CALL_DECLINED);
