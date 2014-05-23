@@ -803,6 +803,7 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 					opentokIniObject.obj.token = token;
 					
 					Chat.openTokInit(opentokIniObject.obj);
+					Chat.changeStatus('onVideoCall','".Yii::t('general','On Video Call')."');
 				}
 			});
 		},
@@ -828,7 +829,6 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 		
 		onVideoCallAccepted : function(message)
 		{
-		    Chat.changeStatus('onVideoCall','".Yii::t('general','On Video Call')."');
 			console.log('onVideoCallAccepted()');
 			
 			var elems = message.getElementsByTagName('body');
