@@ -1088,7 +1088,7 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 			{
 				console.log('HISTORY LOADED');
 				
-				room.historyMessages.sort(function(a, b) { return a.dateTime > b.dateTime; });
+				room.historyMessages.sort(function(a, b) { return a.dateTime - b.dateTime; });
 				
 				room.historyLoading = false;
 				
@@ -1100,13 +1100,9 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 					{
 						var message = room.messages[i];
 						
-						var roundedMessageDateTime = new Date(message.dateTime.getTime());
-						roundedMessageDateTime.setMilliseconds(0);
-						
-						console.log('i: ' + i);
-						console.log(message.senderJid + ' # ' + message.text + ' # ' + MethodsForDateTime.dateToString(message.dateTime, true) + ' (' +
-							MethodsForDateTime.dateToString(roundedMessageDateTime, true) + ')');
-						
+//						console.log('i: ' + i);
+//						console.log(message.senderJid + ' # ' + message.text + ' # ' + MethodsForDateTime.dateToString(message.dateTime, true));
+//						
 						for (var j = room.historyMessages.length - 1; j >= 0; j--)
 						{
 							var historyMessage = room.historyMessages[j];
@@ -1114,20 +1110,21 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 							var roundedHistoryMessageDateTime = new Date(historyMessage.dateTime.getTime());
 							roundedHistoryMessageDateTime.setMilliseconds(0);
 							
-							console.log('j: ' + j);
-							console.log(historyMessage.from + ' # ' + historyMessage.text + ' # ' + MethodsForDateTime.dateToString(historyMessage.dateTime, true) + ' (' +
-								MethodsForDateTime.dateToString(roundedHistoryMessageDateTime, true));
+							var diffSec = MethodsForDateTime.getDifferenceInSeconds(message.dateTime, historyMessage.dateTime);
 							
-							if (historyMessage.from == message.senderJid && historyMessage.text == message.text && roundedMessageDateTime.getTime() == roundedHistoryMessageDateTime.getTime())
+//							console.log('j: ' + j);
+//							console.log(historyMessage.from + ' # ' + historyMessage.text + ' # ' + MethodsForDateTime.dateToString(historyMessage.dateTime, true) + ' (' +	'diffSec : ' +
+//								diffSec + ')');
+							
+							if (historyMessage.from == message.senderJid && historyMessage.text == message.text && diffSec <= 2)
 							{
-								console.log('!!!!!!!!!!!!!');
+								console.log('Archive message excluded: ' + historyMessage.text);
 								
 								room.historyMessages.splice(j, 1);
-								j--;
 								continue;
 							}
 							
-							if (roundedMessageDateTime.getTime() > roundedHistoryMessageDateTime.getTime())
+							if (message.dateTime > historyMessage.dateTime && diffSec > 2)
 							{
 								break;
 							}

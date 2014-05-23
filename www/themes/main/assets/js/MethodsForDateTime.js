@@ -99,5 +99,13 @@ var MethodsForDateTime =
 		newDate.setMilliseconds(0);
 		
 		return newDate;
+	},
+	
+	getDifferenceInSeconds : function(date1, date2)
+	{
+		var diffMSec = Math.abs(date1 - date2);
+		var diffSec = Math.round(diffMSec / 1000);
+		
+		return diffSec;
 	}
 };
