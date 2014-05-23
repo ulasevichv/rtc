@@ -188,10 +188,10 @@ body > div.container[role="main"] {
 #users > .user.online.away > .icon {
 	background: url("../images/chat/circle_yellow.png") no-repeat scroll 0 0 transparent;
 }
-#users > .user.online.busy > .icon {
+#users > .user.online.dnd > .icon {
 	background: url("../images/chat/circle_red.png") no-repeat scroll 0 0 transparent;
 }
-#users > .user.online.onVideoCall > .icon {
+#users > .user.online.xa > .icon {
 	background: url("../images/chat/circle-video.png") no-repeat scroll 0 0 transparent;
 }
 #users > .user > .text {

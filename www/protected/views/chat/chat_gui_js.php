@@ -1018,11 +1018,6 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 		
 		Chat.startVideoCall();
 	});
-
-	$('#btnWhiteboard').on('click', function(e)
-	{
-		Chat.startWhiteboardDrawing();
-	});
 	
 //	$('#btnShowHistory').on('click', function(e)
 //	{
@@ -1040,6 +1035,9 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 
 	$('#btnWhiteboard').on('click', function(e)
 	{
+
+	    Chat.startWhiteboardDrawing();
+
 	    jQuery('#whiteboard-container .literally.localstorage').html('<canvas></canvas>');
         $('#whiteboard-container').show();
         var whiteboard = $('.literally.localstorage').literallycanvas({
@@ -1059,7 +1057,7 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 	        });
           }
     });
-		return false;
+		return true;
 	});
 	
 	$('#btnAcceptVideoCall').on('click', function(e)
