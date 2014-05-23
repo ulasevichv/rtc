@@ -1,4 +1,10 @@
 <?php
+
+$xmppAddress = Yii::app()->params->xmppServerIP;
+$boshAddress = 'http://'.Yii::app()->params->xmppServerIP.'/http-bind';
+
+$this->renderPartial('register_xmpp_js', array(
+), false, false);
 ?>
 
 <h1><?php echo Yii::t('general', 'Register'); ?></h1>
@@ -21,27 +27,27 @@ $form = $this->beginWidget('CActiveForm', array(
 	
 	<div class="_row">
 		<?php echo $form->labelEx($model, 'firstName'); ?>
-		<?php echo $form->textField($model, 'firstName', array('class' => 'form-control')); ?>
+		<?php echo $form->textField($model, 'firstName', array('class' => 'form-control', 'value' => 'TestFN')); ?>
 	</div>
 	
 	<div class="_row">
 		<?php echo $form->labelEx($model, 'lastName'); ?>
-		<?php echo $form->textField($model, 'lastName', array('class' => 'form-control')); ?>
+		<?php echo $form->textField($model, 'lastName', array('class' => 'form-control', 'value' => 'TestLN')); ?>
 	</div>
 	
 	<div class="_row">
 		<?php echo $form->labelEx($model, 'email'); ?>
-		<?php echo $form->textField($model, 'email', array('class' => 'form-control')); ?>
+		<?php echo $form->textField($model, 'email', array('class' => 'form-control', 'value' => 'regtest@nomail.com')); ?>
 	</div>
 	
 	<div class="_row">
 		<?php echo $form->labelEx($model, 'password'); ?>
-		<?php echo $form->passwordField($model, 'password', array('class' => 'form-control')); ?>
+		<?php echo $form->passwordField($model, 'password', array('class' => 'form-control', 'value' => '123456')); ?>
 	</div>
 	
 	<div class="_row">
 		<?php echo $form->labelEx($model, 'passwordRepeat'); ?>
-		<?php echo $form->passwordField($model, 'passwordRepeat', array('class' => 'form-control')); ?>
+		<?php echo $form->passwordField($model, 'passwordRepeat', array('class' => 'form-control', 'value' => '123456')); ?>
 	</div>
 	
 	<div class="_row">
@@ -104,11 +110,19 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 				return;
 			}
 			
+			alert('validated');
+			return;
+			
 			$('#".$form->id."').removeAttr('onsubmit');
 			$('#".$form->id."').submit();
 		});
 		
 		request.error(requestTimedOutDefault);
+	}
+	
+	function registerXmppUser()
+	{
+		var registration = new Registration('".$xmppAddress."', '".$boshAddress."', 'admin', 'zxasqw12');
 	}
 	
 ", CClientScript::POS_END);

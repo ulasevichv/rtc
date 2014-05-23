@@ -1,17 +1,5 @@
 <?php
-$baseUrl = Yii::app()->theme->baseUrl;
-
-Yii::app()->clientScript->registerScriptFile($baseUrl.'/assets/js/strophe.js');
-
-$xmppAddress = Yii::app()->params->xmppServerIP;
-$boshAddress = 'http://'.Yii::app()->params->xmppServerIP.'/http-bind';
-?>
-
-Registration
-
-<?php
-
-Yii::app()->clientScript->registerScript(uniqid('registrator'), "
+Yii::app()->clientScript->registerScript(uniqid('register_xmpp'), "
 	
 	Registration.prototype = new Object();
 	
@@ -184,11 +172,3 @@ Yii::app()->clientScript->registerScript(uniqid('registrator'), "
 	}
 	
 ", CClientScript::POS_HEAD);
-
-Yii::app()->clientScript->registerScript(uniqid(), "
-	
-	var registration = new Registration('".$xmppAddress."', '".$boshAddress."', 'admin', 'zxasqw12');
-	
-	registration.connect();
-	
-", CClientScript::POS_READY);
