@@ -62,6 +62,7 @@ OTvideo.init = function() {
         $(OTvideo.myDiv + ' .video-toggle').hide(0);
         $(OTvideo.myDiv + ' .video').hide(0);
         ChatGUI.resizeChatTextDiv();
+        Chat.changeStatus('online',"Online");
     });
 
     $(document).on('click','.videoItem', function() {

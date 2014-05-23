@@ -595,7 +595,7 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 				success: function(json)
 				{
 					Chat.openTokInit($.parseJSON(json));
-					
+					Chat.changeStatus('onVideoCall','".Yii::t('general','On Video Call')."');
 					ChatGUI.showVideoCallInvitationSentMessage();
 					
 					if (ChatGUI.openedRoom.type == 'groupchat')
@@ -793,7 +793,7 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 		acceptVideoCall : function ()
 		{
 			var opentokIniObject = Chat.currentUser.getOpentokIniObject(ChatGUI.openedRoom.id);
-			
+
 			$.ajax({
 				type: 'POST',
 				url: '?r=chat/getVideoCallToken',
@@ -828,6 +828,7 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 		
 		onVideoCallAccepted : function(message)
 		{
+		    Chat.changeStatus('onVideoCall','".Yii::t('general','On Video Call')."');
 			console.log('onVideoCallAccepted()');
 			
 			var elems = message.getElementsByTagName('body');
@@ -884,6 +885,12 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 		onVideoCallDeclined : function(message)
 		{
 			console.log('onVideoCallDeclined()');
+		},
+		changeStatus : function(statusId, statusText) {
+            var pres = \$pres().c('status') .t(statusId).up().c('show').t(statusText);
+            Chat.conn.send(pres.tree());
+
+            return true;
 		},
 		
 		openTokInit : function(openTokObj)

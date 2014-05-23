@@ -1244,11 +1244,12 @@ Yii::app()->clientScript->registerScript(uniqid(), "
     $('.selectpicker').selectpicker('show');
 
 	jQuery('.selectpicker li').on('click', function(){
+
 	    var statusId = $('#statuses option').eq($(this).attr('rel')).attr('id');
 	    var statusText = $('#statuses option').eq($(this).attr('rel')).val();
+	    Chat.changeStatus(statusId,statusText);
 
-	    var pres = \$pres().c('status') .t(statusId).up().c('show').t(statusText);
-        Chat.conn.send(pres.tree());
+	    return true;
 	});
 	
 	// Starting chat.

@@ -100,6 +100,7 @@ $this->renderPartial('chat_gui_js', array(
                     <option id="online">Online</option>
                     <option id="away">Away</option>
                     <option id="busy">Busy</option>
+                    <option id="onVideoCall">On Video Call</option>
                 </select>
             </div>
 		</div>
