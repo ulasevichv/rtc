@@ -189,9 +189,9 @@ Yii::app()->clientScript->registerScript(uniqid('chat_gui'), "
 			ChatGUI.refreshUsers();
 		},
 		
-		updateUser : function(bareJid, fullJid, online)
+		updateUser : function(bareJid, fullJid, online,statusId, statusText)
 		{
-			console.log(bareJid + ', ' + online);
+			console.log(bareJid + ', ' + online + ' > status - ' + statusId);
 			
 			var user = ChatGUI.getUserByBareJid(bareJid);
 			
@@ -199,9 +199,10 @@ Yii::app()->clientScript->registerScript(uniqid('chat_gui'), "
 			
 			user.fullJid = fullJid;
 			user.online = online;
-			
+			user.statusId = statusId;
+			user.statusText = statusText;
+
 			var jUser = $('#users .user[bareJid=\"' + bareJid + '\"]');
-			
 			if (user.online)
 			{
 				jUser.addClass('online');
@@ -244,12 +245,14 @@ Yii::app()->clientScript->registerScript(uniqid('chat_gui'), "
 			// Generating HTML.
 			
 			var feed = [];
-			
+			console.log(ChatGUI.users);
 			ChatGUI.users.forEach(function(user, i)
 			{
+
+				var statusClass = (user.statusId ? ' ' + user.statusId : '');
 				var onlineStatusClass = (user.online ? ' online' : '');
-				
-				feed.push('<div class=\"user' + onlineStatusClass + '\" bareJid=\"' + user.bareJid + '\">');
+
+				feed.push('<div class=\"user' + onlineStatusClass +statusClass+ '\" bareJid=\"' + user.bareJid + '\">');
 				feed.push(	'<div class=\"icon\"></div>');
 				feed.push(	'<div class=\"text\">');
 				feed.push(		user.fullName);
@@ -897,8 +900,12 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 		content: function() {
 			var element = $(this);
 			var user = ChatGUI.getUserByBareJid($(this).attr('bareJid'));
-			
-			var onlineStatusStr = (user.online ? '".Yii::t('general', 'Online')."' : '".Yii::t('general', 'Offline')."');
+			if (user.statusText) {
+			    var onlineStatusStr = user.statusText;
+			} else {
+			    var onlineStatusStr = (user.online ? '".Yii::t('general', 'Online')."' : '".Yii::t('general', 'Offline')."');
+			}
+
 			
 			// return '".Yii::t('general', 'Email').": ' + user.email + '<br/>' + '".Yii::t('general', 'Status').": ' + onlineStatusStr;
 			
@@ -1233,6 +1240,16 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 			ChatGUI.loadChatRoomHistory(ChatGUI.openedRoom, period);
 		}
 	});
+
+    $('.selectpicker').selectpicker('show');
+
+	jQuery('.selectpicker li').on('click', function(){
+	    var statusId = $('#statuses option').eq($(this).attr('rel')).attr('id');
+	    var statusText = $('#statuses option').eq($(this).attr('rel')).val();
+
+	    var pres = \$pres().c('status') .t(statusId).up().c('show').t(statusText);
+        Chat.conn.send(pres.tree());
+	});
 	
 	// Starting chat.
 	
@@ -1243,11 +1260,11 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 	ChatGUI.blockControls();
 	
 	ChatGUI.initialPageTitle = document.title;
-	
+
 	Chat.connect();
 	
 	// Sound initialization.
-	
+
 	$.ionSound({
 		path : '".Yii::app()->theme->baseUrl."/assets/sounds/',
 		sounds: [

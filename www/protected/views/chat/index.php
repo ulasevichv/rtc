@@ -4,6 +4,7 @@ $baseUrl = Yii::app()->theme->baseUrl;
 Yii::app()->clientScript->registerCssFile('http://fonts.googleapis.com/css?family=Roboto:400&subset=latin,cyrillic');
 Yii::app()->clientScript->registerCssFile($baseUrl.'/assets/css/chat.css');
 Yii::app()->clientScript->registerCssFile($baseUrl.'/assets/css/literally.css');
+Yii::app()->clientScript->registerCssFile($baseUrl.'/assets/css/bootstrap-select.css');
 
 Yii::app()->clientScript->registerScriptFile($baseUrl.'/assets/js/MethodsForDateTime.js');
 Yii::app()->clientScript->registerScriptFile($baseUrl.'/assets/js/MethodsForStrings.js');
@@ -21,6 +22,7 @@ Yii::app()->clientScript->registerScriptFile($baseUrl.'/assets/js/ion.sound.min.
 
 Yii::app()->clientScript->registerScriptFile($baseUrl.'/assets/js/strophe.js');
 Yii::app()->clientScript->registerScriptFile($baseUrl.'/assets/js/strophe.muc.js');
+Yii::app()->clientScript->registerScriptFile($baseUrl.'/assets/js/bootstrap-select.js');
 //Yii::app()->clientScript->registerScriptFile($baseUrl.'/assets/js/strophe.chatstates.js');
 //Yii::app()->clientScript->registerScriptFile($baseUrl.'/assets/js/strophe.roster.js');
 //Yii::app()->clientScript->registerScriptFile($baseUrl.'/assets/js/roster.js');
@@ -89,7 +91,17 @@ $this->renderPartial('chat_gui_js', array(
 			<div id="staticRooms">
 			</div>
 		</div>
-		<div id="users">
+		<div id="right-panel">
+            <div id="users">
+
+            </div>
+            <div id="status_panel">
+                <select class="selectpicker" id="statuses">
+                    <option id="online">Online</option>
+                    <option id="away">Away</option>
+                    <option id="busy">Busy</option>
+                </select>
+            </div>
 		</div>
 		<div id="chat">
 			<div id="videoChat" style="display:none;">

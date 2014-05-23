@@ -128,7 +128,9 @@ Yii::app()->clientScript->registerScript(uniqid('chat_classes'), "
 		this.fullName = fullName;
 		this.password = password;
 		this.online = online;
-		
+		this.statusId = null;
+		this.statusText = null;
+
 		this.opentokIniObjects = [];
 	}
 	

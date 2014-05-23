@@ -291,11 +291,18 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 			
 			var from = $(stanza).attr('from');
 			var to = $(stanza).attr('to');
+
 			var fullJid = from;
 			var bareJid = Strophe.getBareJidFromJid(fullJid);
 			var jidId = Strophe.getNodeFromJid(fullJid);
 			var resource = Strophe.getResourceFromJid(fullJid);
-			
+			if ($(stanza).find('status').text()) {
+			    statusText = $(stanza).find('show').text();
+			    statusId = $(stanza).find('status').text();
+			} else {
+			    statusId = '';
+			    statusText = '';
+			}
 			var presenceType = $(stanza).attr('type');
 			if (typeof(presenceType) == 'undefined') presenceType = PresenceType.AVAILABLE;
 			
@@ -329,7 +336,7 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 						{
 							if (presenceType == PresenceType.AVAILABLE)
 							{
-								ChatGUI.updateUser(bareJid, fullJid, true);
+								ChatGUI.updateUser(bareJid, fullJid, true,statusId,statusText);
 							}
 							
 							return true;
@@ -337,7 +344,7 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 						
 						if (presenceType !== 'error')
 						{
-							ChatGUI.updateUser(bareJid, fullJid, (presenceType == PresenceType.AVAILABLE));
+							ChatGUI.updateUser(bareJid, fullJid, (presenceType == PresenceType.AVAILABLE),statusId,statusText);
 						}
 					}
 					

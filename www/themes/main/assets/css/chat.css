@@ -148,7 +148,7 @@ body > div.container[role="main"] {
 
 /*** Users ***/
 
-#users {
+#users, #right-panel {
 	float: right;
 	background-color: #ffffff;
 	border-left: 1px solid #c1c1c1;
@@ -184,7 +184,12 @@ body > div.container[role="main"] {
 	margin: 3px 0 0 0;
 }
 #users > .user.online > .icon {
-	background: url("../images/chat/circle_green.png") no-repeat scroll 0 0 transparent;
+	background: url("../images/chat/circle_green.png") no-repeat scroll 0 0 transparent; }
+#users > .user.online.away > .icon {
+	background: url("../images/chat/circle_yellow.png") no-repeat scroll 0 0 transparent;
+}
+#users > .user.online.busy > .icon {
+	background: url("../images/chat/circle_red.png") no-repeat scroll 0 0 transparent;
 }
 #users > .user > .text {
 	float: left;
@@ -501,4 +506,16 @@ body > div.container[role="main"] {
 	top: 0;
 	width: 100%;
 	overflow: hidden;
+}
+.btn-mini {
+	padding: 0 6px;
+	font-size: 10.5px;
+	-webkit-border-radius: 3px;
+	-moz-border-radius: 3px;
+	border-radius: 3px;
+}
+#status_panel {
+	position: absolute;
+	bottom: 0;
+	right: 0;
 }
