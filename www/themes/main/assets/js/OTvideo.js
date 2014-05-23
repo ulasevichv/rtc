@@ -55,6 +55,7 @@ OTvideo.init = function() {
         $(OTvideo.myDiv + ' .video').hide(0);
         OTvideo.hideControls();
         ChatGUI.resizeChatTextDiv();
+        Chat.changeStatus('online',"Online");
 
     });
     OTvideo.session.on("connectionDestroyed", function(event) {
