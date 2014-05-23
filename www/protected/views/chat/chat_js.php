@@ -1114,9 +1114,12 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 							var roundedHistoryMessageDateTime = new Date(historyMessage.dateTime.getTime());
 							roundedHistoryMessageDateTime.setMilliseconds(0);
 							
+							var diffSec = MethodsForDateTime.getDifferenceInSeconds();
+							
 							console.log('j: ' + j);
 							console.log(historyMessage.from + ' # ' + historyMessage.text + ' # ' + MethodsForDateTime.dateToString(historyMessage.dateTime, true) + ' (' +
 								MethodsForDateTime.dateToString(roundedHistoryMessageDateTime, true));
+							console.log('diffSec : ' + diffSec);
 							
 							if (historyMessage.from == message.senderJid && historyMessage.text == message.text && roundedMessageDateTime.getTime() == roundedHistoryMessageDateTime.getTime())
 							{
