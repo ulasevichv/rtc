@@ -297,8 +297,8 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 			var jidId = Strophe.getNodeFromJid(fullJid);
 			var resource = Strophe.getResourceFromJid(fullJid);
 			if ($(stanza).find('status').text()) {
-			    statusText = $(stanza).find('show').text();
-			    statusId = $(stanza).find('status').text();
+			    statusId = $(stanza).find('show').text();
+			    statusText = $(stanza).find('status').text();
 			} else {
 			    statusId = '';
 			    statusText = '';
@@ -887,7 +887,7 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 			console.log('onVideoCallDeclined()');
 		},
 		changeStatus : function(statusId, statusText) {
-            var pres = \$pres().c('status') .t(statusId).up().c('show').t(statusText);
+            var pres = \$pres().c('status') .t(statusText).up().c('show').t(statusId);
             Chat.conn.send(pres.tree());
 
             return true;
