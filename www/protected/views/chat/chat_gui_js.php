@@ -851,6 +851,7 @@ Yii::app()->clientScript->registerScript(uniqid('chat_gui'), "
 		
 		addVideoCallInvitationControls : function(senderJid)
 		{
+		    console.log('addVideoCallInvitationControls');
 			targetRoom = ChatGUI.getRoomById(senderJid);
 			
 			if (!targetRoom)
@@ -939,10 +940,10 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 				if (room.currentHistoryPeriod == null)
 				{
 					ChatGUI.refreshRooms();
-					
+
 					ChatGUI.loadChatRoomHistory(room);
-					
-					return;
+
+//					return;
 				}
 			}
 			else
