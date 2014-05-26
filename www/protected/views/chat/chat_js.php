@@ -802,7 +802,7 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 					opentokIniObject.obj.token = token;
 					
 					Chat.openTokInit(opentokIniObject.obj);
-					Chat.changeStatus('onVideoCall','".Yii::t('general','On Video Call')."');
+					Chat.changeStatus('xa','".Yii::t('general','On Video Call')."');
 				}
 			});
 		},
