@@ -148,7 +148,7 @@ Yii::app()->clientScript->registerScript(uniqid('chat_gui'), "
 			} else {
 				containerDiv = '';
 			}
-			
+
 			if ($('.video').is(':visible')) {
 				videoHeight = $(containerDiv +' .video').outerHeight()
 			}
@@ -1244,7 +1244,7 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 
 	jQuery('.selectpicker li').on('click', function(){
 
-	    var statusId = $('#statuses option').eq($(this).attr('rel')).attr('id');
+	    var statusId = $('#statuses option').eq($(this).attr('rel')).attr('data-id');
 	    var statusText = $('#statuses option').eq($(this).attr('rel')).val();
 	    Chat.changeStatus(statusId,statusText);
 

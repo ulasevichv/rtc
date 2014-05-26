@@ -209,6 +209,8 @@ body > div.container[role="main"] {
 	margin: 3px 200px 0 200px;
 }
 #messages {
+	height: 100%;
+	overflow-y: hidden;
 }
 #messages > .msgContainer {
 	height: 100%;

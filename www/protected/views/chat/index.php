@@ -97,10 +97,10 @@ $this->renderPartial('chat_gui_js', array(
             </div>
             <div id="status_panel">
                 <select class="selectpicker" id="statuses">
-                    <option id="chat">Online</option>
-                    <option id="away">Away</option>
-                    <option id="dnd">Busy</option>
-                    <option id="xa">On Video Call</option>
+                    <option data-id="chat">Online</option>
+                    <option data-id="away">Away</option>
+                    <option data-id="dnd">Busy</option>
+                    <option data-id="xa">On Video Call</option>
                 </select>
             </div>
 		</div>

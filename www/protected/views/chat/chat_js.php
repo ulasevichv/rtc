@@ -595,7 +595,7 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 				success: function(json)
 				{
 					Chat.openTokInit($.parseJSON(json));
-					Chat.changeStatus('onVideoCall','".Yii::t('general','On Video Call')."');
+					Chat.changeStatus('xa','".Yii::t('general','On Video Call')."');
 					ChatGUI.showVideoCallInvitationSentMessage();
 					
 					if (ChatGUI.openedRoom.type == 'groupchat')
@@ -775,7 +775,6 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 			var type = $(msg).attr('type');
 			var jBody = $(msg).find('body');
 			Chat.addSystemMessage(jBody.text());
-			
 			return true;
 		},
 		
