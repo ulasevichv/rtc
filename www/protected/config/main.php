@@ -96,11 +96,17 @@ return CMap::mergeArray(
 		
 		// application-level parameters that can be accessed
 		// using Yii::app()->params['paramName']
-		'params'=>array(
+		// 'params'=>array(
+		// // this is used in contact page
+		// 'adminEmail'=>'webmaster@example.com',
+		// 'opentok_api_key' => '44742482',
+		// 'opentok_api_secret' => '71473649153f49d888e044cb55048eb3faf83dd0',
+		// ),
+		'params' => array(
 			// this is used in contact page
-			'adminEmail'=>'webmaster@example.com',
-            'opentok_api_key' => '44742482',
-            'opentok_api_secret' => '71473649153f49d888e044cb55048eb3faf83dd0',
+			'adminEmail' => 'webmaster@example.com',
+			'opentok_api_key' => '44781472',
+			'opentok_api_secret' => '9c61ccfa9474404e8a6cd5daee02f2bf59e876b0',
 		),
 	),
 	require(dirname(__FILE__) . '/main.custom.php')

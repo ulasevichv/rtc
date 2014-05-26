@@ -13,7 +13,24 @@ Yii::app()->clientScript->registerScript(uniqid('register_xmpp'), "
 			password : adminPassword,
 			jid : adminUsername + '@' + xmppAddress
 		};
+		this.newUser = null;
+		this.callback = null;
 		this.disconnecting = false;
+	}
+	
+	Registration.prototype.setNewUserData = function(firstName, lastName, email, password)
+	{
+		this.newUser = {
+			firstName : firstName,
+			lastName : lastName,
+			email :email,
+			password :password
+		};
+	}
+	
+	Registration.prototype.setCallback = function(callback)
+	{
+		this.callback = callback;
 	}
 	
 	Registration.prototype.connect = function()
@@ -48,8 +65,8 @@ Yii::app()->clientScript->registerScript(uniqid('register_xmpp'), "
 	{
 		console.log('Connected');
 		
-//		this.requestAddUserForm();
-		this.addUserToGroup('regtest@192.237.219.76', 'groups/TeqSpring');
+		this.requestAddUserForm();
+//		this.addUserToGroup('regtest@192.237.219.76', 'groups/TeqSpring');
 	}
 	
 	Registration.prototype.onDisconnect = function()
@@ -95,11 +112,11 @@ Yii::app()->clientScript->registerScript(uniqid('register_xmpp'), "
 	{
 		console.log('sendAddUserForm(' + sessionId + ')');
 		
-		var userJid = 'regtest3' + '@' + this.xmppAddress;
-		var password = '123456';
-		var email = 'regtest@nomail.com';
-		var firstName = 'Testfn';
-		var lastName = 'Testln';
+		var firstName = this.newUser.firstName;
+		var lastName = this.newUser.lastName;
+		var password = this.newUser.password;
+		var email = this.newUser.email;
+		var userJid = firstName.toLowerCase() + '_' + lastName.toLowerCase() + '@' + this.xmppAddress;
 		
 		var iq = \$iq({ type : 'set' })
 			.c('command', { xmlns : 'http://jabber.org/protocol/commands', node : 'http://jabber.org/protocol/admin#add-user', sessionid : sessionId })
@@ -131,6 +148,8 @@ Yii::app()->clientScript->registerScript(uniqid('register_xmpp'), "
 		console.log('onUserFormSubmitResponse');
 		console.log(stanza);
 		
+		var result = null;
+		
 		var jCommand = $(stanza).find('command');
 		var commandStatus = jCommand.attr('status')
 		
@@ -147,28 +166,40 @@ Yii::app()->clientScript->registerScript(uniqid('register_xmpp'), "
 			{
 				console.log('SUCCESS');
 				
-				this.addUserToGroup(userJid, 'TeqSpring');
+//				this.addUserToGroup(userJid, 'TeqSpring');
+				
+				result = { type : 'success', text : resultText };
+			}
+			else
+			{
+				result = { type : 'error', text : resultText };
 			}
 		}
+		else
+		{
+			result = { type : 'error', text : 'Wrong response' };
+		}
+		
+		this.callback(result);
 	}
 	
-	Registration.prototype.addUserToGroup = function(userJid, groupName)
-	{
-		console.log('addUserToGroup(' + userJid + ', ' + groupName + ')');
-		
-		var iq = \$iq({ type : 'set', to : 'pubsub.' + this.xmppAddress })
-			.c('pubsub', { xmlns : 'http://jabber.org/protocol/pubsub' })
-				.c('entities', { node : groupName })
-					.c('entity', { jid : userJid, affiliation : 'none', subscription : 'subscribed' });
-		
-		console.log(Strophe.serialize(iq));
-		
-		this.conn.sendIQ(iq, function(stanza) { inst.onAddUserToGroupResponse(stanza); });
-	}
-	
-	Registration.prototype.onAddUserToGroupResponse = function(stanza)
-	{
-		console.log('onAddUserToGroupResponse');
-	}
+//	Registration.prototype.addUserToGroup = function(userJid, groupName)
+//	{
+//		console.log('addUserToGroup(' + userJid + ', ' + groupName + ')');
+//		
+//		var iq = \$iq({ type : 'set', to : 'pubsub.' + this.xmppAddress })
+//			.c('pubsub', { xmlns : 'http://jabber.org/protocol/pubsub' })
+//				.c('entities', { node : groupName })
+//					.c('entity', { jid : userJid, affiliation : 'none', subscription : 'subscribed' });
+//		
+//		console.log(Strophe.serialize(iq));
+//		
+//		this.conn.sendIQ(iq, function(stanza) { inst.onAddUserToGroupResponse(stanza); });
+//	}
+//	
+//	Registration.prototype.onAddUserToGroupResponse = function(stanza)
+//	{
+//		console.log('onAddUserToGroupResponse');
+//	}
 	
 ", CClientScript::POS_HEAD);

@@ -113,4 +113,15 @@ class UserController extends Controller
 		
 		Yii::app()->end();
 	}
+	
+	public function addXmppUserToGroup()
+	{
+		
+		
+		
+		
+		
+		
+		Yii::app()->end();
+	}
 }

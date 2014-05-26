@@ -1,4 +1,7 @@
 <?php
+$baseUrl = Yii::app()->theme->baseUrl;
+
+Yii::app()->clientScript->registerScriptFile($baseUrl.'/assets/js/strophe.js');
 
 $xmppAddress = Yii::app()->params->xmppServerIP;
 $boshAddress = 'http://'.Yii::app()->params->xmppServerIP.'/http-bind';
@@ -50,23 +53,30 @@ $form = $this->beginWidget('CActiveForm', array(
 		<?php echo $form->passwordField($model, 'passwordRepeat', array('class' => 'form-control', 'value' => '123456')); ?>
 	</div>
 	
-	<div class="_row">
-		<?php echo $form->labelEx($model, 'verifyCode'); ?>
-		<div class="_captcha">
-			<div class="_controls">
-				<?php
-				echo $this->widget('system.web.widgets.captcha.CCaptcha', array(
-					'buttonOptions' => array(
-						'tabindex' => -1,
-					),
-				), true);
-				?>
-			</div>
-			<div class="_input">
-				<?php echo $form->textField($model, 'verifyCode', array('class' => 'form-control')); ?>
+	<?php
+	if ($model->useCaptcha)
+	{
+		?>
+		<div class="_row">
+			<?php echo $form->labelEx($model, 'verifyCode'); ?>
+			<div class="_captcha">
+				<div class="_controls">
+					<?php
+					echo $this->widget('system.web.widgets.captcha.CCaptcha', array(
+						'buttonOptions' => array(
+							'tabindex' => -1,
+						),
+					), true);
+					?>
+				</div>
+				<div class="_input">
+					<?php echo $form->textField($model, 'verifyCode', array('class' => 'form-control')); ?>
+				</div>
 			</div>
 		</div>
-	</div>
+		<?php
+	}	
+	?>
 	
 	<div class="alert alert-danger"></div>
 	
@@ -78,6 +88,54 @@ $form = $this->beginWidget('CActiveForm', array(
 
 <?php
 Yii::app()->clientScript->registerScript(uniqid(), "
+	
+	function blockControls()
+	{
+		changeControlsAvailability(false);
+	}
+	
+	function unblockControls()
+	{
+		changeControlsAvailability(true);
+	}
+	
+	function changeControlsAvailability(value)
+	{
+		var jFirstName = $('#RegisterForm_' + 'firstName');
+		var jLastName = $('#RegisterForm_' + 'lastName');
+		var jEmail = $('#RegisterForm_' + 'email');
+		var jPassword = $('#RegisterForm_' + 'password');
+		var jPasswordRepeat = $('#RegisterForm_' + 'passwordRepeat');
+		var jPasswordRepeat = $('#RegisterForm_' + 'passwordRepeat');
+		var jVerifyCode = $('#RegisterForm_' + 'verifyCode');
+		var jRefreshCaptcha = $('#".$form->id." div._captcha a');
+		var jSubmitButton = $('#".$form->id." input[type=\"submit\"]');
+		
+		var controls = [ jFirstName, jLastName, jEmail, jPassword, jPasswordRepeat, jVerifyCode, jSubmitButton ];
+		
+		if (value)
+		{
+			for (var i = 0; i < controls.length; i++)
+			{
+				var control = controls[i];
+				
+				control.removeAttr('disabled');
+			}
+			
+			jRefreshCaptcha.css('visibility', 'visible');
+		}
+		else
+		{
+			for (var i = 0; i < controls.length; i++)
+			{
+				var control = controls[i];
+				
+				control.attr('disabled', '');
+			}
+			
+			jRefreshCaptcha.css('visibility', 'hidden');
+		}
+	}
 	
 	function ajaxValidateUserRegisterForm()
 	{
@@ -110,7 +168,7 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 				return;
 			}
 			
-			alert('validated');
+			registerXmppUser();
 			return;
 			
 			$('#".$form->id."').removeAttr('onsubmit');
@@ -122,7 +180,39 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 	
 	function registerXmppUser()
 	{
+		blockControls();
+		
+		var firstName = $('#RegisterForm_' + 'firstName').val();
+		var lastName = $('#RegisterForm_' + 'lastName').val();
+		var email = $('#RegisterForm_' + 'email').val();
+		var password = $('#RegisterForm_' + 'password').val();
+		
 		var registration = new Registration('".$xmppAddress."', '".$boshAddress."', 'admin', 'zxasqw12');
+		registration.setNewUserData(firstName, lastName, email, password);
+		registration.setCallback(function(result) { onRegisterXmppUserCompleted(result); });
+		registration.connect();
+	}
+	
+	function onRegisterXmppUserCompleted(result)
+	{
+		console.log('onRegisterXmppUserCompleted()');
+		console.log(result);
+		
+		if (result.type == 'error')
+		{
+			var jFormErrorDiv = $('#".$form->id." .alert');
+			
+			jFormErrorDiv.html(result.text);
+			jFormErrorDiv.css('display', 'block');
+			
+			unblockControls();
+			
+			return;
+		}
+		
+		alert('submitform');
+		
+		unblockControls();
 	}
 	
 ", CClientScript::POS_END);
