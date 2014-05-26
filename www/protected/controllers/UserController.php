@@ -66,7 +66,7 @@ class UserController extends Controller
 		
 		if (isset($_POST['RegisterForm']))
 		{
-			$model->attributes = $_POST['RegisterForm'];
+			$model->setAttributes($_POST['RegisterForm'], false);
 			
 			if ($model->validate())
 			{
@@ -114,13 +114,40 @@ class UserController extends Controller
 		Yii::app()->end();
 	}
 	
-	public function addXmppUserToGroup()
+	public function actionAddXmppUserToGroup()
 	{
+		echo "\n" . '_REQUEST: ';
+		print_r($_REQUEST);
+		echo "\n";
 		
+		$error = '';
+		$result = null;
 		
+		try
+		{
+			$xmppUserName = Yii::app()->request->getParam('xmppUserName');
+			$xmppGroupName = Yii::app()->request->getParam('xmppGroupName');
+			
+			
+//			$db = new CDbConnection('mysql:host=192.168.1.96;dbname=dbname', 'root', '123456');
+			
+			
+		}
+		catch (Exception $ex)
+		{
+			$error = $ex->getMessage();
+		}
 		
+		$result = (object) array(
+			'error' => $error,
+		);
 		
+		if ($error == '')
+		{
+			
+		}
 		
+		echo json_encode($result);
 		
 		Yii::app()->end();
 	}

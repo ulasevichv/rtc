@@ -18,13 +18,12 @@ Yii::app()->clientScript->registerScript(uniqid('register_xmpp'), "
 		this.disconnecting = false;
 	}
 	
-	Registration.prototype.setNewUserData = function(firstName, lastName, email, password)
+	Registration.prototype.setNewUserData = function(firstName, lastName, email)
 	{
 		this.newUser = {
 			firstName : firstName,
 			lastName : lastName,
-			email :email,
-			password :password
+			email :email
 		};
 	}
 	
@@ -114,9 +113,12 @@ Yii::app()->clientScript->registerScript(uniqid('register_xmpp'), "
 		
 		var firstName = this.newUser.firstName;
 		var lastName = this.newUser.lastName;
-		var password = this.newUser.password;
 		var email = this.newUser.email;
-		var userJid = firstName.toLowerCase() + '_' + lastName.toLowerCase() + '@' + this.xmppAddress;
+		
+		var xmppUserName = firstName.toLowerCase() + '_' + lastName.toLowerCase();
+		var userJid = xmppUserName + '@' + this.xmppAddress;
+		
+		var xmppUserPassword = MethodsForStrings.generateRandomString(8, 'lower');
 		
 		var iq = \$iq({ type : 'set' })
 			.c('command', { xmlns : 'http://jabber.org/protocol/commands', node : 'http://jabber.org/protocol/admin#add-user', sessionid : sessionId })
@@ -126,9 +128,9 @@ Yii::app()->clientScript->registerScript(uniqid('register_xmpp'), "
 				.c('field', { var : 'accountjid' })
 					.c('value').t(userJid).up().up()
 				.c('field', { var : 'password' })
-					.c('value').t(password).up().up()
+					.c('value').t(xmppUserPassword).up().up()
 				.c('field', { var : 'password-verify' })
-					.c('value').t(password).up().up()
+					.c('value').t(xmppUserPassword).up().up()
 				.c('field', { var : 'email' })
 					.c('value').t(email).up().up()
 				.c('field', { var : 'given_name' })
@@ -140,10 +142,10 @@ Yii::app()->clientScript->registerScript(uniqid('register_xmpp'), "
 		
 		var inst = this;
 		
-		this.conn.sendIQ(iq, function(stanza) { inst.onUserFormSubmitResponse(stanza, userJid); });
+		this.conn.sendIQ(iq, function(stanza) { inst.onUserFormSubmitResponse(stanza, userJid, xmppUserName, xmppUserPassword); });
 	}
 	
-	Registration.prototype.onUserFormSubmitResponse = function(stanza, userJid)
+	Registration.prototype.onUserFormSubmitResponse = function(stanza, userJid, xmppUserName, xmppUserPassword)
 	{
 		console.log('onUserFormSubmitResponse');
 		console.log(stanza);
@@ -179,6 +181,9 @@ Yii::app()->clientScript->registerScript(uniqid('register_xmpp'), "
 		{
 			result = { type : 'error', text : 'Wrong response' };
 		}
+		
+		result.xmppUserName = xmppUserName;
+		result.xmppUserPassword = xmppUserPassword;
 		
 		this.callback(result);
 	}

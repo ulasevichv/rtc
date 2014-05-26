@@ -32,18 +32,7 @@ Yii::app()->clientScript->registerScriptFile($baseUrl.'/assets/js/bootstrap-sele
 $xmppAddress = Yii::app()->params->xmppServerIP;
 $boshAddress = 'http://'.Yii::app()->params->xmppServerIP.'/http-bind';
 
-$xmppUser = null;
-
-foreach (Yii::app()->params->xmppUsers as $user)
-{
-	if ($user->email == Yii::app()->user->email)
-	{
-		$xmppUser = $user;
-		break;
-	}
-}
-
-if (!isset($xmppUser))
+if (empty(Yii::app()->user->dbUser->xmppUserName) || empty(Yii::app()->user->dbUser->xmppUserPassword))
 {
 	Yii::app()->user->setFlash('error', Yii::t('general', 'XMPP user is not found. Chatting is not possible.'));
 	return;
@@ -55,7 +44,8 @@ $this->renderPartial('chat_classes_js', array(
 $this->renderPartial('chat_js', array(
 	'xmppAddress' => $xmppAddress,
 	'boshAddress' => $boshAddress,
-	'xmppUser' => $xmppUser,
+	'xmppUserName' => Yii::app()->user->dbUser->xmppUserName,
+	'xmppUserPassword' => Yii::app()->user->dbUser->xmppUserPassword,
 ), false, false);
 
 $this->renderPartial('chat_gui_js', array(

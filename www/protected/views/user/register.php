@@ -1,6 +1,7 @@
 <?php
 $baseUrl = Yii::app()->theme->baseUrl;
 
+Yii::app()->clientScript->registerScriptFile($baseUrl.'/assets/js/MethodsForStrings.js');
 Yii::app()->clientScript->registerScriptFile($baseUrl.'/assets/js/strophe.js');
 
 $xmppAddress = Yii::app()->params->xmppServerIP;
@@ -30,17 +31,17 @@ $form = $this->beginWidget('CActiveForm', array(
 	
 	<div class="_row">
 		<?php echo $form->labelEx($model, 'firstName'); ?>
-		<?php echo $form->textField($model, 'firstName', array('class' => 'form-control', 'value' => 'TestFN')); ?>
+		<?php echo $form->textField($model, 'firstName', array('class' => 'form-control', 'value' => 'Test')); ?>
 	</div>
 	
 	<div class="_row">
 		<?php echo $form->labelEx($model, 'lastName'); ?>
-		<?php echo $form->textField($model, 'lastName', array('class' => 'form-control', 'value' => 'TestLN')); ?>
+		<?php echo $form->textField($model, 'lastName', array('class' => 'form-control', 'value' => 'Test')); ?>
 	</div>
 	
 	<div class="_row">
 		<?php echo $form->labelEx($model, 'email'); ?>
-		<?php echo $form->textField($model, 'email', array('class' => 'form-control', 'value' => 'regtest@nomail.com')); ?>
+		<?php echo $form->textField($model, 'email', array('class' => 'form-control', 'value' => 'test@nomail.com')); ?>
 	</div>
 	
 	<div class="_row">
@@ -77,6 +78,14 @@ $form = $this->beginWidget('CActiveForm', array(
 		<?php
 	}	
 	?>
+	
+	<div class="_row" style="display:none;">
+		<?php echo $form->textField($model, 'xmppUserName', array()); ?>
+	</div>
+	
+	<div class="_row" style="display:none;">
+		<?php echo $form->textField($model, 'xmppUserPassword', array()); ?>
+	</div>
 	
 	<div class="alert alert-danger"></div>
 	
@@ -169,10 +178,6 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 			}
 			
 			registerXmppUser();
-			return;
-			
-			$('#".$form->id."').removeAttr('onsubmit');
-			$('#".$form->id."').submit();
 		});
 		
 		request.error(requestTimedOutDefault);
@@ -185,10 +190,9 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 		var firstName = $('#RegisterForm_' + 'firstName').val();
 		var lastName = $('#RegisterForm_' + 'lastName').val();
 		var email = $('#RegisterForm_' + 'email').val();
-		var password = $('#RegisterForm_' + 'password').val();
 		
 		var registration = new Registration('".$xmppAddress."', '".$boshAddress."', 'admin', 'zxasqw12');
-		registration.setNewUserData(firstName, lastName, email, password);
+		registration.setNewUserData(firstName, lastName, email);
 		registration.setCallback(function(result) { onRegisterXmppUserCompleted(result); });
 		registration.connect();
 	}
@@ -210,9 +214,39 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 			return;
 		}
 		
-		alert('submitform');
+		addXmppUserToGroup(result.xmppUserName);
 		
-		unblockControls();
+//		var jXmppUserNameInput = $('#RegisterForm_' + 'xmppUserName');
+//		jXmppUserNameInput.attr('value', result.xmppUserName);
+//		
+//		var jXmppUserPasswordInput = $('#RegisterForm_' + 'xmppUserPassword');
+//		jXmppUserPasswordInput.attr('value', result.xmppUserPassword);
+//		
+//		unblockControls();
+//		
+//		$('#".$form->id."').removeAttr('onsubmit');
+//		$('#".$form->id."').submit();
+	}
+	
+	function addXmppUserToGroup(xmppUserName)
+	{
+		var xmppGroupName = 'TeqSpring';
+		
+		var request = $.ajax({
+			url : '?r=user/addXmppUserToGroup',
+			data : { xmppUserName : xmppUserName, xmppGroupName : xmppGroupName },
+			type : 'POST',
+			dataType : 'json',
+			cache : false,
+			timeout : 5000
+		});
+		
+		request.success(function(response, status, request)
+		{
+			console.log(response);
+		});
+		
+		request.error(requestTimedOutDefault);
 	}
 	
 ", CClientScript::POS_END);

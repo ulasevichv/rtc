@@ -8,7 +8,9 @@ class RegisterForm extends CFormModel
 	public $password;
 	public $passwordRepeat;
 	public $verifyCode;
-	public $useCaptcha = true;
+	public $xmppUserName;
+	public $xmppUserPassword;
+	public $useCaptcha = false;
 	
 	public function rules()
 	{
@@ -53,6 +55,7 @@ class RegisterForm extends CFormModel
 		$userModel = User::model();
 		
 		$userModel->setAttributes($this->attributes, false);
+		
 		$userModel->setIsNewRecord(true);
 		$userModel->save();
 		

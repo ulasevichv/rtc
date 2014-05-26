@@ -7,10 +7,10 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 		boshAddress : '".$boshAddress."',
 		currentUser : new InternalChatUser(
 			'',
-			'".$xmppUser->serverUserName."' + '@' + '".$xmppAddress."',
-			'".$xmppUser->serverUserName."',
+			'".$xmppUserName."' + '@' + '".$xmppAddress."',
+			'".$xmppUserName."',
 			'".Yii::app()->user->fullName."',
-			'".$xmppUser->serverUserPass."'
+			'".$xmppUserPassword."'
 		),
 		disconnecting : false,
 		loginDateTime : new Date(),
