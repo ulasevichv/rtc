@@ -66,7 +66,7 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 				case Strophe.Status.DISCONNECTED: Chat.onDisconnect(); break;
 				default:
 				{
-					// console.log('Unhandled XMPP-connection status: ' + status);
+//					 console.log('Unhandled XMPP-connection status: ' + status);
 				}
 			}
 		},
@@ -85,7 +85,7 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 //			var iq = \$iq({type: 'get'}).c('query', {xmlns: Strophe.NS.ROSTER});
 //			Chat.conn.sendIQ(iq, RosterObj.on_roster);
 //			Chat.conn.addHandler(RosterObj.on_roster_changed, Strophe.NS.ROSTER, 'iq', 'set');
-
+			
 			Chat.conn.addHandler(Chat.onSystemMessage, null, 'message', MessageType.SYSTEM);
 			Chat.conn.addHandler(Chat.onVideoCall, null, 'message', MessageType.VIDEO_CALL);
 			Chat.conn.addHandler(Chat.onDrawingCall, null, 'message', MessageType.DRAWING_CALL);

@@ -22,7 +22,7 @@ $baseUrl = Yii::app()->theme->baseUrl;
 				'items' => array(
 					array('label' => Yii::t('general', 'Home'), 'url' => array('/')),
 					array('label' => Yii::t('general', 'Chat'), 'url' => array('/chat')),
-//					array('label' => Yii::t('general', 'Registration'), 'url' => array('/registration')),
+					array('label' => Yii::t('general', 'Registration'), 'url' => array('/registration')),
 //					array('label' => Yii::t('general', 'Strophe'), 'url' => array('/strophe')),
 //					array('label' => '',
 //						'template' => '<a href="#" class="dropdown-toggle" data-toggle="dropdown">'.Yii::t('general', 'Test: Dropdown').'<b class="caret"></b></a>',
