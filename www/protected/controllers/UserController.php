@@ -10,7 +10,7 @@ class UserController extends Controller
 				'backColor' => 0xffffff,
 				'foreColor' => 0x009900,
 				'offset' => 1,
-				'testLimit' => 3,
+				'testLimit' => 10,
 			),
 		);
 	}
