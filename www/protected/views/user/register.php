@@ -6,6 +6,8 @@ Yii::app()->clientScript->registerScriptFile($baseUrl.'/assets/js/strophe.js');
 
 $xmppAddress = Yii::app()->params->xmppServerIP;
 $boshAddress = 'http://'.Yii::app()->params->xmppServerIP.'/http-bind';
+$xmppAdminUsername = Yii::app()->params->xmppAdminUsername;
+$xmppAdminPassword = Yii::app()->params->xmppAdminPassword;
 
 $this->renderPartial('register_xmpp_js', array(
 ), false, false);
@@ -24,34 +26,34 @@ $form = $this->beginWidget('CActiveForm', array(
 	),
 	'htmlOptions' => array(
 		'autocomplete' => 'off',
-		'onsubmit' => "ajaxValidateUserRegisterForm(); return false;",
+		'onsubmit' => "onRegisterButtonClick(); return false;",
 	),
 ));
 ?>
 	
 	<div class="_row">
 		<?php echo $form->labelEx($model, 'firstName'); ?>
-		<?php echo $form->textField($model, 'firstName', array('class' => 'form-control', 'value' => 'Test')); ?>
+		<?php echo $form->textField($model, 'firstName', array('class' => 'form-control', 'value' => '')); ?>
 	</div>
 	
 	<div class="_row">
 		<?php echo $form->labelEx($model, 'lastName'); ?>
-		<?php echo $form->textField($model, 'lastName', array('class' => 'form-control', 'value' => 'Test')); ?>
+		<?php echo $form->textField($model, 'lastName', array('class' => 'form-control', 'value' => '')); ?>
 	</div>
 	
 	<div class="_row">
 		<?php echo $form->labelEx($model, 'email'); ?>
-		<?php echo $form->textField($model, 'email', array('class' => 'form-control', 'value' => 'test@nomail.com')); ?>
+		<?php echo $form->textField($model, 'email', array('class' => 'form-control', 'value' => '')); ?>
 	</div>
 	
 	<div class="_row">
 		<?php echo $form->labelEx($model, 'password'); ?>
-		<?php echo $form->passwordField($model, 'password', array('class' => 'form-control', 'value' => '123456')); ?>
+		<?php echo $form->passwordField($model, 'password', array('class' => 'form-control', 'value' => '')); ?>
 	</div>
 	
 	<div class="_row">
 		<?php echo $form->labelEx($model, 'passwordRepeat'); ?>
-		<?php echo $form->passwordField($model, 'passwordRepeat', array('class' => 'form-control', 'value' => '123456')); ?>
+		<?php echo $form->passwordField($model, 'passwordRepeat', array('class' => 'form-control', 'value' => '')); ?>
 	</div>
 	
 	<?php
@@ -91,6 +93,7 @@ $form = $this->beginWidget('CActiveForm', array(
 	
 	<div class="_row">
 		<?php echo CHtml::submitButton(Yii::t('general', 'Register'), array('class' => 'btn btn-primary')); ?>
+		<div class="indicator" style="display:none;"></div>
 	</div>
 	
 <?php $this->endWidget(); ?>
@@ -119,6 +122,7 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 		var jVerifyCode = $('#RegisterForm_' + 'verifyCode');
 		var jRefreshCaptcha = $('#".$form->id." div._captcha a');
 		var jSubmitButton = $('#".$form->id." input[type=\"submit\"]');
+		var jIndicator = $('#".$form->id." .indicator');
 		
 		var controls = [ jFirstName, jLastName, jEmail, jPassword, jPasswordRepeat, jVerifyCode, jSubmitButton ];
 		
@@ -132,6 +136,8 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 			}
 			
 			jRefreshCaptcha.css('visibility', 'visible');
+			
+			jIndicator.css('display', 'none');
 		}
 		else
 		{
@@ -143,7 +149,14 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 			}
 			
 			jRefreshCaptcha.css('visibility', 'hidden');
+			
+			jIndicator.css('display', 'block');
 		}
+	}
+	
+	function onRegisterButtonClick()
+	{
+		ajaxValidateUserRegisterForm();
 	}
 	
 	function ajaxValidateUserRegisterForm()
@@ -191,7 +204,7 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 		var lastName = $('#RegisterForm_' + 'lastName').val();
 		var email = $('#RegisterForm_' + 'email').val();
 		
-		var registration = new Registration('".$xmppAddress."', '".$boshAddress."', 'admin', 'zxasqw12');
+		var registration = new Registration('".$xmppAddress."', '".$boshAddress."', '".$xmppAdminUsername."', '".$xmppAdminPassword."');
 		registration.setNewUserData(firstName, lastName, email);
 		registration.setCallback(function(result) { onRegisterXmppUserCompleted(result); });
 		registration.connect();
@@ -214,21 +227,10 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 			return;
 		}
 		
-		addXmppUserToGroup(result.xmppUserName);
-		
-//		var jXmppUserNameInput = $('#RegisterForm_' + 'xmppUserName');
-//		jXmppUserNameInput.attr('value', result.xmppUserName);
-//		
-//		var jXmppUserPasswordInput = $('#RegisterForm_' + 'xmppUserPassword');
-//		jXmppUserPasswordInput.attr('value', result.xmppUserPassword);
-//		
-//		unblockControls();
-//		
-//		$('#".$form->id."').removeAttr('onsubmit');
-//		$('#".$form->id."').submit();
+		addXmppUserToGroup(result.xmppUserName, result.xmppUserPassword);
 	}
 	
-	function addXmppUserToGroup(xmppUserName)
+	function addXmppUserToGroup(xmppUserName, xmppUserPassword)
 	{
 		var xmppGroupName = 'TeqSpring';
 		
@@ -243,7 +245,30 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 		
 		request.success(function(response, status, request)
 		{
-			console.log(response);
+			if (response.error != '')
+			{
+				var jFormErrorDiv = $('#".$form->id." .alert');
+				
+				jFormErrorDiv.html(response.error);
+				jFormErrorDiv.css('display', 'block');
+				
+				unblockControls();
+				
+				return;
+			}
+			
+			var jXmppUserNameInput = $('#RegisterForm_' + 'xmppUserName');
+			jXmppUserNameInput.attr('value', xmppUserName);
+			
+			var jXmppUserPasswordInput = $('#RegisterForm_' + 'xmppUserPassword');
+			jXmppUserPasswordInput.attr('value', xmppUserPassword);
+			
+			unblockControls();
+			
+			$('#".$form->id."').removeAttr('onsubmit');
+			$('#".$form->id."').submit();
+			
+			$('#".$form->id."').fadeOut(600);
 		});
 		
 		request.error(requestTimedOutDefault);

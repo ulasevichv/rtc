@@ -10,7 +10,7 @@ class RegisterForm extends CFormModel
 	public $verifyCode;
 	public $xmppUserName;
 	public $xmppUserPassword;
-	public $useCaptcha = false;
+	public $useCaptcha = true;
 	
 	public function rules()
 	{

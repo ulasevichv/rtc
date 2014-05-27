@@ -65,7 +65,6 @@ Yii::app()->clientScript->registerScript(uniqid('register_xmpp'), "
 		console.log('Connected');
 		
 		this.requestAddUserForm();
-//		this.addUserToGroup('regtest@192.237.219.76', 'groups/TeqSpring');
 	}
 	
 	Registration.prototype.onDisconnect = function()
@@ -166,10 +165,6 @@ Yii::app()->clientScript->registerScript(uniqid('register_xmpp'), "
 			
 			if (resultType == 'info' && resultText == 'Operation finished successfully')
 			{
-				console.log('SUCCESS');
-				
-//				this.addUserToGroup(userJid, 'TeqSpring');
-				
 				result = { type : 'success', text : resultText };
 			}
 			else
@@ -187,6 +182,8 @@ Yii::app()->clientScript->registerScript(uniqid('register_xmpp'), "
 		
 		this.callback(result);
 	}
+	
+	// Not working with OpenFire!
 	
 //	Registration.prototype.addUserToGroup = function(userJid, groupName)
 //	{

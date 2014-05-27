@@ -116,22 +116,21 @@ class UserController extends Controller
 	
 	public function actionAddXmppUserToGroup()
 	{
-		echo "\n" . '_REQUEST: ';
-		print_r($_REQUEST);
-		echo "\n";
-		
 		$error = '';
-		$result = null;
 		
 		try
 		{
 			$xmppUserName = Yii::app()->request->getParam('xmppUserName');
 			$xmppGroupName = Yii::app()->request->getParam('xmppGroupName');
 			
+			if (!isset($xmppUserName)) throw new Exception(Yii::t('general', 'Undefined parameter').': '.'xmppUserName');
+			if (!isset($xmppGroupName)) throw new Exception(Yii::t('general', 'Undefined parameter').': '.'xmppGroupName');
 			
-//			$db = new CDbConnection('mysql:host=192.168.1.96;dbname=dbname', 'root', '123456');
+			$db = Yii::app()->openFireDb;
 			
-			
+			$query = "INSERT INTO `ofGroupUser` (`groupName`, `username`, `administrator`)" .
+				" VALUES (".$db->quoteValue($xmppGroupName).", ".$db->quoteValue($xmppUserName).", 0)";
+			$db->createCommand($query)->execute();
 		}
 		catch (Exception $ex)
 		{
@@ -141,11 +140,6 @@ class UserController extends Controller
 		$result = (object) array(
 			'error' => $error,
 		);
-		
-		if ($error == '')
-		{
-			
-		}
 		
 		echo json_encode($result);
 		

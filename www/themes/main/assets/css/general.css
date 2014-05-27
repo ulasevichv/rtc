@@ -220,9 +220,16 @@ form .input-group span.glyphicon {
 	width: 120px;
 	margin: 9px 0 0 0;
 }
+#user_register_form .indicator {
+	float: right;
+	background: url("../images/chat/indicator_32.gif") no-repeat scroll 0 0 transparent;
+	background-size: 32px 32px;
+	width: 32px;
+	height: 32px;
+}
 #user_register_form input[type="submit"] {
 	float: right;
-	margin: 0;
+	margin: 0 0 0 10px;
 }
 
 

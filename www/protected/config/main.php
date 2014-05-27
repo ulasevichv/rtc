@@ -1,26 +1,30 @@
 <?php
-
-// uncomment the following to define a path alias
-// Yii::setPathOfAlias('local','path/to/local-folder');
-
-// This is the main Web application configuration. Any writable
-// CWebApplication properties can be configured here.
 return CMap::mergeArray(
 	array(
-		'basePath'=>dirname(__FILE__).DIRECTORY_SEPARATOR.'..',
-		'name'=>'My Web Application',
-		
-		// preloading 'log' component
-		'preload'=>array('log'),
-		
-		// autoloading model and component classes
-		'import'=>array(
-			'application.models.*',
-			'application.components.*',
-            'ext.opentok.*',
+		'basePath' => dirname(__FILE__).DIRECTORY_SEPARATOR.'..',
+		'name' => 'RTC',
+		'theme' => 'main',
+		'params' => array(
+			'adminEmail' => 'admin@rtc.com',
+			'adminEmailName' => 'RTC',
+			'xmppServerIP' => '192.237.219.76',
+			'xmppAdminUsername' => 'admin',
+			'xmppAdminPassword' => 'zxasqw12',
+			'opentok_api_key' => '44781472',
+			'opentok_api_secret' => '9c61ccfa9474404e8a6cd5daee02f2bf59e876b0',
 		),
 		
-		'modules'=>array(
+		// preloading 'log' component
+		'preload' => array('log'),
+		
+		// autoloading model and component classes
+		'import' => array(
+			'application.models.*',
+			'application.components.*',
+			'ext.opentok.*',
+		),
+		
+		'modules' => array(
 			// uncomment the following to enable the Gii tool
 			/*
 			'gii'=>array(
@@ -33,39 +37,39 @@ return CMap::mergeArray(
 		),
 		
 		// application components
-		'components'=>array(
-			'user'=>array(
+		'components' => array(
+			'user' => array(
 				// enable cookie-based authentication
-				'allowAutoLogin'=>true,
+				'allowAutoLogin' => true,
 			),
 			// uncomment the following to enable URLs in path-format
 			/*
-			'urlManager'=>array(
-				'urlFormat'=>'path',
-				'rules'=>array(
+			'urlManager' => array(
+				'urlFormat' => 'path',
+				'rules' => array(
 					'<controller:\w+>/<id:\d+>'=>'<controller>/view',
 					'<controller:\w+>/<action:\w+>/<id:\d+>'=>'<controller>/<action>',
 					'<controller:\w+>/<action:\w+>'=>'<controller>/<action>',
 				),
 			),
 			*/
-			'db'=>array(
+			'db' => array(
 				'connectionString' => 'sqlite:'.dirname(__FILE__).'/../data/testdrive.db',
 			),
-            'dbOpenfire'=>array(
-                'connectionString' => 'mysql:host=localhost;dbname=openfire',
-                'emulatePrepare' => true,
-                'username' => 'root',
-                'password' => '',
-                'charset' => 'utf8',
-                'tablePrefix' => '',
-                'enableParamLogging' => true,
-                'enableProfiling' => true,
-                'class'=>'CDbConnection'
-            ),
+			'openFireDb' => array(
+				'connectionString' => 'mysql:host=192.237.219.76;dbname=openfire',
+				'emulatePrepare' => true,
+				'username' => 'root',
+				'password' => '123456',
+				'charset' => 'utf8',
+				'tablePrefix' => '',
+				'enableParamLogging' => true,
+				'enableProfiling' => true,
+				'class' => 'CDbConnection',
+			),
 			// uncomment the following to use a MySQL database
 			/*
-			'db'=>array(
+			'db' => array(
 				'connectionString' => 'mysql:host=localhost;dbname=testdrive',
 				'emulatePrepare' => true,
 				'username' => 'root',
@@ -73,40 +77,25 @@ return CMap::mergeArray(
 				'charset' => 'utf8',
 			),
 			*/
-			'errorHandler'=>array(
+			'errorHandler' => array(
 				// use 'site/error' action to display errors
-				'errorAction'=>'site/error',
+				'errorAction' => 'site/error',
 			),
-			'log'=>array(
-				'class'=>'CLogRouter',
-				'routes'=>array(
+			'log' => array(
+				'class' => 'CLogRouter',
+				'routes' => array(
 					array(
-						'class'=>'CFileLogRoute',
-						'levels'=>'error, warning',
+						'class' => 'CFileLogRoute',
+						'levels' => 'error, warning',
 					),
 					// uncomment the following to show log messages on web pages
 					/*
 					array(
-						'class'=>'CWebLogRoute',
+						'class' => 'CWebLogRoute',
 					),
 					*/
 				),
 			),
-		),
-		
-		// application-level parameters that can be accessed
-		// using Yii::app()->params['paramName']
-		// 'params'=>array(
-		// // this is used in contact page
-		// 'adminEmail'=>'webmaster@example.com',
-		// 'opentok_api_key' => '44742482',
-		// 'opentok_api_secret' => '71473649153f49d888e044cb55048eb3faf83dd0',
-		// ),
-		'params' => array(
-			// this is used in contact page
-			'adminEmail' => 'webmaster@example.com',
-			'opentok_api_key' => '44781472',
-			'opentok_api_secret' => '9c61ccfa9474404e8a6cd5daee02f2bf59e876b0',
 		),
 	),
 	require(dirname(__FILE__) . '/main.custom.php')
