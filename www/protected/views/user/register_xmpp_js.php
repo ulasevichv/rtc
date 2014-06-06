@@ -64,7 +64,8 @@ Yii::app()->clientScript->registerScript(uniqid('register_xmpp'), "
 	{
 		console.log('Connected');
 		
-		this.requestAddUserForm();
+//		this.requestAddUserForm();
+		this.addUserToGroup();
 	}
 	
 	Registration.prototype.onDisconnect = function()
@@ -185,23 +186,36 @@ Yii::app()->clientScript->registerScript(uniqid('register_xmpp'), "
 	
 	// Not working with OpenFire!
 	
-//	Registration.prototype.addUserToGroup = function(userJid, groupName)
-//	{
-//		console.log('addUserToGroup(' + userJid + ', ' + groupName + ')');
-//		
+	Registration.prototype.addUserToGroup = function(userJid, groupName)
+	{
+		userJid = 'testerr_testerr@192.237.219.76';
+		groupName = 'TeqSpring';
+		
+		console.log('addUserToGroup(' + userJid + ', ' + groupName + ')');
+		
 //		var iq = \$iq({ type : 'set', to : 'pubsub.' + this.xmppAddress })
-//			.c('pubsub', { xmlns : 'http://jabber.org/protocol/pubsub' })
-//				.c('entities', { node : groupName })
-//					.c('entity', { jid : userJid, affiliation : 'none', subscription : 'subscribed' });
+		var iq = \$iq({ type : 'set', to : this.xmppAddress })
+			.c('pubsub', { xmlns : 'http://jabber.org/protocol/pubsub' })
+				.c('entities', { node : groupName })
+					.c('entity', { jid : userJid, affiliation : 'none', subscription : 'subscribed' });
+		
+		console.log(Strophe.serialize(iq));
+		
+		this.conn.sendIQ(iq, function(stanza) { inst.onAddUserToGroupResponse(stanza); });
+		
+//		var msg = \$msg({})
+//			.c('x', { xmlns : 'http://jabber.org/protocol/rosterx'})
+//				.c('item', { action : 'add', jid : userJid, name : 'testerr_testerr' })
+//					.c('group').t(groupName);
 //		
-//		console.log(Strophe.serialize(iq));
+//		console.log(Strophe.serialize(msg));
 //		
-//		this.conn.sendIQ(iq, function(stanza) { inst.onAddUserToGroupResponse(stanza); });
-//	}
-//	
-//	Registration.prototype.onAddUserToGroupResponse = function(stanza)
-//	{
-//		console.log('onAddUserToGroupResponse');
-//	}
+//		this.conn.sendIQ(msg);
+	}
+	
+	Registration.prototype.onAddUserToGroupResponse = function(stanza)
+	{
+		console.log('onAddUserToGroupResponse');
+	}
 	
 ", CClientScript::POS_HEAD);

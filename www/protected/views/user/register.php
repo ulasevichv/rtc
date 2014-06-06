@@ -26,7 +26,7 @@ $form = $this->beginWidget('CActiveForm', array(
 	),
 	'htmlOptions' => array(
 		'autocomplete' => 'off',
-		'onsubmit' => "onRegisterButtonClick(); return false;",
+		'onsubmit' => "return onRegisterButtonClick(); return false;",
 	),
 ));
 ?>
@@ -101,6 +101,8 @@ $form = $this->beginWidget('CActiveForm', array(
 <?php
 Yii::app()->clientScript->registerScript(uniqid(), "
 	
+	var registration = null;
+	
 	function blockControls()
 	{
 		changeControlsAvailability(false);
@@ -154,9 +156,18 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 		}
 	}
 	
-	function onRegisterButtonClick()
+	function onRegisterButtonClick(e)
 	{
-		ajaxValidateUserRegisterForm();
+//		ajaxValidateUserRegisterForm();
+		
+		e.preventDefault();
+		
+//		registration = new Registration('".$xmppAddress."', '".$boshAddress."', '".$xmppAdminUsername."', '".$xmppAdminPassword."');
+//		registration.setNewUserData(firstName, lastName, email);
+//		registration.setCallback(function(result) { onRegisterXmppUserCompleted(result); });
+//		registration.connect();
+		
+		return false;
 	}
 	
 	function ajaxValidateUserRegisterForm()
@@ -204,7 +215,7 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 		var lastName = $('#RegisterForm_' + 'lastName').val();
 		var email = $('#RegisterForm_' + 'email').val();
 		
-		var registration = new Registration('".$xmppAddress."', '".$boshAddress."', '".$xmppAdminUsername."', '".$xmppAdminPassword."');
+		registration = new Registration('".$xmppAddress."', '".$boshAddress."', '".$xmppAdminUsername."', '".$xmppAdminPassword."');
 		registration.setNewUserData(firstName, lastName, email);
 		registration.setCallback(function(result) { onRegisterXmppUserCompleted(result); });
 		registration.connect();
@@ -231,6 +242,13 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 	}
 	
 	function addXmppUserToGroup(xmppUserName, xmppUserPassword)
+	{
+		var xmppGroupName = 'TeqSpring';
+		
+		registration.addUserToGroup(xmppUserName, xmppGroupName);
+	}
+	
+	function addXmppUserToGroup_(xmppUserName, xmppUserPassword)
 	{
 		var xmppGroupName = 'TeqSpring';
 		
