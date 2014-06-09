@@ -26,7 +26,7 @@ $form = $this->beginWidget('CActiveForm', array(
 	),
 	'htmlOptions' => array(
 		'autocomplete' => 'off',
-		'onsubmit' => "return onRegisterButtonClick(); return false;",
+		'onsubmit' => "return onRegisterButtonClick();",
 	),
 ));
 ?>
@@ -156,16 +156,14 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 		}
 	}
 	
-	function onRegisterButtonClick(e)
+	function onRegisterButtonClick()
 	{
-//		ajaxValidateUserRegisterForm();
+		ajaxValidateUserRegisterForm();
 		
-		e.preventDefault();
-		
+//		// Debugging adding user to group.
+//		
 //		registration = new Registration('".$xmppAddress."', '".$boshAddress."', '".$xmppAdminUsername."', '".$xmppAdminPassword."');
-//		registration.setNewUserData(firstName, lastName, email);
-//		registration.setCallback(function(result) { onRegisterXmppUserCompleted(result); });
-//		registration.connect();
+//		registration.connect(registration.addUserToGroup);
 		
 		return false;
 	}
@@ -217,8 +215,8 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 		
 		registration = new Registration('".$xmppAddress."', '".$boshAddress."', '".$xmppAdminUsername."', '".$xmppAdminPassword."');
 		registration.setNewUserData(firstName, lastName, email);
-		registration.setCallback(function(result) { onRegisterXmppUserCompleted(result); });
-		registration.connect();
+		registration.setRegisterUserCallback(function(result) { onRegisterXmppUserCompleted(result); });
+		registration.connect(registration.requestAddUserForm);
 	}
 	
 	function onRegisterXmppUserCompleted(result)

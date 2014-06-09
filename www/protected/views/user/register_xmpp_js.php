@@ -14,7 +14,8 @@ Yii::app()->clientScript->registerScript(uniqid('register_xmpp'), "
 			jid : adminUsername + '@' + xmppAddress
 		};
 		this.newUser = null;
-		this.callback = null;
+		this.connectCallback = null;
+		this.registerUserCallback = null;
 		this.disconnecting = false;
 	}
 	
@@ -27,16 +28,18 @@ Yii::app()->clientScript->registerScript(uniqid('register_xmpp'), "
 		};
 	}
 	
-	Registration.prototype.setCallback = function(callback)
+	Registration.prototype.setRegisterUserCallback = function(callback)
 	{
-		this.callback = callback;
+		this.registerUserCallback = callback;
 	}
 	
-	Registration.prototype.connect = function()
+	Registration.prototype.connect = function(callback)
 	{
 		this.conn  = new Strophe.Connection(this.boshAddress);
 		
 		console.log('Connecting \'' + this.adminUser.jid + '\' (' + this.adminUser.password + ')');
+		
+		this.connectCallback = callback;
 		
 		var inst = this;
 		
@@ -65,7 +68,9 @@ Yii::app()->clientScript->registerScript(uniqid('register_xmpp'), "
 		console.log('Connected');
 		
 //		this.requestAddUserForm();
-		this.addUserToGroup();
+//		this.addUserToGroup();
+		
+		this.connectCallback();
 	}
 	
 	Registration.prototype.onDisconnect = function()
@@ -77,6 +82,8 @@ Yii::app()->clientScript->registerScript(uniqid('register_xmpp'), "
 		alert('".Yii::t('general', 'Unable to connect to server. Please, reload the page')."');
 	}
 	
+	// This approach described in XEP-0133 (http://xmpp.org/extensions/xep-0133.html#add-user)
+	//
 	Registration.prototype.requestAddUserForm = function()
 	{
 		var iq = \$iq({ type : 'set' })
@@ -181,7 +188,7 @@ Yii::app()->clientScript->registerScript(uniqid('register_xmpp'), "
 		result.xmppUserName = xmppUserName;
 		result.xmppUserPassword = xmppUserPassword;
 		
-		this.callback(result);
+		this.registerUserCallback(result);
 	}
 	
 	// Not working with OpenFire!
@@ -193,8 +200,7 @@ Yii::app()->clientScript->registerScript(uniqid('register_xmpp'), "
 		
 		console.log('addUserToGroup(' + userJid + ', ' + groupName + ')');
 		
-//		var iq = \$iq({ type : 'set', to : 'pubsub.' + this.xmppAddress })
-		var iq = \$iq({ type : 'set', to : this.xmppAddress })
+		var iq = \$iq({ type : 'set', to : 'pubsub.' + this.xmppAddress })
 			.c('pubsub', { xmlns : 'http://jabber.org/protocol/pubsub' })
 				.c('entities', { node : groupName })
 					.c('entity', { jid : userJid, affiliation : 'none', subscription : 'subscribed' });
