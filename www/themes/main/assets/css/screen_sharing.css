@@ -1,0 +1,11 @@
+/*** General ***/
+
+.screenSharingRoot {
+	width: 100%;
+}
+.screenSharingRoot #video {
+	/*border: 1px dashed #999999;*/
+	background-color: #000000;
+	max-width: 800px;
+	width: 800px;
+}
