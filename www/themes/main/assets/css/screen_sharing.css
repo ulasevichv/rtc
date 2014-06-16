@@ -6,6 +6,18 @@
 .screenSharingRoot #video {
 	/*border: 1px dashed #999999;*/
 	background-color: #000000;
-	max-width: 800px;
-	width: 800px;
+	max-width: 320px;
+	width: 320px;
+}
+
+/*** Experiment ***/
+
+.experiment {
+}
+.experiment #videos-container {
+	text-align: center;
+}
+.experiment video {
+	display: inline-block;
+	max-width: 320px;
 }
