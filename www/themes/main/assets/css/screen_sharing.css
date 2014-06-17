@@ -3,6 +3,9 @@
 .screenSharingRoot {
 	width: 100%;
 }
+.screenSharingRoot > p {
+	text-align: center;
+}
 .screenSharingRoot #video {
 	/*border: 1px dashed #999999;*/
 	background-color: #000000;
