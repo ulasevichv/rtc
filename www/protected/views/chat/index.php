@@ -1,7 +1,11 @@
 <?php
+Yii::import('application.components.Helper');
+
 $baseUrl = Yii::app()->theme->baseUrl;
 
-Yii::app()->clientScript->registerCssFile('http://fonts.googleapis.com/css?family=Roboto:400&subset=latin,cyrillic');
+$pageProtocol = Helper::getCurrentPageProtocol();
+
+Yii::app()->clientScript->registerCssFile($pageProtocol.'://fonts.googleapis.com/css?family=Roboto:400&subset=latin,cyrillic');
 Yii::app()->clientScript->registerCssFile($baseUrl.'/assets/css/chat.css');
 Yii::app()->clientScript->registerCssFile($baseUrl.'/assets/css/literally.css');
 Yii::app()->clientScript->registerCssFile($baseUrl.'/assets/css/bootstrap-select.css');
@@ -30,7 +34,7 @@ Yii::app()->clientScript->registerScriptFile($baseUrl.'/assets/js/bootstrap-sele
 //Yii::app()->clientScript->registerScriptFile($baseUrl.'/assets/js/strophe.flxhr.js');
 
 $xmppAddress = Yii::app()->params->xmppServerIP;
-$boshAddress = 'http://'.Yii::app()->params->xmppServerIP.'/http-bind';
+$boshAddress = $pageProtocol.'://'.Yii::app()->params->xmppServerIP.'/http-bind';
 
 if (empty(Yii::app()->user->dbUser->xmppUserName) || empty(Yii::app()->user->dbUser->xmppUserPassword))
 {
