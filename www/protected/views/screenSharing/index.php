@@ -10,7 +10,11 @@ Yii::app()->clientScript->registerScript(uniqid('main_js'), "
 	
 	var PeerConnection = null;
 	var SessionDescription = null;
-	var pc = null;
+	var pc1 = null;
+	var pc2 = null;
+	var freshPeerConnection = null;
+	var busyPeerConnection = null;
+	var clientPeerConnection = null;
 	
 	var Role = {
 		Presenter : 0,
@@ -62,7 +66,7 @@ Yii::app()->clientScript->registerScript(uniqid('main_js'), "
 		return '';
 	}
 	
-	function getScreen()
+	function captureScreenStream()
 	{
 		var error = validateRequirementsAndGetUniversalObjects();
 		
@@ -86,31 +90,31 @@ Yii::app()->clientScript->registerScript(uniqid('main_js'), "
 						optional : []
 					}
 				},
-				onSuccess,
+				onScreenStreamCaptured,
 				onError
 			);
 		}
-		else if (role == Role.Viewer)
-		{
-			navigator.getUserMedia(
-				{
-					audio : false,
-					video : false
-				},
-				onSuccess,
-				onError
-			);
-		}
+//		else if (role == Role.Viewer)
+//		{
+//			navigator.getUserMedia(
+//				{
+//					audio : false,
+//					video : false
+//				},
+//				onScreenStreamReceived,
+//				onError
+//			);
+//		}
 	}
 	
-	function onSuccess(stream)
+	function onScreenStreamCaptured(stream)
 	{
-		if (role == Role.Presenter)
-		{
+//		if (role == Role.Presenter)
+//		{
 			streamingStarted = true;
 			mainStream = stream;
 			
-			stream.onended = function() { onEnded(); }; 
+			stream.onended = function() { onScreenStreamingEnded(); }; 
 			
 			console.log(stream);
 			
@@ -118,63 +122,87 @@ Yii::app()->clientScript->registerScript(uniqid('main_js'), "
 			
 			jBtn.html('Stop');
 			
-			
-			
 			var videoContainer = $('#video').get(0);
 			
 			videoContainer.src = window.URL.createObjectURL(stream);
 			videoContainer.autoplay = true;
 			
+			createPeerConnection();
 			
 			
-			
-			
-			// Creating peer connection.
-			
-			pc = new PeerConnection(
-				{ 'iceServers' : [{ 'url' : 'stun:stun.l.google.com:19302' }] }
-			);
-			
-			pc.onicecandidate = onIceCandidate;
-			pc.onaddstream = onAddStream;
-			
-			pc.addStream(stream);
-			
-//			pc.createOffer(onPeerConnectionOfferCallback, onError);
-			
-//			pc.createOffer(function(offer) {
-//				pc.setLocalDescription(new RTCSessionDescription(offer), function() {
-//					// send the offer to a server to be forwarded the friend you're calling.
+//			// Creating peer connection.
+//			
+//			pc = new PeerConnection(
+//				{ 'iceServers' : [{ 'url' : 'stun:stun.l.google.com:19302' }] }
+//			);
+//			
+//			pc_.onicecandidate = onIceCandidate;
+//			pc_.onaddstream = onAddStream;
+//			
+//			pc_.addStream(stream);
+//			
+//			pc_.createOffer(function(offer)
+//			{
+//				pc_.setLocalDescription(new RTCSessionDescription(offer), function()
+//				{
+//					
+//					saveKey(RtcKeyType.Offer, offer);
+//					
 //				}, onError);
 //			}, onError);
 			
-			pc.createOffer(function(offer) {
-				pc.setLocalDescription(new RTCSessionDescription(offer), function() {
-					saveKey(RtcKeyType.Offer, offer);
-				}, onError);
-			}, onError);
-		}
-		else if (role == Role.Viewer)
-		{
-			alert('ZZZ');
-		}
+			
+			
+			
+			
+			
+//		}
+//		else if (role == Role.Viewer)
+//		{
+//			alert('ZZZ');
+//		}
 	}
 	
-//	function onPeerConnectionOfferCallback(offer)
-//	{
-//		console.log('onPeerConnectionOfferCallback(offer)');
-//		console.log(offer);
-//		
-//		pc.setLocalDescription(new SessionDescription(offer), onPeerConnectionLocalDescCallback(offer), onError);
-//	}
-//	
-//	function onPeerConnectionLocalDescCallback(data)
-//	{
-//		console.log('onPeerConnectionLocalDescCallback(data)');
-//		console.log(data);
-//		
-//		saveKey(RtcKeyType.Offer, offer);
-//	}
+	function createPeerConnection()
+	{
+		if (mainStream == null)
+		{
+			alert('Screen sharing is not started!');
+			return;
+		}
+		
+		// Creating peer connection.
+		
+		if (pc1 != null && pc2 != null)
+		{
+			alert('2 peer connections limit reached');
+			return;
+		}
+		
+		busyPeerConnection = freshPeerConnection;
+		
+		freshPeerConnection = new PeerConnection(
+			{ 'iceServers' : [{ 'url' : 'stun:stun.l.google.com:19302' }] }
+		);
+		
+		if (pc1 == null) pc = freshPeerConnection;
+		else pc2 = freshPeerConnection;
+		
+		freshPeerConnection.onicecandidate = onIceCandidate;
+		freshPeerConnection.onaddstream = onAddStream;
+		
+		freshPeerConnection.addStream(mainStream);
+		
+		freshPeerConnection.createOffer(function(offer)
+		{
+			freshPeerConnection.setLocalDescription(new RTCSessionDescription(offer), function()
+			{
+				
+				saveKey(RtcKeyType.Offer, offer);
+				
+			}, onError);
+		}, onError);
+	}
 	
 	function saveKey(type, key)
 	{
@@ -185,6 +213,22 @@ Yii::app()->clientScript->registerScript(uniqid('main_js'), "
 			{
 				// Fixing bugged object conversion to JSON.
 				key = { type : key.type, sdp : key.sdp.toString() };
+				break;
+			}
+		}
+		
+		switch (type)
+		{
+			case RtcKeyType.Offer:
+			{
+				var jBtnAccept = $('#btnAccept');
+				
+				jBtnAccept.removeAttr('disabled');
+				
+				break;
+			}
+			case RtcKeyType.Answer:
+			{
 				break;
 			}
 		}
@@ -207,22 +251,6 @@ Yii::app()->clientScript->registerScript(uniqid('main_js'), "
 			}
 			
 			console.log(response);
-			
-			switch (type)
-			{
-				case RtcKeyType.Offer:
-				{
-					var jBtnAccept = $('#btnAccept');
-					
-					jBtnAccept.removeAttr('disabled');
-					
-					break;
-				}
-				case RtcKeyType.Answer:
-				{
-					break;
-				}
-			}
 		});
 		
 		request.error(requestTimedOut);
@@ -263,26 +291,24 @@ Yii::app()->clientScript->registerScript(uniqid('main_js'), "
 					
 					// Creating peer connection.
 					
-					pc = new PeerConnection(
+					clientPeerConnection = new PeerConnection(
 						{ 'iceServers' : [{ 'url' : 'stun:stun.l.google.com:19302' }] }
 					);
 					
-					pc.onicecandidate = onIceCandidate;
-					pc.onaddstream = onAddStream;
+					clientPeerConnection.onicecandidate = onIceCandidate;
+					clientPeerConnection.onaddstream = onAddStream;
 					
-					pc.setRemoteDescription(new SessionDescription(offer), onPeerConnectionRemoteDescCallback, onError);
+					clientPeerConnection.setRemoteDescription(new SessionDescription(offer), onClientPeerConnectionRemoteDescCallback, onError);
 					
 					break;
  				}
  				case RtcKeyType.Answer:
  				{
- 					console.log('RECEIVED');
- 					
  					var answer = response.key;
  					
- 					console.log(answer);
+ 					createPeerConnection();
  					
- 					pc.setRemoteDescription(new SessionDescription(answer), function() { }, onError);
+ 					busyPeerConnection.setRemoteDescription(new SessionDescription(answer), function() { }, onError);
  					
  					break;
  				}
@@ -292,18 +318,18 @@ Yii::app()->clientScript->registerScript(uniqid('main_js'), "
 		request.error(requestTimedOut);
 	}
 	
-	function onPeerConnectionRemoteDescCallback()
+	function onClientPeerConnectionRemoteDescCallback()
 	{
 		console.log('onPeerConnectionRemoteDescCallback()');
 		
-		pc.createAnswer(function(answer)
+		clientPeerConnection.createAnswer(function(answer)
 		{
-			pc.setLocalDescription(new SessionDescription(answer), function()
+			clientPeerConnection.setLocalDescription(new SessionDescription(answer), function()
 			{
 				console.log('!!!');
 				console.log(answer);
 				
-				var streams = pc.getRemoteStreams();
+				var streams = clientPeerConnection.getRemoteStreams();
 				
 				console.log('STREAMS:');
 				console.log(streams);
@@ -320,10 +346,53 @@ Yii::app()->clientScript->registerScript(uniqid('main_js'), "
 				
 				saveKey(RtcKeyType.Answer, answer);
 				
-				
-				
 			}, onError);
 		}, onError);
+	}
+	
+	function onScreenStreamingEnded()
+	{
+		endStreaming();
+	}
+	
+	function endStreaming()
+	{
+		streamingStarted = false;
+		if (mainStream != null && mainStream.stop != null && typeof(mainStream.stop) != 'undefined') mainStream.stop();
+		mainStream = null;
+		
+		if (pc1 != null && pc1.close != null && typeof(pc1.close) != 'undefined') {  pc1.close(); pc1 = null; }
+		if (pc2 != null && pc2.close != null && typeof(pc2.close) != 'undefined') {  pc2.close(); pc2 = null; }
+		if (freshPeerConnection != null && freshPeerConnection.close != null && typeof(freshPeerConnection.close) != 'undefined') {  freshPeerConnection.close(); freshPeerConnection = null; }
+		if (busyPeerConnection != null && busyPeerConnection.close != null && typeof(busyPeerConnection.close) != 'undefined') {  busyPeerConnection.close(); busyPeerConnection = null; }
+		
+		if (role == Role.Presenter)
+		{
+			var jBtn = $('#btnStartScreenSharing');
+			jBtn.html('Start');
+		}
+	}
+	
+	function onIceCandidate(iceCandidateEvent)
+	{
+		console.log('onIceCandidate()');
+		console.log(iceCandidateEvent);
+	}
+	
+	function onAddStream(stream)
+	{
+		console.log('onAddStream()');
+		console.log(stream);
+	}
+	
+	function connectToScreenSharing()
+	{
+		getKey(RtcKeyType.Offer);
+	}
+	
+	function acceptRequest()
+	{
+		getKey(RtcKeyType.Answer);
 	}
 	
 	function onError(error)
@@ -352,46 +421,6 @@ Yii::app()->clientScript->registerScript(uniqid('main_js'), "
 		return;
 	}
 	
-	function onEnded()
-	{
-		endStreaming();
-	}
-	
-	function endStreaming()
-	{
-		streamingStarted = false;
-		if (mainStream != null && mainStream.stop != null && typeof(mainStream.stop) != 'undefined') mainStream.stop();
-		mainStream = null;
-		
-		if (pc != null && pc.close != null && typeof(pc.close) != 'undefined') pc.close();
-		pc = null;
-		
-		var jBtn = $('#btnStartScreenSharing');
-		jBtn.html('Start');
-	}
-	
-	function onIceCandidate(iceCandidateEvent)
-	{
-		console.log('onIceCandidate()');
-		console.log(iceCandidateEvent);
-	}
-	
-	function onAddStream(stream)
-	{
-		console.log('onAddStream()');
-		console.log(stream);
-	}
-	
-	function connectToScreenSharing()
-	{
-		getKey(RtcKeyType.Offer);
-	}
-	
-	function acceptRequest()
-	{
-		getKey(RtcKeyType.Answer);
-	}
-	
 	function requestTimedOut(request, status, error)
 	{
 		if (status == 'timeout') alert('".Yii::t('general', 'Request timed out. Please, try again')."');
@@ -418,7 +447,7 @@ Yii::app()->clientScript->registerScript(uniqid('main_js'), "
 		}
 		else
 		{
-			getScreen();
+			captureScreenStream();
 		}
 	});
 	
@@ -449,8 +478,8 @@ Yii::app()->clientScript->registerScript(uniqid('main_js'), "
 
 <div class="screenSharingRoot">
 	<p>
-<!--		<video id="video" autoplay="false" controls="false"/>-->
-		<video id="video" />
+		<video id="video" autoplay="true" controls="true"/>
+<!--		<video id="video" />-->
 	</p>
 	<p>
 		<button id="btnStartScreenSharing">Start</button>
@@ -464,6 +493,7 @@ Yii::app()->clientScript->registerScript(uniqid('main_js'), "
 </div>
 
 <?php
+
 return;
 
 Yii::app()->clientScript->registerScriptFile('https://www.webrtc-experiment.com/firebase.js');
@@ -715,7 +745,7 @@ Yii::app()->clientScript->registerScript(uniqid('main_js'), "
 		captureUserMedia(function()
 		{
 			conferenceUI.createRoom({
-				roomName: (roomName.value || 'Anonymous') + ' shared his screen with you'
+				roomName: (jRoomName.val() || 'Anonymous') + ' shared his screen with you'
 			});
 		});
 	}
