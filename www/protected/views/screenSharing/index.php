@@ -50,10 +50,9 @@ Yii::app()->clientScript->registerScript(uniqid('main_js'), "
 			
 			navigator.getUserMedia = navigator.mozGetUserMedia;
 			PeerConnection = window.mozRTCPeerConnection;
-//			SessionDescription = window.RTCSessionDescription; // window.mozRTCSessionDescription; - not working!
 			SessionDescription = window.mozRTCSessionDescription;
 			
-			if (role == Role.Presenter) return 'You need Chrome to run this application'; // Doesn't really work in Firefox.
+			if (role == Role.Presenter) return 'You need Chrome to run this application'; // Presentation doesn't really work in Firefox.
 		}
 		else
 		{
@@ -119,10 +118,14 @@ Yii::app()->clientScript->registerScript(uniqid('main_js'), "
 			
 			jBtn.html('Stop');
 			
+			
+			
 			var videoContainer = $('#video').get(0);
 			
 			videoContainer.src = window.URL.createObjectURL(stream);
 			videoContainer.autoplay = true;
+			
+			
 			
 			
 			
@@ -134,11 +137,22 @@ Yii::app()->clientScript->registerScript(uniqid('main_js'), "
 			
 			pc.onicecandidate = onIceCandidate;
 			pc.onaddstream = onAddStream;
+			
 			pc.addStream(stream);
 			
-			console.log(pc);
+//			pc.createOffer(onPeerConnectionOfferCallback, onError);
 			
-			pc.createOffer(onPeerConnectionOfferCallback, onError);
+//			pc.createOffer(function(offer) {
+//				pc.setLocalDescription(new RTCSessionDescription(offer), function() {
+//					// send the offer to a server to be forwarded the friend you're calling.
+//				}, onError);
+//			}, onError);
+			
+			pc.createOffer(function(offer) {
+				pc.setLocalDescription(new RTCSessionDescription(offer), function() {
+					saveKey(RtcKeyType.Offer, offer);
+				}, onError);
+			}, onError);
 		}
 		else if (role == Role.Viewer)
 		{
@@ -146,21 +160,21 @@ Yii::app()->clientScript->registerScript(uniqid('main_js'), "
 		}
 	}
 	
-	function onPeerConnectionOfferCallback(offer)
-	{
-		console.log('onPeerConnectionOfferCallback(offer)');
-		console.log(offer);
-		
-		saveKey(RtcKeyType.Offer, offer);
-		
-//		pc.setLocalDescription(new SessionDescription(offer), onPeerConnectionLocalDescCallback, onError);
-	}
-	
-	function onPeerConnectionLocalDescCallback(data)
-	{
-		console.log('onPeerConnectionSessionDescCallback(data)');
-		console.log(data);
-	}
+//	function onPeerConnectionOfferCallback(offer)
+//	{
+//		console.log('onPeerConnectionOfferCallback(offer)');
+//		console.log(offer);
+//		
+//		pc.setLocalDescription(new SessionDescription(offer), onPeerConnectionLocalDescCallback(offer), onError);
+//	}
+//	
+//	function onPeerConnectionLocalDescCallback(data)
+//	{
+//		console.log('onPeerConnectionLocalDescCallback(data)');
+//		console.log(data);
+//		
+//		saveKey(RtcKeyType.Offer, offer);
+//	}
 	
 	function saveKey(type, key)
 	{
@@ -193,6 +207,22 @@ Yii::app()->clientScript->registerScript(uniqid('main_js'), "
 			}
 			
 			console.log(response);
+			
+			switch (type)
+			{
+				case RtcKeyType.Offer:
+				{
+					var jBtnAccept = $('#btnAccept');
+					
+					jBtnAccept.removeAttr('disabled');
+					
+					break;
+				}
+				case RtcKeyType.Answer:
+				{
+					break;
+				}
+			}
 		});
 		
 		request.error(requestTimedOut);
@@ -252,6 +282,8 @@ Yii::app()->clientScript->registerScript(uniqid('main_js'), "
  					
  					console.log(answer);
  					
+ 					pc.setRemoteDescription(new SessionDescription(answer), function() { }, onError);
+ 					
  					break;
  				}
  			}
@@ -271,7 +303,24 @@ Yii::app()->clientScript->registerScript(uniqid('main_js'), "
 				console.log('!!!');
 				console.log(answer);
 				
+				var streams = pc.getRemoteStreams();
+				
+				console.log('STREAMS:');
+				console.log(streams);
+				
+				if (streams.length > 0)
+				{
+					var stream = streams[0];
+					
+					var videoContainer = $('#video').get(0);
+					
+					videoContainer.src = window.URL.createObjectURL(stream);
+					videoContainer.autoplay = true;
+				}
+				
 				saveKey(RtcKeyType.Answer, answer);
+				
+				
 				
 			}, onError);
 		}, onError);
@@ -354,7 +403,14 @@ Yii::app()->clientScript->registerScript(uniqid('main_js'), "
 	
 	$('#btnStartScreenSharing').on('click', function()
 	{
-		if (role == null) role = Role.Presenter;
+		if (role == null)
+		{
+			role = Role.Presenter;
+			
+			var jBtnConnect = $('#btnConnect');
+			
+			jBtnConnect.attr('disabled', '');
+		}
 		
 		if (streamingStarted)
 		{
@@ -368,7 +424,14 @@ Yii::app()->clientScript->registerScript(uniqid('main_js'), "
 	
 	$('#btnConnect').on('click', function()
 	{
-		if (role == null) role = Role.Viewer;
+		if (role == null)
+		{
+			role = Role.Viewer;
+			
+			var jBtnStartScreenSharing = $('#btnStartScreenSharing');
+			
+			jBtnStartScreenSharing.attr('disabled', '');
+		}
 		
 		connectToScreenSharing();
 	});
@@ -386,7 +449,8 @@ Yii::app()->clientScript->registerScript(uniqid('main_js'), "
 
 <div class="screenSharingRoot">
 	<p>
-		<video id="video"/>
+<!--		<video id="video" autoplay="false" controls="false"/>-->
+		<video id="video" />
 	</p>
 	<p>
 		<button id="btnStartScreenSharing">Start</button>
@@ -395,7 +459,7 @@ Yii::app()->clientScript->registerScript(uniqid('main_js'), "
 		<button id="btnConnect">Connect</button>
 	</p>
 	<p>
-		<button id="btnAccept">Accept</button>
+		<button id="btnAccept" disabled>Accept</button>
 	</p>
 </div>
 

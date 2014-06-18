@@ -12,6 +12,12 @@
 	max-width: 320px;
 	width: 320px;
 }
+.screenSharingRoot button {
+}
+.screenSharingRoot button[disabled] {
+	color: #aaaaaa;
+	border: 1px solid #aaaaaa;
+}
 
 /*** Experiment ***/
 
