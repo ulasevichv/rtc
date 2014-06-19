@@ -7,7 +7,6 @@
 	text-align: center;
 }
 .screenSharingRoot #video {
-	/*border: 1px dashed #999999;*/
 	background-color: #000000;
 	max-width: 320px;
 	width: 320px;
@@ -17,16 +16,4 @@
 .screenSharingRoot button[disabled] {
 	color: #aaaaaa;
 	border: 1px solid #aaaaaa;
-}
-
-/*** Experiment ***/
-
-.experiment {
-}
-.experiment #videos-container {
-	text-align: center;
-}
-.experiment video {
-	display: inline-block;
-	max-width: 320px;
 }
