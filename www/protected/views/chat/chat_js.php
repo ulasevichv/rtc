@@ -17,7 +17,7 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 		
 		connect : function()
 		{
-			Chat.conn  = new Strophe.Connection(Chat.boshAddress);
+			Chat.conn = new Strophe.Connection(Chat.boshAddress);
 			
 			console.log('Connecting \'' + Chat.currentUser.bareJid + '\' (' + Chat.currentUser.password + ')');
 			
@@ -37,7 +37,7 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 			for (var roomName in Chat.conn.muc.rooms)
 			{
 				console.log('Disconnecting from room: ' + roomName);
-    			Chat.conn.muc.rooms[roomName].leave();
+				Chat.conn.muc.rooms[roomName].leave();
 			}
 			
 			Chat.conn.disconnect();
@@ -172,7 +172,7 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 			Chat.conn.addHandler(Chat.onMessage, null, 'message', 'groupchat');
 			
 			Chat.conn.addHandler(Chat.onPresence, null, 'presence');
-       		Chat.conn.send(\$pres());
+			Chat.conn.send(\$pres());
 		},
 		
 		onRosterChange : function(iq)
@@ -237,7 +237,7 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 			}
 			else if (message.type == MessageType.GROUP_CHAT)
 			{
-			    console.log(message);
+				console.log(message);
 				var xmppRoom = Chat.conn.muc.rooms[message.roomJid];
 				
 				xmppRoom.groupchat(message.text);
@@ -297,11 +297,11 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 			var jidId = Strophe.getNodeFromJid(fullJid);
 			var resource = Strophe.getResourceFromJid(fullJid);
 			if ($(stanza).find('status').text()) {
-			    statusId = $(stanza).find('show').text();
-			    statusText = $(stanza).find('status').text();
+				statusId = $(stanza).find('show').text();
+				statusText = $(stanza).find('status').text();
 			} else {
-			    statusId = '';
-			    statusText = '';
+				statusId = '';
+				statusText = '';
 			}
 			var presenceType = $(stanza).attr('type');
 			if (typeof(presenceType) == 'undefined') presenceType = PresenceType.AVAILABLE;
@@ -461,7 +461,8 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 		
 		onMessage : function(stanza)
 		{
-		    console.log('onMessage');
+			console.log('onMessage');
+			
 			var from = $(stanza).attr('from');
 			var to = $(stanza).attr('to');
 			var type = $(stanza).attr('type');
@@ -561,7 +562,7 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 				}
 				else if ($(stanza).attr('whiteboard'))
 				{
-				    ChatGUI.addDrawingCallInvitationControls(ChatGUI.openedRoom.id);
+					ChatGUI.addDrawingCallInvitationControls(ChatGUI.openedRoom.id);
 				}
 				
 				if (room != null && sender != null)
@@ -719,7 +720,7 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 				ChatGUI.addChatMessage(newMessage);
 				
 				ChatGUI.addDrawingCallInvitationControls(sender.bareJid);
-		    }
+			}
 		},
 		
 		onDrawingContent : function(msg)
@@ -885,11 +886,13 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 		{
 			console.log('onVideoCallDeclined()');
 		},
-		changeStatus : function(statusId, statusText) {
-            var pres = \$pres().c('status') .t(statusText).up().c('show').t(statusId);
-            Chat.conn.send(pres.tree());
-
-            return true;
+		
+		changeStatus : function(statusId, statusText)
+		{
+			var pres = \$pres().c('status') .t(statusText).up().c('show').t(statusId);
+			Chat.conn.send(pres.tree());
+			
+			return true;
 		},
 		
 		openTokInit : function(openTokObj)

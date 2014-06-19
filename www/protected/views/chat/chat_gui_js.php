@@ -134,8 +134,6 @@ Yii::app()->clientScript->registerScript(uniqid('chat_gui'), "
 			ChatGUI.chatSize = newChatSize;
 			ChatGUI.sendingDivSize = newSendingDivSize;
 			ChatGUI.resizeChatTextDiv();
-
-
 		},
 		
 		resizeChatTextDiv : function ()
@@ -148,7 +146,7 @@ Yii::app()->clientScript->registerScript(uniqid('chat_gui'), "
 			} else {
 				containerDiv = '';
 			}
-
+			
 			if ($('.video').is(':visible')) {
 				videoHeight = $(containerDiv +' .video').outerHeight()
 			}
@@ -201,7 +199,7 @@ Yii::app()->clientScript->registerScript(uniqid('chat_gui'), "
 			user.online = online;
 			user.statusId = statusId;
 			user.statusText = statusText;
-
+			
 			var jUser = $('#users .user[bareJid=\"' + bareJid + '\"]');
 			if (user.online)
 			{
@@ -245,13 +243,14 @@ Yii::app()->clientScript->registerScript(uniqid('chat_gui'), "
 			// Generating HTML.
 			
 			var feed = [];
+			
 			console.log(ChatGUI.users);
+			
 			ChatGUI.users.forEach(function(user, i)
 			{
-
 				var statusClass = (user.statusId ? ' ' + user.statusId : '');
 				var onlineStatusClass = (user.online ? ' online' : '');
-
+				
 				feed.push('<div class=\"user' + onlineStatusClass +statusClass+ '\" bareJid=\"' + user.bareJid + '\">');
 				feed.push(	'<div class=\"icon\"></div>');
 				feed.push(	'<div class=\"text\">');
@@ -870,23 +869,23 @@ Yii::app()->clientScript->registerScript(uniqid('chat_gui'), "
 		},
 		addDrawingCallInvitationControls : function(senderJid)
 		{
-//		    alert('addDrawingCallInvitationControls');
+	//		alert('addDrawingCallInvitationControls');
 			targetRoom = ChatGUI.getRoomById(senderJid);
-
+			
 			if (!targetRoom)
 			{
 				targetRoom = ChatGUI.getRoomById(ChatGUI.openedRoom.id);
 			}
-            targetRoom.drawInvite = true;
-            console.log(ChatGUI.openedRoom);
-            console.log(targetRoom);
+			
+			targetRoom.drawInvite = true;
+			console.log(ChatGUI.openedRoom);
+			console.log(targetRoom);
+			
 			if (ChatGUI.openedRoom.id == targetRoom.id)
 			{
 				$('#whiteboardInviteButtons').show(400);
 			}
-
-
-
+			
 			return true;
 		},
 	};
@@ -902,11 +901,10 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 			var element = $(this);
 			var user = ChatGUI.getUserByBareJid($(this).attr('bareJid'));
 			if (user.statusText) {
-			    var onlineStatusStr = user.statusText;
+				var onlineStatusStr = user.statusText;
 			} else {
-			    var onlineStatusStr = (user.online ? '".Yii::t('general', 'Online')."' : '".Yii::t('general', 'Offline')."');
+				var onlineStatusStr = (user.online ? '".Yii::t('general', 'Online')."' : '".Yii::t('general', 'Offline')."');
 			}
-
 			
 			// return '".Yii::t('general', 'Email').": ' + user.email + '<br/>' + '".Yii::t('general', 'Status').": ' + onlineStatusStr;
 			
@@ -940,9 +938,9 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 				if (room.currentHistoryPeriod == null)
 				{
 					ChatGUI.refreshRooms();
-
+					
 					ChatGUI.loadChatRoomHistory(room);
-
+					
 //					return;
 				}
 			}
@@ -960,7 +958,7 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 		{
 			$('#videoChatInviteButtons').hide(0);
 		}
-
+		
 		if (ChatGUI.openedRoom.drawInvite == true)
 		{
 			$('#whiteboardInviteButtons').show(400);
@@ -1032,45 +1030,50 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 //		);
 //		return false;
 //	});
-
+	
 	$('#btnWhiteboard').on('click', function(e)
 	{
-
-	    Chat.startWhiteboardDrawing();
-
-	    jQuery('#whiteboard-container .literally.localstorage').html('<canvas></canvas>');
-        $('#whiteboard-container').show();
-        var whiteboard = $('.literally.localstorage').literallycanvas({
-          backgroundColor: 'whiteSmoke',
-          imageURLPrefix: '".Yii::app()->theme->baseUrl."/assets/images/whiteboard',
-          onInit: function(lc) {
-            lc.on('drawingChange', function() {
-            //TODO: send only new shape
-                Chat.sendDrawingContent(lc.getSnapshotJSON());
-//                console.log(lc.getSnapshotJSON());
-	        });
-	        lc.on('shapeSave', function(shape) {
-//	        window.shape = shape;
-//	        Chat.sendDrawingContent(JSON.stringify(shape));
-//                console.log(shape);
-//                console.log(lc.getSnapshotJSON());
-	        });
-          }
-    });
+		Chat.startWhiteboardDrawing();
+		
+		jQuery('#whiteboard-container .literally.localstorage').html('<canvas></canvas>');
+		$('#whiteboard-container').show();
+		var whiteboard = $('.literally.localstorage').literallycanvas({
+			backgroundColor: 'whiteSmoke',
+			imageURLPrefix: '".Yii::app()->theme->baseUrl."/assets/images/whiteboard',
+			onInit: function(lc) {
+				lc.on('drawingChange', function() {
+					//TODO: send only new shape
+					Chat.sendDrawingContent(lc.getSnapshotJSON());
+//					console.log(lc.getSnapshotJSON());
+				});
+				lc.on('shapeSave', function(shape) {
+//					window.shape = shape;
+//					Chat.sendDrawingContent(JSON.stringify(shape));
+//					console.log(shape);
+//					console.log(lc.getSnapshotJSON());
+				});
+			}
+		});
+		
 		return true;
+	});
+	
+	$('#btnShareScreen').on('click', function(e)
+	{
+		alert('In development');
 	});
 	
 	$('#btnAcceptVideoCall').on('click', function(e)
 	{
 		Chat.acceptVideoCall();
-
+		
 		ChatGUI.openedRoom.callinvite = false;
 		$('#videoChatInviteButtons').hide(400);
 	});
 	
 	$('#btnAcceptWhiteboard').on('click', function(e)
 	{
-	    jQuery('#whiteboard-container .literally.localstorage').html('<canvas></canvas>');
+		jQuery('#whiteboard-container .literally.localstorage').html('<canvas></canvas>');
 		$('#whiteboardInviteButtons').hide(400);
 		$('#whiteboard-container').show();
 		$('.literally.localstorage').literallycanvas({
@@ -1201,20 +1204,20 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 		
 		ChatGUI.closeRoom(roomId);
 	});
-
+	
 	$('#messages').on('click', '> .msgContainer .video-toggle', function(e)
 	{
-            $(this).parent().find('.video').slideToggle('fast','swing',function(){
-                ChatGUI.resizeChatTextDiv();
-            });
-//            ChatGUI.resizeChatTextDiv();
-            return true;
+		$(this).parent().find('.video').slideToggle('fast','swing',function(){
+			ChatGUI.resizeChatTextDiv();
+		});
+		
+//		ChatGUI.resizeChatTextDiv();
+		
+		return true;
 	});
 	
-
-	$('#system-messages').on('mouseover', function(){
-
-
+	
+	$('#system-messages').on('mouseover', function() {
 	});
 	
 	$(window).on('beforeunload', function()
@@ -1239,16 +1242,17 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 			ChatGUI.loadChatRoomHistory(ChatGUI.openedRoom, period);
 		}
 	});
-
-    $('.selectpicker').selectpicker('show');
-
-	jQuery('.selectpicker li').on('click', function(){
-
-	    var statusId = $('#statuses option').eq($(this).attr('rel')).attr('data-id');
-	    var statusText = $('#statuses option').eq($(this).attr('rel')).val();
-	    Chat.changeStatus(statusId,statusText);
-
-	    return true;
+	
+	$('.selectpicker').selectpicker('show');
+	
+	jQuery('.selectpicker li').on('click', function()
+	{
+		
+		var statusId = $('#statuses option').eq($(this).attr('rel')).attr('data-id');
+		var statusText = $('#statuses option').eq($(this).attr('rel')).val();
+		Chat.changeStatus(statusId,statusText);
+		
+		return true;
 	});
 	
 	// Starting chat.
@@ -1260,11 +1264,11 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 	ChatGUI.blockControls();
 	
 	ChatGUI.initialPageTitle = document.title;
-
+	
 	Chat.connect();
 	
 	// Sound initialization.
-
+	
 	$.ionSound({
 		path : '".Yii::app()->theme->baseUrl."/assets/sounds/',
 		sounds: [
@@ -1272,6 +1276,5 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 			'button_push',
 		]
 	});
-
 	
 ", CClientScript::POS_READY);
