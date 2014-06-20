@@ -236,19 +236,18 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 			return;
 		}
 		
-		console.log('zzzzzzzzzzzz');
-		
-		addXmppUserToGroup(result.xmppUserName, result.xmppUserPassword);
+//		addXmppUserToGroupViaXmpp(result.xmppUserName, result.xmppUserPassword);
+		addXmppUserToGroupViaAjax(result.xmppUserName, result.xmppUserPassword);
 	}
 	
-	function addXmppUserToGroup(xmppUserName, xmppUserPassword)
+	function addXmppUserToGroupViaXmpp(xmppUserName, xmppUserPassword)
 	{
 		var xmppGroupName = 'TeqSpring';
 		
 		registration.addUserToGroup(xmppUserName, xmppGroupName);
 	}
 	
-	function addXmppUserToGroup_(xmppUserName, xmppUserPassword)
+	function addXmppUserToGroupViaAjax(xmppUserName, xmppUserPassword)
 	{
 		var xmppGroupName = 'TeqSpring';
 		
