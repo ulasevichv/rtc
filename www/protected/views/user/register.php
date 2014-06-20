@@ -236,6 +236,8 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 			return;
 		}
 		
+		console.log('zzzzzzzzzzzz');
+		
 		addXmppUserToGroup(result.xmppUserName, result.xmppUserPassword);
 	}
 	
