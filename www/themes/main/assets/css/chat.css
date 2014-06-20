@@ -396,7 +396,7 @@ body > div.container[role="main"] {
     padding: 3px 0 5px 0;
 }
 .video .active {
-    float: none!important;
+    float: none !important;
     clear: both;
 }
 #video-expanded, #whiteboard-container {
@@ -422,7 +422,25 @@ body > div.container[role="main"] {
 	float: right;
 }
 
+/** Screen sharing ***/
+
+#messages .screenSharing {
+}
+#messages .screenSharing video {
+	width: 200px;
+	background-color: #000000;
+	border: 1px solid #000000;
+	margin: 10px 0 0 10px;
+}
+#messages .screenSharing video.own_video {
+	border: 1px solid #eb9316;
+}
+#btnShareScreen[started] span._caption {
+	color: #990000;
+}
+
 /* Chat menu */
+
 #chat_left_menu .container, #chat_right_menu .container {
 	width: auto;
 

@@ -10,11 +10,12 @@ Yii::app()->clientScript->registerScript(uniqid('chat_classes'), "
 		CHAT : 'chat',
 		GROUP_CHAT : 'groupchat',
 		VIDEO_CALL : 'videoCall',
+		VIDEO_CALL_ACCEPTED : 'videoCallAccepted',
+		VIDEO_CALL_DECLINED : 'videoCallDeclined',
 		SYSTEM : 'system',
 		DRAWING_CALL : 'drawingCall',
 		DRAWING_CONTENT : 'drawingContent',
-		VIDEO_CALL_ACCEPTED : 'videoCallAccepted',
-		VIDEO_CALL_DECLINED : 'videoCallDeclined'
+		SCREEN_SHARING_CALL : 'screenSharing'
 	};
 	
 	var PresenceType = {

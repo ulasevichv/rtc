@@ -1,6 +1,8 @@
 <?php
 Yii::app()->clientScript->registerScript(uniqid('chat_gui'), "
 	
+	var screenSharingPresenter = null;
+	
 	var ChatGUI = {
 		
 		users : [],
@@ -141,6 +143,7 @@ Yii::app()->clientScript->registerScript(uniqid('chat_gui'), "
 			var videoHeight = 0;
 			var videoToggleHeight = 0;
 			var containerDiv = '';
+			
 			if (ChatGUI.openedRoom) {
 				containerDiv = '#msg_'+ Strophe.getNodeFromJid(ChatGUI.openedRoom.id);
 			} else {
@@ -148,15 +151,18 @@ Yii::app()->clientScript->registerScript(uniqid('chat_gui'), "
 			}
 			
 			if ($('.video').is(':visible')) {
-				videoHeight = $(containerDiv +' .video').outerHeight()
+				videoHeight = $(containerDiv +' .video').outerHeight();
 			}
 			if ($('.video-toggle').is(':visible')) {
-				videoToggleHeight = $(containerDiv +' .video-toggle').outerHeight()
+				videoToggleHeight = $(containerDiv +' .video-toggle').outerHeight();
 			}
+			
 //			console.log(videoHeight);
 //			console.log(videoToggleHeight);
 //			console.log($(containerDiv+ '.msgContainer').outerHeight());
+			
 			$('.chat-text').css('height',($(containerDiv+ '.msgContainer').outerHeight() - videoToggleHeight - videoHeight) + 'px');
+			
 			return true
 		},
 		
@@ -384,7 +390,8 @@ Yii::app()->clientScript->registerScript(uniqid('chat_gui'), "
 				{
 					jMessages.append(
 						'<div id=\"' + openedRoomMsgContainerId + '\" class=\"msgContainer\">' +
-							'<div class=\"video\"  style=\"display: none;\"></div>' +
+							'<div class=\"video\" style=\"display: none;\"></div>' +
+							'<div class=\"screenSharing\" style=\"display: none;\"></div>' +
 							'<div class=\"video-toggle btn btn-primary\" style=\"display: none;\">Show/Hide video</div>' +
 							'<div style=\"clear: both\"></div>' +
 							'<div class=\"text chat-text\"></div>' +
@@ -867,6 +874,7 @@ Yii::app()->clientScript->registerScript(uniqid('chat_gui'), "
 			
 			return true;
 		},
+		
 		addDrawingCallInvitationControls : function(senderJid)
 		{
 	//		alert('addDrawingCallInvitationControls');
@@ -888,6 +896,72 @@ Yii::app()->clientScript->registerScript(uniqid('chat_gui'), "
 			
 			return true;
 		},
+		
+		onScreenCapturingStart : function(stream)
+		{
+			var jBtnShareScreen = $('#btnShareScreen');
+			var jBtnShareScreenCaptionSpan = jBtnShareScreen.find('span._caption');
+			jBtnShareScreenCaptionSpan.html('".Yii::t('general', 'Stop Sharing')."');
+			jBtnShareScreen.attr('started', '');
+			
+			var msgContainerId = 'msg_'+ Strophe.getNodeFromJid(ChatGUI.openedRoom.id);
+			
+			var jMsgContainer = $('#' + msgContainerId);
+			var jVideo = jMsgContainer.find('.video');
+			var jScreenSharing = jMsgContainer.find('.screenSharing');
+			var jVideoToggle = jMsgContainer.find('.video-toggle');
+			
+			var screenSharingOwnVideoId = msgContainerId + '_sh_own';
+			
+			jScreenSharing.append('<video id=\"' + screenSharingOwnVideoId + '\" class=\"own_video\" controls=\"true\" autoplay=\"true\"></video>');
+			
+			var jOwnVideo = $('#' + screenSharingOwnVideoId);
+			var videoElement = jOwnVideo.get(0);
+			videoElement.src = window.URL.createObjectURL(stream);
+			videoElement.autoplay = true;
+			
+			jVideo.css('display', 'block');
+			jScreenSharing.css('display', 'block');
+			jVideoToggle.css('display', 'block');
+			
+			ChatGUI.resizeChatTextDiv();
+			
+			Chat.sendScreenSharingCall();
+		},
+		
+		onScreenCapturingFinish : function()
+		{
+			var jBtnShareScreen = $('#btnShareScreen');
+			var jBtnShareScreenCaptionSpan = jBtnShareScreen.find('span._caption');
+			jBtnShareScreenCaptionSpan.html('".Yii::t('general', 'Share Screen')."');
+			jBtnShareScreen.removeAttr('started');
+			
+			var msgContainerId = 'msg_'+ Strophe.getNodeFromJid(ChatGUI.openedRoom.id);
+			
+			var jMsgContainer = $('#' + msgContainerId);
+			var jVideo = jMsgContainer.find('.video');
+			var jScreenSharing = jMsgContainer.find('.screenSharing');
+			var jVideoToggle = jMsgContainer.find('.video-toggle');
+			
+			var screenSharingOwnVideoId = msgContainerId + '_sh_own';
+			
+			var jOwnVideo = $('#' + screenSharingOwnVideoId);
+			jOwnVideo.remove();
+			
+			var isAnyVideoDisplayed = (jVideo.outerHeight() > 5 || jScreenSharing.outerHeight() > 5);
+			
+//			console.log('h1: ' + jVideo.outerHeight());
+//			console.log('h2: ' + jScreenSharing.outerHeight());
+			
+			if (!isAnyVideoDisplayed)
+			{
+				jVideo.css('display', 'none');
+				jScreenSharing.css('display', 'none');
+				jVideoToggle.css('display', 'none');
+			}
+			
+			ChatGUI.resizeChatTextDiv();
+		}
 	};
 	
 ", CClientScript::POS_HEAD);
@@ -1060,8 +1134,33 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 	
 	$('#btnShareScreen').on('click', function(e)
 	{
-		alert('In development');
+		if (screenSharingPresenter == null)
+		{
+			screenSharingPresenter = new ScreenSharingPresenter();
+			screenSharingPresenter.onScreenCaptureStartCallback = ChatGUI.onScreenCapturingStart;
+			screenSharingPresenter.onScreenCaptureFinishCallback = ChatGUI.onScreenCapturingFinish;
+			
+			var error = screenSharingPresenter.validateRequirementsAndGetUniversalObjects();
+			
+			if (error != '')
+			{
+				screenSharingPresenter = null;
+				alert(error);
+				return;
+			}
+		}
+		
+		if (screenSharingPresenter.screenBeingCaptured)
+		{
+			screenSharingPresenter.finishScreenCapturing();
+		}
+		else
+		{
+			screenSharingPresenter.startScreenCapturing();
+		}
 	});
+	
+	
 	
 	$('#btnAcceptVideoCall').on('click', function(e)
 	{
@@ -1207,11 +1306,9 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 	
 	$('#messages').on('click', '> .msgContainer .video-toggle', function(e)
 	{
-		$(this).parent().find('.video').slideToggle('fast','swing',function(){
+		$(this).parent().find('.video, .screenSharing').slideToggle('fast', 'swing', function(){
 			ChatGUI.resizeChatTextDiv();
 		});
-		
-//		ChatGUI.resizeChatTextDiv();
 		
 		return true;
 	});

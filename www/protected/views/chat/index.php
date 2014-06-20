@@ -42,8 +42,7 @@ if (empty(Yii::app()->user->dbUser->xmppUserName) || empty(Yii::app()->user->dbU
 	return;
 }
 
-$this->renderPartial('chat_classes_js', array(
-), false, true);
+$this->renderPartial('chat_classes_js', array(), false, true);
 
 $this->renderPartial('chat_js', array(
 	'xmppAddress' => $xmppAddress,
@@ -52,8 +51,11 @@ $this->renderPartial('chat_js', array(
 	'xmppUserPassword' => Yii::app()->user->dbUser->xmppUserPassword,
 ), false, false);
 
-$this->renderPartial('chat_gui_js', array(
-), false, false);
+$this->renderPartial('chat_gui_js', array(), false, false);
+
+$this->renderPartial('sh_peer_js', array(), false, false);
+$this->renderPartial('sh_presenter_js', array(), false, false);
+$this->renderPartial('sh_viewer_js', array(), false, false);
 
 ?>
 
@@ -126,11 +128,13 @@ $this->renderPartial('chat_gui_js', array(
 <!--					<a id="btnShowHistory" class="btn btn-primary" href="javascript:void(0)"> <span class="glyphicon glyphicon-dashboard">-->
 <!--						</span> --><?php //echo Yii::t('general', 'Show Chat History') ?>
 <!--					</a>-->
-					<a id="btnWhiteboard" class="btn btn-primary" href="javascript:void(0);"> <span class="glyphicon glyphicon-dashboard">
-						</span> <?php echo Yii::t('general', 'Start Drawing'); ?>
+					<a id="btnWhiteboard" class="btn btn-primary" href="javascript:void(0);">
+						<span class="glyphicon glyphicon-dashboard"></span>
+						<span class="_caption"><?php echo Yii::t('general', 'Start Drawing'); ?></span>
 					</a>
-					<a id="btnShareScreen" class="btn btn-primary" href="javascript:void(0);"> <span class="glyphicon glyphicon-picture">
-						</span> <?php echo Yii::t('general', 'Share Screen'); ?>
+					<a id="btnShareScreen" class="btn btn-primary" href="javascript:void(0);">
+						<span class="glyphicon glyphicon-picture"></span>
+						<span class="_caption"><?php echo Yii::t('general', 'Share Screen'); ?></span>
 					</a>
 				</div>
 				<div class="controls">

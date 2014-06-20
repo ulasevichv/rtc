@@ -76,22 +76,6 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 			console.log('Connected');
 			
 			Chat.conn.muc.init(Chat.conn);
-//			Chat.conn.roster.init(Chat.conn);
-			
-			
-			
-			
-			
-//			var iq = \$iq({type: 'get'}).c('query', {xmlns: Strophe.NS.ROSTER});
-//			Chat.conn.sendIQ(iq, RosterObj.on_roster);
-//			Chat.conn.addHandler(RosterObj.on_roster_changed, Strophe.NS.ROSTER, 'iq', 'set');
-			
-			Chat.conn.addHandler(Chat.onSystemMessage, null, 'message', MessageType.SYSTEM);
-			Chat.conn.addHandler(Chat.onVideoCall, null, 'message', MessageType.VIDEO_CALL);
-			Chat.conn.addHandler(Chat.onDrawingCall, null, 'message', MessageType.DRAWING_CALL);
-			Chat.conn.addHandler(Chat.onDrawingContent, null, 'message', MessageType.DRAWING_CONTENT);
-			Chat.conn.addHandler(Chat.onVideoCallAccepted, null, 'message', MessageType.VIDEO_CALL_ACCEPTED);
-			Chat.conn.addHandler(Chat.onVideoCallDeclined, null, 'message', MessageType.VIDEO_CALL_DECLINED);
 			
 			Chat.getRoster();
 			Chat.getRoomsList();
@@ -168,8 +152,15 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 			ChatGUI.openedRoom = ChatGUI.getRoomById('dashboard');
 			ChatGUI.refreshRooms();
 			
-			Chat.conn.addHandler(Chat.onMessage, null, 'message', 'chat');
-			Chat.conn.addHandler(Chat.onMessage, null, 'message', 'groupchat');
+			Chat.conn.addHandler(Chat.onMessage, null, 'message', MessageType.CHAT);
+			Chat.conn.addHandler(Chat.onMessage, null, 'message', MessageType.GROUP_CHAT);
+			Chat.conn.addHandler(Chat.onSystemMessage, null, 'message', MessageType.SYSTEM);
+			Chat.conn.addHandler(Chat.onVideoCall, null, 'message', MessageType.VIDEO_CALL);
+			Chat.conn.addHandler(Chat.onVideoCallAccepted, null, 'message', MessageType.VIDEO_CALL_ACCEPTED);
+			Chat.conn.addHandler(Chat.onVideoCallDeclined, null, 'message', MessageType.VIDEO_CALL_DECLINED);
+			Chat.conn.addHandler(Chat.onDrawingCall, null, 'message', MessageType.DRAWING_CALL);
+			Chat.conn.addHandler(Chat.onDrawingContent, null, 'message', MessageType.DRAWING_CONTENT);
+			Chat.conn.addHandler(Chat.onScreenSharingCall, null, 'message', MessageType.SCREEN_SHARING_CALL);
 			
 			Chat.conn.addHandler(Chat.onPresence, null, 'presence');
 			Chat.conn.send(\$pres());
@@ -226,30 +217,30 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 			
 			$.ionSound.play('button_push');
 			
-			if (message.type == MessageType.CHAT)
+//			if (message.type == MessageType.CHAT)
+//			{
+//				Chat.conn.send(\$msg({
+//					to : recipientJid,
+//					type : message.type,
+//					}).c('body').t(message.text).up()
+//					.c('active', {xmlns: 'http://jabber.org/protocol/chatstates'})
+//				);
+//			}
+//			else ...
+			
+			if (message.type == MessageType.GROUP_CHAT)
 			{
-				Chat.conn.send(\$msg({
-					to : recipientJid,
-					type : 'chat',
-					}).c('body').t(message.text).up()
-					.c('active', {xmlns: 'http://jabber.org/protocol/chatstates'})
-				);
-			}
-			else if (message.type == MessageType.GROUP_CHAT)
-			{
-				console.log(message);
 				var xmppRoom = Chat.conn.muc.rooms[message.roomJid];
-				
 				xmppRoom.groupchat(message.text);
 			}
 			else
 			{
 				Chat.conn.send(\$msg({
-						to : recipientJid,
-						type : message.type,
-						}).c('body').t(message.text).up()
-						.c('active', {xmlns: 'http://jabber.org/protocol/chatstates'})
-					);
+					to : recipientJid,
+					type : message.type,
+					}).c('body').t(message.text).up()
+					.c('active', {xmlns: 'http://jabber.org/protocol/chatstates'})
+				);
 			}
 		},
 		
@@ -769,13 +760,36 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 			console.log(json);
 		},
 		
+		sendScreenSharingCall : function()
+		{
+			var sendDate = new Date();
+			
+			var newMessage = new InternalChatMessage(
+				MessageType.SCREEN_SHARING_CALL,
+				sendDate,
+				MethodsForDateTime.dateToString(sendDate),
+				ChatGUI.openedRoom.bareJid,
+				ChatGUI.openedRoom.fullName,
+				'SCREEN_SHARING_CALL');
+			
+			Chat.sendMessage(ChatGUI.openedRoom.id, newMessage);
+		},
+		
+		onScreenSharingCall : function(msg)
+		{
+			console.log('Chat.onScreenSharingCall()');
+			console.log(msg);
+		},
+		
 		onSystemMessage : function(msg)
 		{
 			var to = $(msg).attr('to');
 			var from = $(msg).attr('from');
 			var type = $(msg).attr('type');
 			var jBody = $(msg).find('body');
+			
 			Chat.addSystemMessage(jBody.text());
+			
 			return true;
 		},
 		
