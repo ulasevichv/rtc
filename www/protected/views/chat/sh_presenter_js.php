@@ -25,7 +25,7 @@ Yii::app()->clientScript->registerScript(uniqid('sh_presenter_js'), "
 		
 		if (navigator.userAgent.match('Firefox'))
 		{
-			return '".Yii::T('general', 'You need Chrome to run this application')."';
+			return '".Yii::T('general', 'You need Chrome for this functionality')."';
 		}
 		
 		return '';
