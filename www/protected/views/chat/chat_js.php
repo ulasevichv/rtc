@@ -500,8 +500,10 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 			}
 			else if (type == MessageType.GROUP_CHAT)
 			{
-				if ($(stanza).attr('drawingcontent')) {
+				if ($(stanza).attr('drawingcontent'))
+				{
 					Chat.onDrawingContent(stanza);
+					
 					return true;
 				}
 				
@@ -712,6 +714,8 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 				
 				ChatGUI.addDrawingCallInvitationControls(sender.bareJid);
 			}
+			
+			return true;
 		},
 		
 		onDrawingContent : function(msg)
@@ -775,10 +779,19 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 			Chat.sendMessage(ChatGUI.openedRoom.id, newMessage);
 		},
 		
-		onScreenSharingCall : function(msg)
+		onScreenSharingCall : function(stanza)
 		{
 			console.log('Chat.onScreenSharingCall()');
-			console.log(msg);
+			console.log(stanza);
+			
+			var to = $(stanza).attr('to');
+			var from = $(stanza).attr('from');
+			var type = $(stanza).attr('type');
+			var jBody = $(stanza).find('body');
+			
+			ChatGUI.addScreenSharingInvitationControls(from);
+			
+			return true;
 		},
 		
 		onSystemMessage : function(msg)
@@ -899,6 +912,8 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 		onVideoCallDeclined : function(message)
 		{
 			console.log('onVideoCallDeclined()');
+			
+			return true;
 		},
 		
 		changeStatus : function(statusId, statusText)

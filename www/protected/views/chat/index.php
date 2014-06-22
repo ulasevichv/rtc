@@ -112,6 +112,11 @@ $this->renderPartial('sh_viewer_js', array(), false, false);
 				<?php echo CHtml::htmlButton(Yii::t('general', 'Accept'), array('id' => 'btnAcceptWhiteboard', 'class' => 'btn btn-primary')); ?>
 				<?php echo CHtml::htmlButton(Yii::t('general', 'Decline'), array('id' => 'btnDeclineWhiteboard', 'class' => 'btn btn-primary')); ?>
 			</div>
+			<div id="screenSharingInvitationControls" style="display:none;">
+				<p><?php echo Yii::t('general', 'User wants to share his screen with you'); ?></p>
+				<?php echo CHtml::htmlButton(Yii::t('general', 'Accept'), array('id' => 'btnAcceptScreenSharing', 'class' => 'btn btn-primary')); ?>
+				<?php echo CHtml::htmlButton(Yii::t('general', 'Decline'), array('id' => 'btnDeclineScreenSharing', 'class' => 'btn btn-primary')); ?>
+			</div>
 			<div id="messages"></div>
 			<div id="sending" style="visibility:hidden;">
 				<div id="userPanel">

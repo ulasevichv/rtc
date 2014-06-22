@@ -858,6 +858,7 @@ Yii::app()->clientScript->registerScript(uniqid('chat_gui'), "
 		addVideoCallInvitationControls : function(senderJid)
 		{
 		    console.log('addVideoCallInvitationControls');
+		    
 			targetRoom = ChatGUI.getRoomById(senderJid);
 			
 			if (!targetRoom)
@@ -877,7 +878,6 @@ Yii::app()->clientScript->registerScript(uniqid('chat_gui'), "
 		
 		addDrawingCallInvitationControls : function(senderJid)
 		{
-	//		alert('addDrawingCallInvitationControls');
 			targetRoom = ChatGUI.getRoomById(senderJid);
 			
 			if (!targetRoom)
@@ -886,6 +886,7 @@ Yii::app()->clientScript->registerScript(uniqid('chat_gui'), "
 			}
 			
 			targetRoom.drawInvite = true;
+			
 			console.log(ChatGUI.openedRoom);
 			console.log(targetRoom);
 			
@@ -895,6 +896,21 @@ Yii::app()->clientScript->registerScript(uniqid('chat_gui'), "
 			}
 			
 			return true;
+		},
+		
+		addScreenSharingInvitationControls : function(senderJid)
+		{
+//			targetRoom = ChatGUI.getRoomById(senderJid);
+//			
+//			if (!targetRoom)
+//			{
+//				targetRoom = ChatGUI.getRoomById(ChatGUI.openedRoom.id);
+//			}
+//			
+//			if (ChatGUI.openedRoom.id == targetRoom.id)
+//			{
+//				$('#screenSharingInvitationControls').show(400);
+//			}
 		},
 		
 		onScreenCapturingStart : function(stream)
