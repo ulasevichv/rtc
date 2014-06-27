@@ -900,17 +900,19 @@ Yii::app()->clientScript->registerScript(uniqid('chat_gui'), "
 		
 		addScreenSharingInvitationControls : function(senderJid)
 		{
-//			targetRoom = ChatGUI.getRoomById(senderJid);
-//			
-//			if (!targetRoom)
-//			{
-//				targetRoom = ChatGUI.getRoomById(ChatGUI.openedRoom.id);
-//			}
-//			
-//			if (ChatGUI.openedRoom.id == targetRoom.id)
-//			{
-//				$('#screenSharingInvitationControls').show(400);
-//			}
+			targetRoom = ChatGUI.getRoomById(senderJid);
+
+			if (!targetRoom)
+			{
+				targetRoom = ChatGUI.getRoomById(ChatGUI.openedRoom.id);
+			}
+
+			targetRoom.screenSharing = true;
+
+			if (ChatGUI.openedRoom.id == targetRoom.id)
+			{
+				$('#screenSharingInvitationControls').show(400);
+			}
 		},
 		
 		onScreenCapturingStart : function(stream)
@@ -1057,6 +1059,15 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 		{
 			$('#whiteboardInviteButtons').hide(0);
 		}
+
+		if (ChatGUI.openedRoom.screenSharing == true)
+		{
+			$('#screenSharingInvitationControls').show(400);
+		}
+		else
+		{
+			$('#screenSharingInvitationControls').hide(0);
+		}
 		
 		ChatGUI.refreshRooms();
 	});
@@ -1185,7 +1196,12 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 		ChatGUI.openedRoom.callinvite = false;
 		$('#videoChatInviteButtons').hide(400);
 	});
-	
+	$('#btnAcceptScreenSharing').on('click', function(e)
+	{
+        Chat.onAcceptScreenSharingCall();
+        ChatGUI.openedRoom.screenSharing = false;
+        $('#screenSharingInvitationControls').hide(400);
+	});
 	$('#btnAcceptWhiteboard').on('click', function(e)
 	{
 		jQuery('#whiteboard-container .literally.localstorage').html('<canvas></canvas>');

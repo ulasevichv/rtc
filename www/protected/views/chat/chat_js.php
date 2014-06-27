@@ -782,16 +782,52 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 		onScreenSharingCall : function(stanza)
 		{
 			console.log('Chat.onScreenSharingCall()');
-			console.log(stanza);
-			
+
 			var to = $(stanza).attr('to');
 			var from = $(stanza).attr('from');
 			var type = $(stanza).attr('type');
 			var jBody = $(stanza).find('body');
-			
-			ChatGUI.addScreenSharingInvitationControls(from);
+
+			console.log('onScreenSharingCall: ' + from + ', ' + type);
+
+
+			if (from != Chat.currentUser.fullJid)
+			{
+				var sender = ChatGUI.getUserByBareJid(Strophe.getBareJidFromJid(from));
+
+				var text = 'User ' + sender.fullName + 'wants to share screen with you';
+
+				var sendDate = new Date();
+
+				var newMessage = new InternalChatMessage(
+					MessageType.VIDEO_CALL,
+					sendDate,
+					MethodsForDateTime.dateToString(sendDate),
+					sender.bareJid,
+					sender.fullName,
+					text);
+                window.nm = newMessage;
+				ChatGUI.addChatMessage(newMessage);
+				ChatGUI.addScreenSharingInvitationControls(sender.bareJid);
+			}
 			
 			return true;
+		},
+		onAcceptScreenSharingCall : function() {
+
+			screenSharingPeer = new ScreenSharingViewer();
+
+			var error = screenSharingPeer.validateRequirementsAndGetUniversalObjects();
+
+			if (error != '')
+			{
+				screenSharingPeer = null;
+				alert(error);
+				return;
+			}
+
+
+		screenSharingPeer.connectToScreenSharing();
 		},
 		
 		onSystemMessage : function(msg)

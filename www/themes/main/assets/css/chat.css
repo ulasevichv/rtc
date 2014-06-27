@@ -376,7 +376,7 @@ body > div.container[role="main"] {
 #myvideo {
 	float: left;
 }
-#videoChatInviteButtons, #whiteboardInviteButtons {
+#videoChatInviteButtons, #whiteboardInviteButtons, #screenSharingInvitationControls {
 	text-align: center;
 }
 .video-toggle {

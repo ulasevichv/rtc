@@ -95,7 +95,7 @@ Yii::app()->clientScript->registerScript(uniqid('sh_viewer_js'), "
 	ScreenSharingViewer.prototype.onPeerConnectionRemoteDescCallback = function(inst)
 	{
 		var pc = inst.peerConnection;
-		
+
 		pc.createAnswer(function(answer)
 		{
 			pc.setLocalDescription(new SessionDescription(answer), function()
@@ -111,14 +111,35 @@ Yii::app()->clientScript->registerScript(uniqid('sh_viewer_js'), "
 				if (streams.length > 0)
 				{
 					var stream = streams[0];
-					
-					var videoContainer = $('#video').get(0);
-					videoContainer.src = window.URL.createObjectURL(stream);
-					videoContainer.autoplay = true;
+                    var msgContainerId = 'msg_'+ Strophe.getNodeFromJid(ChatGUI.openedRoom.id);
+
+                    var jMsgContainer = $('#' + msgContainerId);
+                    var jVideo = jMsgContainer.find('.video');
+                    var jScreenSharing = jMsgContainer.find('.screenSharing');
+                    var jVideoToggle = jMsgContainer.find('.video-toggle');
+					var screenSharingOwnVideoId = msgContainerId + '_sh_own';
+
+			        jScreenSharing.append('<video id=\"' + screenSharingOwnVideoId + '\" class=\"own_video\" controls=\"true\" autoplay=\"true\"></video>');
+
+                    var jOwnVideo = $('#' + screenSharingOwnVideoId);
+                    var videoElement = jOwnVideo.get(0);
+                    videoElement.src = window.URL.createObjectURL(stream);
+
+
+//					var videoContainer = $('.screenSharing').get(0);
+//					videoContainer.src = window.URL.createObjectURL(stream);
+//					videoContainer.autoplay = true;
+                    jVideo.css('display', 'block');
+                    jScreenSharing.css('display', 'block');
+                    jVideoToggle.css('display', 'block');
+
+                    ChatGUI.resizeChatTextDiv();
+
+
 				}
-				
+
 				inst.saveAnswer(answer);
-				
+
 			}, inst.onError);
 		}, inst.onError);
 	}
