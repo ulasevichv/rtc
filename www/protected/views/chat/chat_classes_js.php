@@ -199,6 +199,7 @@ Yii::app()->clientScript->registerScript(uniqid('chat_classes'), "
 		this.drawInvite = false;
 		this.fullName = fullName;
 		this.screenSharing = false;
+		this.screenSharingInviteFrom = false;
 		this.hidden = hidden;
 		this.unread = unread;
 		this.messages = []; // InternalChatMessage

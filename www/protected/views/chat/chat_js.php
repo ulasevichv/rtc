@@ -808,6 +808,10 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 					text);
                 window.nm = newMessage;
 				ChatGUI.addChatMessage(newMessage);
+				targetRoom = ChatGUI.getRoomById(sender.bareJid);
+                window.sender = sender;
+				targetRoom.screenSharingInviteFrom = sender.bareJid;
+
 				ChatGUI.addScreenSharingInvitationControls(sender.bareJid);
 			}
 			
@@ -828,6 +832,7 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 
 
 		screenSharingPeer.connectToScreenSharing();
+
 		},
 		
 		onSystemMessage : function(msg)

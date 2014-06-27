@@ -1201,6 +1201,27 @@ Yii::app()->clientScript->registerScript(uniqid(), "
         Chat.onAcceptScreenSharingCall();
         ChatGUI.openedRoom.screenSharing = false;
         $('#screenSharingInvitationControls').hide(400);
+
+//        var recipientJid = ChatGUI.openedRoom.id;
+//			var msg = 'Video Call invitation sent to ' + recipientJid;
+//
+//			msg = MethodsForStrings.escapeHtml(msg);
+//			msg = msg.replace('\\n', '<br/>');
+//
+//			var newMessage = new InternalChatMessage(
+//				MessageType.VIDEO_CALL,
+//				new Date(),
+//				MethodsForDateTime.dateToString(new Date()),
+//				Chat.currentUser.bareJid,
+//				Chat.currentUser.fullName,
+//				msg);
+//
+//			ChatGUI.addChatMessage(newMessage);
+//
+////			console.log('showVideoCallInvitationSentMessage');
+////			Chat.sendMessage(recipientJid, newMessage);
+
+
 	});
 	$('#btnAcceptWhiteboard').on('click', function(e)
 	{

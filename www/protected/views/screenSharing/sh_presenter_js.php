@@ -156,7 +156,7 @@ Yii::app()->clientScript->registerScript(uniqid('sh_presenter_js'), "
  			
  			var latestPeerConnection = inst.peerConnections[inst.peerConnections.length - 1];
  			
- 			latestPeerConnection.setRemoteDescription(new SessionDescription(answer), function() { }, inst.onError);
+// 			latestPeerConnection.setRemoteDescription(new SessionDescription(answer), function() { }, inst.onError);
  			
  			inst.createPeerConnection();
 		});
