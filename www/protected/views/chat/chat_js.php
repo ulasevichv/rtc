@@ -819,9 +819,9 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 		},
 		onAcceptScreenSharingCall : function() {
 
-			screenSharingPeer = new ScreenSharingViewer();
+			Chat.screenSharingPeer = new ScreenSharingViewer();
 
-			var error = screenSharingPeer.validateRequirementsAndGetUniversalObjects();
+			var error = Chat.screenSharingPeer.validateRequirementsAndGetUniversalObjects();
 
 			if (error != '')
 			{
@@ -831,7 +831,7 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 			}
 
 
-		screenSharingPeer.connectToScreenSharing();
+		Chat.screenSharingPeer.connectToScreenSharing();
 
 		},
 		

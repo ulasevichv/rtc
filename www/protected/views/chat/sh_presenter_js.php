@@ -140,6 +140,7 @@ Yii::app()->clientScript->registerScript(uniqid('sh_presenter_js'), "
 	
 	ScreenSharingPresenter.prototype.acceptAnswer = function()
 	{
+
 		var request = $.ajax({
 			url : '?r=screenSharing/getKey',
 			data : { type : RtcKeyType.Answer },
@@ -148,7 +149,6 @@ Yii::app()->clientScript->registerScript(uniqid('sh_presenter_js'), "
 			cache : false,
 			timeout : 5000
 		});
-		
 		var inst = this;
 		
 		request.success(function(response, status, request)
@@ -160,11 +160,13 @@ Yii::app()->clientScript->registerScript(uniqid('sh_presenter_js'), "
 			}
 			
 			var answer = response.key;
- 			
+ 			console.log('------------------------------');
  			var latestPeerConnection = inst.peerConnections[inst.peerConnections.length - 1];
- 			
-// 			latestPeerConnection.setRemoteDescription(new SessionDescription(answer), function() { }, inst.onError);
- 			
+ 			console.log(latestPeerConnection);
+ 			console.log(inst);
+ 			console.log(inst.peerConnections);
+ 			latestPeerConnection.setRemoteDescription(new SessionDescription(answer), function() { }, inst.onError);
+ 			console.log('------------------------------');
  			inst.createPeerConnection();
 		});
 		
