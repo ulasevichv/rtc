@@ -117,7 +117,7 @@ class UserController extends Controller
 	public function actionAddXmppUserToGroup()
 	{
 		$error = '';
-		
+
 		try
 		{
 			$xmppUserName = Yii::app()->request->getParam('xmppUserName');
@@ -126,17 +126,17 @@ class UserController extends Controller
 			if (!isset($xmppUserName)) throw new Exception(Yii::t('general', 'Undefined parameter').': '.'xmppUserName');
 			if (!isset($xmppGroupName)) throw new Exception(Yii::t('general', 'Undefined parameter').': '.'xmppGroupName');
 			
-			$db = Yii::app()->openFireDb;
-
-			$query = "SELECT COUNT(*) FROM `ofGroupUser`" .
-				" WHERE `groupName` = ".$db->quoteValue($xmppGroupName)." AND `username` = ".$db->quoteValue($xmppUserName);
-			$count = $db->createCommand($query)->queryScalar();
-			
-			if ($count != 0) throw new Exception(Yii::t('general', 'Username already registered').': '.$xmppUserName);
-			
-			$query = "INSERT INTO `ofGroupUser` (`groupName`, `username`, `administrator`)" .
-				" VALUES (".$db->quoteValue($xmppGroupName).", ".$db->quoteValue($xmppUserName).", 0)";
-			$db->createCommand($query)->execute();
+//			$db = Yii::app()->openFireDb;
+//
+//			$query = "SELECT COUNT(*) FROM `ofGroupUser`" .
+//				" WHERE `groupName` = ".$db->quoteValue($xmppGroupName)." AND `username` = ".$db->quoteValue($xmppUserName);
+//			$count = $db->createCommand($query)->queryScalar();
+//
+//			if ($count != 0) throw new Exception(Yii::t('general', 'Username already registered').': '.$xmppUserName);
+//
+//			$query = "INSERT INTO `ofGroupUser` (`groupName`, `username`, `administrator`)" .
+//				" VALUES (".$db->quoteValue($xmppGroupName).", ".$db->quoteValue($xmppUserName).", 0)";
+//			$db->createCommand($query)->execute();
 		}
 		catch (Exception $ex)
 		{
