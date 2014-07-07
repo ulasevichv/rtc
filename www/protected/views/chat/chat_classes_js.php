@@ -15,7 +15,8 @@ Yii::app()->clientScript->registerScript(uniqid('chat_classes'), "
 		SYSTEM : 'system',
 		DRAWING_CALL : 'drawingCall',
 		DRAWING_CONTENT : 'drawingContent',
-		SCREEN_SHARING_CALL : 'screenSharing'
+		SCREEN_SHARING_CALL : 'screenSharingCall',
+		SCREEN_SHARING_CALL_ACCEPTED : 'screenSharingCallAccepted'
 	};
 	
 	var PresenceType = {

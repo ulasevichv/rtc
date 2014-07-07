@@ -116,22 +116,22 @@ $this->renderPartial('sh_viewer_js', array(), false, false);
 				<?php echo CHtml::htmlButton(Yii::t('general', 'Accept'), array('id' => 'btnAcceptScreenSharing', 'class' => 'btn btn-primary')); ?>
 				<?php echo CHtml::htmlButton(Yii::t('general', 'Decline'), array('id' => 'btnDeclineScreenSharing', 'class' => 'btn btn-primary')); ?>
 			</div>
-			<div id="messages"></div>
+			<div id="messages">
+			</div>
 			<div id="sending" style="visibility:hidden;">
 				<div id="userPanel">
-					<a id="btnStartVideoCall" class="btn btn-primary" href="javascript:void(0)"><span class="glyphicon glyphicon-earphone"></span> <?php echo Yii::t('general', 'Video Call') ?></a>
-					<a id="btnEndCall" style="display: none" onclick="OTvideo.session.disconnect();" class="btn btn-primary" href="javascript:void(0)"> <span class="glyphicon glyphicon-remove">
-						</span> <?php echo Yii::t('general', 'End Call') ?>
+					<a id="btnStartVideoCall" class="btn btn-primary" href="javascript:void(0);">
+						<span class="glyphicon glyphicon-earphone"></span>
+						<span class="_caption"><?php echo Yii::t('general', 'Video Call'); ?></span>
 					</a>
-					<a id="btnExpandVideo" style="display: none"  onclick="OTvideo.expand();" class="btn btn-primary" href="javascript:void(0);"> <span class="glyphicon glyphicon-fullscreen">
-						</span> <?php echo Yii::t('general', 'Expand Video'); ?>
+					<a id="btnEndCall" class="btn btn-primary" style="display:none;" href="javascript:void(0);" onclick="OTvideo.session.disconnect();">
+						<span class="glyphicon glyphicon-remove"></span>
+						<span class="_caption"><?php echo Yii::t('general', 'End Call'); ?></span>
 					</a>
-					<?php //echo CHtml::htmlButton(Yii::t('general', 'Video Call'), array('id' => 'btnStartVideoCall', 'class' => 'btn btn-primary')); ?>
-					<?php //echo CHtml::htmlButton(Yii::t('general', 'End Call'), array('id' => 'btnEndCall', 'class' => 'btn btn-primary', 'onclick' => 'OTvideo.session.disconnect();',
-//						'style' => 'display:none;')); ?>
-<!--					<a id="btnShowHistory" class="btn btn-primary" href="javascript:void(0)"> <span class="glyphicon glyphicon-dashboard">-->
-<!--						</span> --><?php //echo Yii::t('general', 'Show Chat History') ?>
-<!--					</a>-->
+					<a id="btnExpandVideo" class="btn btn-primary" style="display:none;" href="javascript:void(0);" onclick="OTvideo.expand();">
+						<span class="glyphicon glyphicon-fullscreen"></span>
+						<span class="_caption"><?php echo Yii::t('general', 'Expand Video'); ?></span>
+					</a>
 					<a id="btnWhiteboard" class="btn btn-primary" href="javascript:void(0);">
 						<span class="glyphicon glyphicon-dashboard"></span>
 						<span class="_caption"><?php echo Yii::t('general', 'Start Drawing'); ?></span>
@@ -143,10 +143,10 @@ $this->renderPartial('sh_viewer_js', array(), false, false);
 				</div>
 				<div class="controls">
 					<?php echo CHtml::textArea(null, '', array('id' => 'inputMessage')); ?>
-					<a id="btnSend" class="btn btn-primary" href="javascript:void(0)"> <span class="glyphicon glyphicon-envelope">
-						</span> <?php echo Yii::t('general', 'Send') ?>
+					<a id="btnSend" class="btn btn-primary" href="javascript:void(0);">
+						<span class="glyphicon glyphicon-envelope"></span>
+						<span class="_caption"><?php echo Yii::t('general', 'Send'); ?></span>
 					</a>
-<!--					--><?php //echo CHtml::htmlButton(Yii::t('general', 'Send'), array('id' => 'btnSend', 'class' => 'btn btn-primary')); ?>
 				</div>
 			</div>
 		</div>

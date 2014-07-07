@@ -14,6 +14,8 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 		),
 		disconnecting : false,
 		loginDateTime : new Date(),
+		screenSharingPresenter : null,
+		screenSharingViewer : null,
 		
 		connect : function()
 		{
@@ -161,6 +163,7 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 			Chat.conn.addHandler(Chat.onDrawingCall, null, 'message', MessageType.DRAWING_CALL);
 			Chat.conn.addHandler(Chat.onDrawingContent, null, 'message', MessageType.DRAWING_CONTENT);
 			Chat.conn.addHandler(Chat.onScreenSharingCall, null, 'message', MessageType.SCREEN_SHARING_CALL);
+			Chat.conn.addHandler(Chat.onScreenSharingCallAccepted, null, 'message', MessageType.SCREEN_SHARING_CALL_ACCEPTED);
 			
 			Chat.conn.addHandler(Chat.onPresence, null, 'presence');
 			Chat.conn.send(\$pres());
@@ -774,7 +777,7 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 				MethodsForDateTime.dateToString(sendDate),
 				ChatGUI.openedRoom.bareJid,
 				ChatGUI.openedRoom.fullName,
-				'SCREEN_SHARING_CALL');
+				'');
 			
 			Chat.sendMessage(ChatGUI.openedRoom.id, newMessage);
 		},
@@ -782,23 +785,22 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 		onScreenSharingCall : function(stanza)
 		{
 			console.log('Chat.onScreenSharingCall()');
-
+			
 			var to = $(stanza).attr('to');
 			var from = $(stanza).attr('from');
 			var type = $(stanza).attr('type');
 			var jBody = $(stanza).find('body');
-
+			
 			console.log('onScreenSharingCall: ' + from + ', ' + type);
-
-
+			
 			if (from != Chat.currentUser.fullJid)
 			{
 				var sender = ChatGUI.getUserByBareJid(Strophe.getBareJidFromJid(from));
-
-				var text = 'User ' + sender.fullName + 'wants to share screen with you';
-
+				
+				var text = sender.fullName + ' ' + '".Yii::t('general', 'wants to share screen with you')."';
+				
 				var sendDate = new Date();
-
+				
 				var newMessage = new InternalChatMessage(
 					MessageType.VIDEO_CALL,
 					sendDate,
@@ -806,33 +808,61 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 					sender.bareJid,
 					sender.fullName,
 					text);
-                window.nm = newMessage;
+				
 				ChatGUI.addChatMessage(newMessage);
 				targetRoom = ChatGUI.getRoomById(sender.bareJid);
-                window.sender = sender;
 				targetRoom.screenSharingInviteFrom = sender.bareJid;
-
+				
 				ChatGUI.addScreenSharingInvitationControls(sender.bareJid);
 			}
 			
 			return true;
 		},
-		onAcceptScreenSharingCall : function() {
-
-			Chat.screenSharingPeer = new ScreenSharingViewer();
-
-			var error = Chat.screenSharingPeer.validateRequirementsAndGetUniversalObjects();
-
-			if (error != '')
+		
+		onAcceptScreenSharingCall : function()
+		{
+			if (Chat.screenSharingViewer == null)
 			{
-				screenSharingPeer = null;
-				alert(error);
-				return;
+				Chat.screenSharingViewer = new ScreenSharingViewer();
+				
+				var error = Chat.screenSharingViewer.validateRequirementsAndGetUniversalObjects();
+				
+				if (error != '')
+				{
+					screenSharingPeer = null;
+					alert(error);
+					return;
+				}
+				
+				Chat.sendScreenSharingCallAcceptedMessage(ChatGUI.openedRoom.screenSharingInviteFrom);
 			}
-
-
-		Chat.screenSharingPeer.connectToScreenSharing();
-
+		},
+		
+		sendScreenSharingCallAcceptedMessage : function(recipientFullJid)
+		{
+			var sendDate = new Date();
+			
+			var newMessage = new InternalChatMessage(
+				MessageType.SCREEN_SHARING_CALL_ACCEPTED,
+				sendDate,
+				MethodsForDateTime.dateToString(sendDate),
+				Chat.currentUser.bareJid,
+				Chat.currentUser.fullName,
+				'');
+			
+			Chat.sendMessage(recipientFullJid, newMessage);
+		},
+		
+		onScreenSharingCallAccepted : function(msg)
+		{
+			console.log(msg);
+			
+			var to = $(msg).attr('to');
+			var from = $(msg).attr('from');
+			var type = $(msg).attr('type');
+			var jBody = $(msg).find('body');
+			
+			console.log('onScreenSharingCallAccepted from:' + from);
 		},
 		
 		onSystemMessage : function(msg)
@@ -853,7 +883,7 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 				'<button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-hidden=\"true\">&times;</button>'+
 				'<strong> Information! </strong>'+text+'</div>');
 			jQuery('#system-messages').show('slow');
-			setTimeout(function() { $('#system-messages').fadeOut('slow');}, 5000);
+			setTimeout(function() { $('#system-messages').fadeOut('slow'); }, 5000);
 			
 			return true;
 		},
@@ -861,7 +891,7 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 		acceptVideoCall : function ()
 		{
 			var opentokIniObject = Chat.currentUser.getOpentokIniObject(ChatGUI.openedRoom.id);
-
+			
 			$.ajax({
 				type: 'POST',
 				url: '?r=chat/getVideoCallToken',

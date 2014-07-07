@@ -1,8 +1,6 @@
 <?php
 Yii::app()->clientScript->registerScript(uniqid('chat_gui'), "
 	
-	var screenSharingPresenter = null;
-	
 	var ChatGUI = {
 		
 		users : [],
@@ -901,21 +899,21 @@ Yii::app()->clientScript->registerScript(uniqid('chat_gui'), "
 		addScreenSharingInvitationControls : function(senderJid)
 		{
 			targetRoom = ChatGUI.getRoomById(senderJid);
-
+			
 			if (!targetRoom)
 			{
 				targetRoom = ChatGUI.getRoomById(ChatGUI.openedRoom.id);
 			}
-
+			
 			targetRoom.screenSharing = true;
-
+			
 			if (ChatGUI.openedRoom.id == targetRoom.id)
 			{
 				$('#screenSharingInvitationControls').show(400);
 			}
 		},
 		
-		onScreenCapturingStart : function(stream)
+		onScreenCaptureStart : function(stream)
 		{
 			var jBtnShareScreen = $('#btnShareScreen');
 			var jBtnShareScreenCaptionSpan = jBtnShareScreen.find('span._caption');
@@ -947,7 +945,7 @@ Yii::app()->clientScript->registerScript(uniqid('chat_gui'), "
 			Chat.sendScreenSharingCall();
 		},
 		
-		onScreenCapturingFinish : function()
+		onScreenCaptureFinish : function()
 		{
 			var jBtnShareScreen = $('#btnShareScreen');
 			var jBtnShareScreenCaptionSpan = jBtnShareScreen.find('span._caption');
@@ -1118,19 +1116,22 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 		Chat.startVideoCall();
 	});
 	
-//	$('#btnShowHistory').on('click', function(e)
-//	{
-//		$.post(
-//		'index.php?r=chat/getUserChatHistory',
-//		{userJid:Chat.currentUser.bareJid, openedRoom: ChatGUI.openedRoom.id},
-//		function (data) {
-//			$('#chat-history-dialog-container').html(data);
-//			$('#chat-history-dialog').dialog('open');
-//		},
-//		'html'
-//		);
-//		return false;
-//	});
+	$('#btnAcceptVideoCall').on('click', function(e)
+	{
+		Chat.acceptVideoCall();
+		
+		ChatGUI.openedRoom.callinvite = false;
+		$('#videoChatInviteButtons').hide(400);
+	});
+	
+	$('#btnDeclineVideoCall').on('click', function(e)
+	{
+//		Chat.sendMessage(ChatGUI.openedRoom.id, '', MessageType.VIDEO_CALL_DECLINED);
+//		
+//		Chat.sendMessage(ChatGUI.openedRoom.id, '".Yii::t('general','Video/audio call declined')."', 'chat');
+		
+		$('#videoChatInviteButtons').hide(400);
+	});
 	
 	$('#btnWhiteboard').on('click', function(e)
 	{
@@ -1159,70 +1160,6 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 		return true;
 	});
 	
-	$('#btnShareScreen').on('click', function(e)
-	{
-		if (screenSharingPresenter == null)
-		{
-			screenSharingPresenter = new ScreenSharingPresenter();
-			screenSharingPresenter.onScreenCaptureStartCallback = ChatGUI.onScreenCapturingStart;
-			screenSharingPresenter.onScreenCaptureFinishCallback = ChatGUI.onScreenCapturingFinish;
-			
-			var error = screenSharingPresenter.validateRequirementsAndGetUniversalObjects();
-			
-			if (error != '')
-			{
-				screenSharingPresenter = null;
-				alert(error);
-				return;
-			}
-		}
-		
-		if (screenSharingPresenter.screenBeingCaptured)
-		{
-			screenSharingPresenter.finishScreenCapturing();
-		}
-		else
-		{
-			screenSharingPresenter.startScreenCapturing();
-		}
-	});
-	
-	
-	
-	$('#btnAcceptVideoCall').on('click', function(e)
-	{
-		Chat.acceptVideoCall();
-		
-		ChatGUI.openedRoom.callinvite = false;
-		$('#videoChatInviteButtons').hide(400);
-	});
-	$('#btnAcceptScreenSharing').on('click', function(e)
-	{
-        Chat.onAcceptScreenSharingCall();
-        ChatGUI.openedRoom.screenSharing = false;
-        $('#screenSharingInvitationControls').hide(400);
-
-//        var recipientJid = ChatGUI.openedRoom.id;
-//			var msg = 'Video Call invitation sent to ' + recipientJid;
-//
-//			msg = MethodsForStrings.escapeHtml(msg);
-//			msg = msg.replace('\\n', '<br/>');
-//
-//			var newMessage = new InternalChatMessage(
-//				MessageType.VIDEO_CALL,
-//				new Date(),
-//				MethodsForDateTime.dateToString(new Date()),
-//				Chat.currentUser.bareJid,
-//				Chat.currentUser.fullName,
-//				msg);
-//
-//			ChatGUI.addChatMessage(newMessage);
-//
-////			console.log('showVideoCallInvitationSentMessage');
-////			Chat.sendMessage(recipientJid, newMessage);
-
-
-	});
 	$('#btnAcceptWhiteboard').on('click', function(e)
 	{
 		jQuery('#whiteboard-container .literally.localstorage').html('<canvas></canvas>');
@@ -1298,13 +1235,72 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 		return true;
 	});
 	
-	$('#btnDeclineVideoCall').on('click', function(e)
+	$('#btnShareScreen').on('click', function(e)
 	{
-//		Chat.sendMessage(ChatGUI.openedRoom.id, '', MessageType.VIDEO_CALL_DECLINED);
+		if (Chat.screenSharingPresenter == null)
+		{
+			Chat.screenSharingPresenter = new ScreenSharingPresenter();
+			
+			var error = Chat.screenSharingPresenter.validateRequirementsAndGetUniversalObjects();
+			
+			if (error != '')
+			{
+				Chat.screenSharingPresenter = null;
+				alert(error);
+				return;
+			}
+			
+			Chat.screenSharingPresenter.onScreenCaptureStartCallback = ChatGUI.onScreenCaptureStart;
+			Chat.screenSharingPresenter.onScreenCaptureFinishCallback = ChatGUI.onScreenCaptureFinish;
+		}
 		
-//		Chat.sendMessage(ChatGUI.openedRoom.id, '".Yii::t('general','Video/audio call declined')."', 'chat');
+		if (Chat.screenSharingPresenter.screenBeingCaptured)
+		{
+			Chat.screenSharingPresenter.finishScreenCapturing();
+		}
+		else
+		{
+			Chat.screenSharingPresenter.startScreenCapturing();
+		}
+	});
+	
+	$('#btnAcceptScreenSharing').on('click', function(e)
+	{
 		
-		$('#videoChatInviteButtons').hide(400);
+		$('#screenSharingInvitationControls').hide(400);
+//		ChatGUI.openedRoom.screenSharing = false;
+		
+		Chat.onAcceptScreenSharingCall();
+		
+		
+		
+		
+		
+//		var recipientJid = ChatGUI.openedRoom.id;
+//		var msg = 'Video Call invitation sent to ' + recipientJid;
+//		
+//		msg = MethodsForStrings.escapeHtml(msg);
+//		msg = msg.replace('\\n', '<br/>');
+//		
+//		var newMessage = new InternalChatMessage(
+//			MessageType.VIDEO_CALL,
+//			new Date(),
+//			MethodsForDateTime.dateToString(new Date()),
+//			Chat.currentUser.bareJid,
+//			Chat.currentUser.fullName,
+//			msg);
+//		
+//		ChatGUI.addChatMessage(newMessage);
+//		
+////		console.log('showVideoCallInvitationSentMessage');
+////		Chat.sendMessage(recipientJid, newMessage);
+	});
+	
+	$('#btnDeclineScreenSharing').on('click', function(e)
+	{
+		$('#screenSharingInvitationControls').hide(400);
+		ChatGUI.openedRoom.screenSharing = false;
+		ChatGUI.openedRoom.screenSharingInviteFrom = false;
 	});
 	
 	$('#inputMessage').keydown(function (e)

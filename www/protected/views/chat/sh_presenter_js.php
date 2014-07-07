@@ -12,7 +12,6 @@ Yii::app()->clientScript->registerScript(uniqid('sh_presenter_js'), "
 		this.screenBeingCaptured = false;
 		this.screenStream = null;
 		this.peerConnections = [];
-		
 		this.onScreenCaptureStartCallback = null;
 		this.onScreenCaptureFinishCallback = null;
 	}
@@ -59,16 +58,6 @@ Yii::app()->clientScript->registerScript(uniqid('sh_presenter_js'), "
 		
 		stream.onended = function() { inst.onScreenCapturingEnded(inst); };
 		
-//		var jBtn = $('#btnStartScreenSharing');
-//		jBtn.html('Stop');
-//		
-//		var jBtnConnect = $('#btnConnect');
-//		jBtnConnect.attr('disabled', '');
-//		
-//		var videoContainer = $('#video').get(0);
-//		videoContainer.src = window.URL.createObjectURL(stream);
-//		videoContainer.autoplay = true;
-		
 		inst.onScreenCaptureStartCallback(stream);
 		
 //		inst.createPeerConnection();
@@ -101,9 +90,6 @@ Yii::app()->clientScript->registerScript(uniqid('sh_presenter_js'), "
 		}
 		
 		this.peerConnections = [];
-		
-//		var jBtn = $('#btnStartScreenSharing');
-//		jBtn.html('Start');
 		
 		this.onScreenCaptureFinishCallback();
 	}

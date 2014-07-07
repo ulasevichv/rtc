@@ -25,7 +25,7 @@ Yii::app()->clientScript->registerScript(uniqid('sh_peer_js'), "
 		// Browser versions examples:
 		// Firefox: Mozilla/5.0 (Windows NT 6.1; WOW64; rv:30.0) Gecko/20100101 Firefox/30.0
 		// Chrome:  Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.153 Safari/537.36
-	
+		
 		if (!location.protocol.match('https')) return '".Yii::t('general', 'You need HTTPs for this functionality')."';
 		
 		if (navigator.userAgent.match('Chrome'))
@@ -82,14 +82,14 @@ Yii::app()->clientScript->registerScript(uniqid('sh_peer_js'), "
 	{
 		console.log('onError()');
 		console.log(error);
-
+		
 		if (typeof(error.code) != 'undefined' && error.code == error.PERMISSION_DENIED)
 		{
-			alert('PERMISSION_DENIED. Have you enabled the --enable-usermedia-screen-capture flag?');
+			alert('".Yii::t('general', 'PERMISSION_DENIED. Have you enabled the --enable-usermedia-screen-capture flag?')."');
 		}
-
-		alert('An error occurred: ' + JSON.stringify(error, null, '\t'));
-
+		
+		alert('".Yii::t('general', 'An error occurred')."' + ': ' + JSON.stringify(error, null, '\t'));
+		
 		return;
 	}
 	
