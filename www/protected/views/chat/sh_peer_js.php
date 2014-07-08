@@ -63,8 +63,8 @@ Yii::app()->clientScript->registerScript(uniqid('sh_peer_js'), "
 	
 	ScreenSharingPeer.prototype.onIceCandidate = function(inst, iceCandidateEvent)
 	{
-		console.log('onIceCandidate()');
-		console.log(iceCandidateEvent);
+//		console.log('onIceCandidate()');
+//		console.log(iceCandidateEvent);
 	}
 	
 	ScreenSharingPeer.prototype.onAddStream = function(inst, stream)

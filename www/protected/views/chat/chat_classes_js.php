@@ -15,8 +15,11 @@ Yii::app()->clientScript->registerScript(uniqid('chat_classes'), "
 		SYSTEM : 'system',
 		DRAWING_CALL : 'drawingCall',
 		DRAWING_CONTENT : 'drawingContent',
-		SCREEN_SHARING_CALL : 'screenSharingCall',
-		SCREEN_SHARING_CALL_ACCEPTED : 'screenSharingCallAccepted'
+		SCREEN_SHARING_INVITE : 'screenSharingInvite',
+		SCREEN_SHARING_INVITE_ACCEPTED : 'screenSharingInviteAccepted',
+		SCREEN_SHARING_OFFER : 'screenSharingOffer',
+		SCREEN_SHARING_ANSWER : 'screenSharingAnswer',
+		SCREEN_SHARING_ESTABLISHED : 'screenSharingEstablished'
 	};
 	
 	var PresenceType = {
@@ -225,8 +228,8 @@ Yii::app()->clientScript->registerScript(uniqid('chat_classes'), "
 			if (index != -1) this.onlineUserNicknames.splice(index, 1);
 		}
 		
-		console.log(this.fullName + ' > changeParticipantOnlineStatus(' + nickname + ', ' + online + ')');
-		console.log(this.onlineUserNicknames);
+//		console.log(this.fullName + ' > changeParticipantOnlineStatus(' + nickname + ', ' + online + ')');
+//		console.log(this.onlineUserNicknames);
 	}
 	
 	InternalChatRoom.prototype.isParticipantOnline = function(nickname)

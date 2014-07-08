@@ -11,9 +11,11 @@ Yii::app()->clientScript->registerScript(uniqid('sh_presenter_js'), "
 	{
 		this.screenBeingCaptured = false;
 		this.screenStream = null;
-		this.peerConnections = [];
 		this.onScreenCaptureStartCallback = null;
 		this.onScreenCaptureFinishCallback = null;
+		this.onOfferCreatedCallback = null;
+		this.onAnswerAcceptedCallback = null;
+		this.clients = [];
 	}
 	
 	ScreenSharingPresenter.prototype.validateRequirementsAndGetUniversalObjects = function()
@@ -28,6 +30,18 @@ Yii::app()->clientScript->registerScript(uniqid('sh_presenter_js'), "
 		}
 		
 		return '';
+	}
+	
+	ScreenSharingPresenter.prototype.getClientById = function(id)
+	{
+		for (var i = 0; i < this.clients.length; i++)
+		{
+			var client = this.clients[i];
+			
+			if (client.id == id) return client;
+		}
+		
+		return null;
 	}
 	
 	ScreenSharingPresenter.prototype.startScreenCapturing = function()
@@ -59,8 +73,6 @@ Yii::app()->clientScript->registerScript(uniqid('sh_presenter_js'), "
 		stream.onended = function() { inst.onScreenCapturingEnded(inst); };
 		
 		inst.onScreenCaptureStartCallback(stream);
-		
-//		inst.createPeerConnection();
 	}
 	
 	ScreenSharingPresenter.prototype.onScreenCapturingEnded = function(inst)
@@ -78,9 +90,11 @@ Yii::app()->clientScript->registerScript(uniqid('sh_presenter_js'), "
 			this.screenStream = null;
 		}
 		
-		for (var i = 0; i < this.peerConnections.length; i++)
+		for (var i = 0; i < this.clients.length; i++)
 		{
-			var pc = this.peerConnections[i];
+			var client = this.clients[i];
+			
+			var pc = client.peerConnection;
 			
 			if (pc.close != null && typeof(pc.close) != 'undefined')
 			{
@@ -89,81 +103,16 @@ Yii::app()->clientScript->registerScript(uniqid('sh_presenter_js'), "
 			}
 		}
 		
-		this.peerConnections = [];
+		this.clients = [];
 		
 		this.onScreenCaptureFinishCallback();
 	}
 	
-	ScreenSharingPresenter.prototype.saveOffer = function(offer)
-	{
-//		var jBtnAccept = $('#btnAccept');
-//		jBtnAccept.removeAttr('disabled');
-//		
-//		var request = $.ajax({
-//			url : '?r=screenSharing/saveKey',
-//			data : { type : RtcKeyType.Offer, key : offer },
-//			type : 'POST',
-//			dataType : 'json',
-//			cache : false,
-//			timeout : 5000
-//		});
-//		
-//		var inst = this;
-//		
-//		request.success(function(response, status, request)
-//		{
-//			if (response.error != '')
-//			{
-//				alert(response.error);
-//				return;
-//			}
-//			
-//			console.log(response);
-//		});
-//		
-//		request.error(inst.requestTimedOut);
-	}
-	
-	ScreenSharingPresenter.prototype.acceptAnswer = function()
-	{
-
-		var request = $.ajax({
-			url : '?r=screenSharing/getKey',
-			data : { type : RtcKeyType.Answer },
-			type : 'POST',
-			dataType : 'json',
-			cache : false,
-			timeout : 5000
-		});
-		var inst = this;
-		
-		request.success(function(response, status, request)
-		{
-			if (response.error != '')
-			{
-				alert(response.error);
-				return;
-			}
-			
-			var answer = response.key;
- 			console.log('------------------------------');
- 			var latestPeerConnection = inst.peerConnections[inst.peerConnections.length - 1];
- 			console.log(latestPeerConnection);
- 			console.log(inst);
- 			console.log(inst.peerConnections);
- 			latestPeerConnection.setRemoteDescription(new SessionDescription(answer), function() { }, inst.onError);
- 			console.log('------------------------------');
- 			inst.createPeerConnection();
-		});
-		
-		request.error(inst.requestTimedOut);
-	}
-	
-	ScreenSharingPresenter.prototype.createPeerConnection = function()
+	ScreenSharingPresenter.prototype.createPeerConnection = function(clientId)
 	{
 		if (!this.screenBeingCaptured || this.screenStream == null)
 		{
-			alert('".Yii::t('general', 'Screen sharing is not started')."');
+//			alert('".Yii::t('general', 'Screen sharing is not started')."');
 			return;
 		}
 		
@@ -178,17 +127,52 @@ Yii::app()->clientScript->registerScript(uniqid('sh_presenter_js'), "
 		
 		pc.addStream(this.screenStream);
 		
+		this.clients.push(new ScreenSharingPresenterClient(clientId, pc));
+		
 		pc.createOffer(function(offer)
 		{
 			pc.setLocalDescription(new SessionDescription(offer), function()
 			{
+				var client = inst.getClientById(clientId);
 				
-				inst.saveOffer(offer);
-				
-			}, inst.onError);
-		}, inst.onError);
+				client.offer = offer;
+				inst.onOfferCreatedCallback(clientId, offer);
+			},
+			inst.onError);
+		},
+		inst.onError);
+	}
+	
+	ScreenSharingPresenter.prototype.acceptAnswer = function(clientId, answer)
+	{
+		var client = this.getClientById(clientId);
 		
-		this.peerConnections.push(pc);
+		console.log('ACCEPTING ANSWER');
+		console.log(client);
+		console.log(answer);
+		
+		var inst = this;
+		
+		client.peerConnection.setRemoteDescription(new SessionDescription(answer), function()
+		{
+		 	console.log('ANSWER ACCEPTED');
+		 	
+		 	inst.onAnswerAcceptedCallback(clientId);
+		},
+		inst.onError);
+	}
+	
+	//==================================================
+	// Screen sharing presenter client.
+	//==================================================
+	
+	ScreenSharingPresenterClient.prototype = new Object();
+	
+	function ScreenSharingPresenterClient(id, peerConnection)
+	{
+		this.id = id;
+		this.peerConnection = peerConnection;
+		this.offer = null;
 	}
 	
 ", CClientScript::POS_HEAD);
