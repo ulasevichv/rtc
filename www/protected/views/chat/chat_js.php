@@ -154,6 +154,8 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 			ChatGUI.openedRoom = ChatGUI.getRoomById('dashboard');
 			ChatGUI.refreshRooms();
 			
+			// NOTICE: don't forget to return true at the end of all handlers!
+			
 			Chat.conn.addHandler(Chat.onMessage, null, 'message', MessageType.CHAT);
 			Chat.conn.addHandler(Chat.onMessage, null, 'message', MessageType.GROUP_CHAT);
 			Chat.conn.addHandler(Chat.onSystemMessage, null, 'message', MessageType.SYSTEM);
@@ -162,11 +164,12 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 			Chat.conn.addHandler(Chat.onVideoCallDeclined, null, 'message', MessageType.VIDEO_CALL_DECLINED);
 			Chat.conn.addHandler(Chat.onDrawingCall, null, 'message', MessageType.DRAWING_CALL);
 			Chat.conn.addHandler(Chat.onDrawingContent, null, 'message', MessageType.DRAWING_CONTENT);
-			Chat.conn.addHandler(Chat.onScreenSharingInviteMsg, null, 'message', MessageType.SCREEN_SHARING_INVITE);
-			Chat.conn.addHandler(Chat.onScreenSharingInviteAcceptedMsg, null, 'message', MessageType.SCREEN_SHARING_INVITE_ACCEPTED);
-			Chat.conn.addHandler(Chat.onScreenSharingOfferMsg, null, 'message', MessageType.SCREEN_SHARING_OFFER);
-			Chat.conn.addHandler(Chat.onScreenSharingAnswerMsg, null, 'message', MessageType.SCREEN_SHARING_ANSWER);
-			Chat.conn.addHandler(Chat.onScreenSharingEstablishedMsg, null, 'message', MessageType.SCREEN_SHARING_ESTABLISHED);
+			Chat.conn.addHandler(Chat.onScreenSharingViewerInviteMsg, null, 'message', MessageType.SCREEN_SHARING_INVITE);
+			Chat.conn.addHandler(Chat.onScreenSharingPresenterInviteAcceptedMsg, null, 'message', MessageType.SCREEN_SHARING_INVITE_ACCEPTED);
+			Chat.conn.addHandler(Chat.onScreenSharingViewerOfferMsg, null, 'message', MessageType.SCREEN_SHARING_OFFER);
+			Chat.conn.addHandler(Chat.onScreenSharingPresenterAnswerMsg, null, 'message', MessageType.SCREEN_SHARING_ANSWER);
+			Chat.conn.addHandler(Chat.onScreenSharingViewerSharingEstablishedMsg, null, 'message', MessageType.SCREEN_SHARING_ESTABLISHED);
+			Chat.conn.addHandler(Chat.onScreenSharingViewerSharingFinishedMsg, null, 'message', MessageType.SCREEN_SHARING_FINISHED);
 			
 			Chat.conn.addHandler(Chat.onPresence, null, 'presence');
 			Chat.conn.send(\$pres());
@@ -219,9 +222,19 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 		
 		sendMessage : function(recipientJid, message)
 		{
-//			console.log('sendMessage(' + recipientJid + ', ' + message.text +')');
+			var noSoundMessageTypes = [
+				MessageType.SCREEN_SHARING_INVITE,
+				MessageType.SCREEN_SHARING_INVITE_ACCEPTED,
+				MessageType.SCREEN_SHARING_OFFER,
+				MessageType.SCREEN_SHARING_ANSWER,
+				MessageType.SCREEN_SHARING_ESTABLISHED,
+				MessageType.SCREEN_SHARING_FINISHED
+			];
 			
-			$.ionSound.play('button_push');
+			if (noSoundMessageTypes.indexOf(message.type) == -1)
+			{
+				$.ionSound.play('button_push');
+			}
 			
 //			if (message.type == MessageType.CHAT)
 //			{
@@ -237,7 +250,7 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 			if (message.type == MessageType.GROUP_CHAT)
 			{
 				var xmppRoom = Chat.conn.muc.rooms[message.roomJid];
-				xmppRoom.groupchat(message.text);
+				xmppRoom.groupchat(xmppRoom.name, message.text);
 			}
 			else
 			{
@@ -496,7 +509,6 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 					var newMessage = new InternalChatMessage(
 						MessageType.CHAT,
 						sendDate,
-						MethodsForDateTime.dateToString(sendDate),
 						user.bareJid,
 						user.fullName,
 						text);
@@ -571,7 +583,6 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 					var newMessage = new InternalChatMessage(
 						MessageType.GROUP_CHAT,
 						sendDate,
-						MethodsForDateTime.dateToString(sendDate),
 						sender.bareJid,
 						sender.fullName,
 						text,
@@ -598,26 +609,21 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 					Chat.changeStatus('xa','".Yii::t('general','On Video Call')."');
 					ChatGUI.showVideoCallInvitationSentMessage();
 					
-					if (ChatGUI.openedRoom.type == 'groupchat')
+					if (ChatGUI.openedRoom.type == RoomType.GROUP_CHAT)
 					{
 						var xmppRoom = Chat.conn.muc.rooms[ChatGUI.openedRoom.id];
 						
-						Chat.conn.muc.VideoCallInviteMessage(xmppRoom.name, null,'',json,'groupchat');
-						
-						return true;
+						Chat.conn.muc.VideoCallInviteMessage(xmppRoom.name, null, '', json, MessageType.GROUP_CHAT);
 					}
 					else
 					{
-						var sendDate = new Date();
-						
 						var newMessage = new InternalChatMessage(
 							MessageType.VIDEO_CALL,
-							sendDate,
-							MethodsForDateTime.dateToString(sendDate),
+							new Date(),
 							ChatGUI.openedRoom.id,
 							ChatGUI.openedRoom.fullName,
 							json);
-//						console.log(newMessage);
+						
 						Chat.sendMessage(ChatGUI.openedRoom.id, newMessage);
 					}
 					
@@ -628,25 +634,21 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 		
 		startWhiteboardDrawing : function()
 		{
-			if (ChatGUI.openedRoom.type == 'groupchat')
+			if (ChatGUI.openedRoom.type == RoomType.GROUP_CHAT)
 			{
 				var xmppRoom = Chat.conn.muc.rooms[ChatGUI.openedRoom.id];
 				
-				Chat.conn.muc.WhiteboardCallInviteMessage(xmppRoom.name, null,'','Do you want to join my drawing demonstration?','groupchat');
-				
-				return true;
+				Chat.conn.muc.WhiteboardCallInviteMessage(xmppRoom.name, null, '', 'Do you want to join my drawing demonstration?', MessageType.GROUP_CHAT);
 			}
 			else
 			{
-				var sendDate = new Date();
-				
 				 var newMessage = new InternalChatMessage(
 					MessageType.DRAWING_CALL,
-					sendDate,
-					MethodsForDateTime.dateToString(sendDate),
+					new Date(),
 					ChatGUI.openedRoom.id,
 					ChatGUI.openedRoom.fullName,
 					'Invite');
+				
 				Chat.sendMessage(ChatGUI.openedRoom.id, newMessage);
 			}
 			
@@ -668,12 +670,9 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 				
 				var text = 'Start video call with ' + sender.fullName + '?';
 				
-				var sendDate = new Date();
-				
 				var newMessage = new InternalChatMessage(
 					MessageType.VIDEO_CALL,
-					sendDate,
-					MethodsForDateTime.dateToString(sendDate),
+					new Date(),
 					sender.bareJid,
 					sender.fullName,
 					text);
@@ -706,12 +705,9 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 				
 				var text = 'Start drawing with ' + sender.fullName + '?';
 				
-				var sendDate = new Date();
-				
 				var newMessage = new InternalChatMessage(
 					MessageType.VIDEO_CALL,
-					sendDate,
-					MethodsForDateTime.dateToString(sendDate),
+					new Date(),
 					sender.bareJid,
 					sender.fullName,
 					text);
@@ -743,31 +739,27 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 		
 		sendDrawingContent : function(json)
 		{
-			if (ChatGUI.openedRoom.type == 'groupchat')
+			if (ChatGUI.openedRoom.type == RoomType.GROUP_CHAT)
 			{
 				var xmppRoom = Chat.conn.muc.rooms[ChatGUI.openedRoom.id];
 				
-				Chat.conn.muc.WhiteboardDrawingContentMessage(xmppRoom.name, null,'',json,'groupchat');
-				
-				return true;
+				Chat.conn.muc.WhiteboardDrawingContentMessage(xmppRoom.name, null, '', json, MessageType.GROUP_CHAT);
 			}
 			else
 			{
-				var sendDate = new Date();
-				
 				var newMessage = new InternalChatMessage(
 					MessageType.DRAWING_CONTENT,
-					sendDate,
-					MethodsForDateTime.dateToString(sendDate),
+					new Date(),
 					ChatGUI.openedRoom.bareJid,
 					ChatGUI.openedRoom.fullName,
 					json);
 				
 				Chat.sendMessage(ChatGUI.openedRoom.id, newMessage);
+				
 //				ChatGUI.addChatMessage(newMessage);
 			}
 			
-//			console.log(json);
+			return true;
 		},
 		
 		//==================================================
@@ -789,10 +781,10 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 					return;
 				}
 				
-				Chat.screenSharingPresenter.onScreenCaptureStartCallback = ChatGUI.onScreenCaptureStart;
-				Chat.screenSharingPresenter.onScreenCaptureFinishCallback = ChatGUI.onScreenCaptureFinish;
-				Chat.screenSharingPresenter.onOfferCreatedCallback = Chat.onScreenSharingOfferCreated;
-				Chat.screenSharingPresenter.onAnswerAcceptedCallback = Chat.onScreenSharingAnswerAccepted;
+				Chat.screenSharingPresenter.onScreenCaptureStartCallback = ChatGUI.onScreenSharingPresenterCaptureStarted;
+				Chat.screenSharingPresenter.onScreenCaptureFinishCallback = Chat.onScreenSharingPresenterCaptureFinished;
+				Chat.screenSharingPresenter.onOfferCreatedCallback = Chat.onScreenSharingPresenterOfferCreated;
+				Chat.screenSharingPresenter.onAnswerAcceptedCallback = Chat.onScreenSharingPresenterAnswerAccepted;
 			}
 			
 			if (Chat.screenSharingPresenter.screenBeingCaptured)
@@ -807,25 +799,43 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 		
 		sendScreenSharingCall : function()
 		{
-			var sendDate = new Date();
-			
-			var newMessage = new InternalChatMessage(
-				MessageType.SCREEN_SHARING_INVITE,
-				sendDate,
-				MethodsForDateTime.dateToString(sendDate),
-				ChatGUI.openedRoom.bareJid,
-				ChatGUI.openedRoom.fullName,
-				'');
-			
-			Chat.sendMessage(ChatGUI.openedRoom.id, newMessage);
+			switch (ChatGUI.openedRoom.type)
+			{
+				case RoomType.CHAT:
+				{
+					var newMessage = new InternalChatMessage(
+						MessageType.SCREEN_SHARING_INVITE,
+						new Date(),
+						Chat.currentUser.bareJid,
+						Chat.currentUser.fullName,
+						'');
+					
+					Chat.sendMessage(ChatGUI.openedRoom.id, newMessage);
+					
+					break;
+				}
+				case RoomType.GROUP_CHAT:
+				{
+					var xmppRoom = Chat.conn.muc.rooms[ChatGUI.openedRoom.id];
+					
+//					Chat.conn.muc.WhiteboardDrawingContentMessage(xmppRoom.name, null, '', json, MessageType.GROUP_CHAT);
+					Chat.conn.muc.message(xmppRoom.name, null, 'AAA', null, MessageType.SCREEN_SHARING_INVITE);
+					
+					console.log('AAAAAAAAAAAAAA');
+					
+					break;
+				}
+			}
 		},
 		
-		onScreenSharingInviteMsg : function(stanza)
+		onScreenSharingViewerInviteMsg : function(msg)
 		{
-			var to = $(stanza).attr('to');
-			var from = $(stanza).attr('from');
-			var type = $(stanza).attr('type');
-			var jBody = $(stanza).find('body');
+			console.log('ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ');
+			
+			var to = $(msg).attr('to');
+			var from = $(msg).attr('from');
+			var type = $(msg).attr('type');
+			var jBody = $(msg).find('body');
 			
 			if (from != Chat.currentUser.fullJid)
 			{
@@ -833,17 +843,15 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 				
 				var text = sender.fullName + ' ' + '".Yii::t('general', 'wants to share screen with you')."';
 				
-				var sendDate = new Date();
-				
 				var newMessage = new InternalChatMessage(
 					MessageType.VIDEO_CALL,
-					sendDate,
-					MethodsForDateTime.dateToString(sendDate),
+					new Date(),
 					sender.bareJid,
 					sender.fullName,
 					text);
 				
 				ChatGUI.addChatMessage(newMessage);
+				
 				targetRoom = ChatGUI.getRoomById(sender.bareJid);
 				targetRoom.screenSharingInviteFrom = sender.bareJid;
 				
@@ -853,57 +861,52 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 			return true;
 		},
 		
-		onAcceptScreenSharingCall : function()
+		onScreenSharingViewerInviteAccepted : function()
 		{
-			if (Chat.screenSharingViewer == null)
+			if (Chat.screenSharingViewer != null) Chat.removeScreenSharingViewer();
+			
+			Chat.screenSharingViewer = new ScreenSharingViewer();
+			
+			var error = Chat.screenSharingViewer.validateRequirementsAndGetUniversalObjects();
+			
+			if (error != '')
 			{
-				Chat.screenSharingViewer = new ScreenSharingViewer();
-				
-				var error = Chat.screenSharingViewer.validateRequirementsAndGetUniversalObjects();
-				
-				if (error != '')
-				{
-					screenSharingPeer = null;
-					alert(error);
-					return;
-				}
-				
-				Chat.screenSharingViewer.onAnswerCreatedCallback = Chat.onScreenSharingAnswerCreated;
-				
-				Chat.sendScreenSharingCallAcceptedMessage(ChatGUI.openedRoom.screenSharingInviteFrom);
+				screenSharingPeer = null;
+				alert(error);
+				return;
 			}
+			
+			Chat.screenSharingViewer.onAnswerCreatedCallback = Chat.onScreenSharingViewerAnswerCreated;
+			Chat.screenSharingViewer.onScreenSharingEstablishedCallback = ChatGUI.onScreenSharingViewerSharingEstablished;
+			
+			Chat.sendScreenSharingAcceptedMessage(ChatGUI.openedRoom.screenSharingInviteFrom);
 		},
 		
-		sendScreenSharingCallAcceptedMessage : function(recipientFullJid)
+		sendScreenSharingAcceptedMessage : function(recipientFullJid)
 		{
-			var sendDate = new Date();
-			
 			var newMessage = new InternalChatMessage(
 				MessageType.SCREEN_SHARING_INVITE_ACCEPTED,
-				sendDate,
-				MethodsForDateTime.dateToString(sendDate),
+				new Date(),
 				Chat.currentUser.bareJid,
 				Chat.currentUser.fullName,
 				'');
 			
+			console.log(recipientFullJid);
+			console.log(newMessage);
+			
 			Chat.sendMessage(recipientFullJid, newMessage);
 		},
 		
-		onScreenSharingInviteAcceptedMsg : function(msg)
+		onScreenSharingPresenterInviteAcceptedMsg : function(msg)
 		{
-//			console.log(msg);
-			
-			var to = $(msg).attr('to');
 			var from = $(msg).attr('from');
-			var type = $(msg).attr('type');
-			var jBody = $(msg).find('body');
-			
-//			console.log('onScreenSharingInviteAcceptedMsg from:' + from);
 			
 			Chat.screenSharingPresenter.createPeerConnection(from);
+			
+			return true;
 		},
 		
-		onScreenSharingOfferCreated : function(clientId, offer)
+		onScreenSharingPresenterOfferCreated : function(clientId, offer)
 		{
 			console.log('OFFER CREATED');
 			console.log(clientId);
@@ -911,12 +914,9 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 			
 			var text = JSON.stringify(offer);
 			
-			var sendDate = new Date();
-			
 			var newMessage = new InternalChatMessage(
 				MessageType.SCREEN_SHARING_OFFER,
-				sendDate,
-				MethodsForDateTime.dateToString(sendDate),
+				new Date(),
 				Chat.currentUser.bareJid,
 				Chat.currentUser.fullName,
 				text);
@@ -926,7 +926,7 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 			Chat.sendMessage(clientId, newMessage);
 		},
 		
-		onScreenSharingOfferMsg : function(msg)
+		onScreenSharingViewerOfferMsg : function(msg)
 		{
 			var from = $(msg).attr('from');
 			var jBody = $(msg).find('body');
@@ -939,9 +939,11 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 			console.log(offer);
 			
 			Chat.screenSharingViewer.connectToScreenSharing(presenterId, offer);
+			
+			return true;
 		},
 		
-		onScreenSharingAnswerCreated : function(presenterId, answer)
+		onScreenSharingViewerAnswerCreated : function(presenterId, answer)
 		{
 			console.log('ANSWER CREATED');
 			console.log(presenterId);
@@ -949,12 +951,9 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 			
 			var text = JSON.stringify(answer);
 			
-			var sendDate = new Date();
-			
 			var newMessage = new InternalChatMessage(
 				MessageType.SCREEN_SHARING_ANSWER,
-				sendDate,
-				MethodsForDateTime.dateToString(sendDate),
+				new Date(),
 				Chat.currentUser.bareJid,
 				Chat.currentUser.fullName,
 				text);
@@ -962,9 +961,9 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 			Chat.sendMessage(presenterId, newMessage);
 		},
 		
-		onScreenSharingAnswerMsg : function(msg)
+		onScreenSharingPresenterAnswerMsg : function(msg)
 		{
-			console.log('onScreenSharingAnswerMsg');
+			console.log('onScreenSharingPresenterAnswerMsg');
 			console.log(msg);
 			
 			var from = $(msg).attr('from');
@@ -974,19 +973,18 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 			var answer = JSON.parse(jBody.text());
 			
 			Chat.screenSharingPresenter.acceptAnswer(clientId, answer);
+			
+			return true;
 		},
 		
-		onScreenSharingAnswerAccepted  : function(clientId)
+		onScreenSharingPresenterAnswerAccepted  : function(clientId)
 		{
-			console.log('onScreenSharingAnswerAccepted');
+			console.log('onScreenSharingPresenterAnswerAccepted');
 			console.log(clientId);
-			
-			var sendDate = new Date();
 			
 			var newMessage = new InternalChatMessage(
 				MessageType.SCREEN_SHARING_ESTABLISHED,
-				sendDate,
-				MethodsForDateTime.dateToString(sendDate),
+				new Date(),
 				Chat.currentUser.bareJid,
 				Chat.currentUser.fullName,
 				'');
@@ -994,11 +992,45 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 			Chat.sendMessage(clientId, newMessage);
 		},
 		
-		onScreenSharingEstablishedMsg : function(msg)
+		onScreenSharingViewerSharingEstablishedMsg : function(msg)
 		{
-			console.log('onScreenSharingEstablishedMsg');
-			
 			Chat.screenSharingViewer.onScreenSharingEstablished();
+			
+			return true;
+		},
+		
+		onScreenSharingPresenterCaptureFinished : function(activeClientIds)
+		{
+			ChatGUI.onScreenSharingPresenterCaptureFinished();
+			
+			for (var i = 0; i < activeClientIds.length; i++)
+			{
+				var clientId = activeClientIds[i];
+				
+				var newMessage = new InternalChatMessage(
+					MessageType.SCREEN_SHARING_FINISHED,
+					new Date(),
+					Chat.currentUser.bareJid,
+					Chat.currentUser.fullName,
+					'');
+				
+				Chat.sendMessage(clientId, newMessage);
+			}
+		},
+		
+		onScreenSharingViewerSharingFinishedMsg  : function(msg)
+		{
+			Chat.removeScreenSharingViewer();
+			
+			return true;
+		},
+		
+		removeScreenSharingViewer : function()
+		{
+			ChatGUI.onScreenSharingViewerSharingFinished();
+			
+			Chat.screenSharingViewer.disconnect();
+			Chat.screenSharingViewer = null;
 		},
 		
 		//==================================================
@@ -1048,12 +1080,9 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 		
 //		acceptVideoCall : function ()
 //		{
-//			var sendDate = new Date();
-//			
 //			var newMessage = new InternalChatMessage(
 //				MessageType.VIDEO_CALL_ACCEPTED,
-//				sendDate,
-//				MethodsForDateTime.dateToString(sendDate),
+//				new Date(),
 //				ChatGUI.openedRoom.id,
 //				ChatGUI.openedRoom.fullName,
 //				'');
@@ -1101,12 +1130,9 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 						
 						var to = $(message).attr('from');
 						
-						var sendDate = new Date();
-						
 						var newMessage = new InternalChatMessage(
 							MessageType.VIDEO_CALL_ACCEPTED,
-							sendDate,
-							MethodsForDateTime.dateToString(sendDate),
+							new Date(),
 							ChatGUI.openedRoom.id,
 							ChatGUI.openedRoom.fullName,
 							json);

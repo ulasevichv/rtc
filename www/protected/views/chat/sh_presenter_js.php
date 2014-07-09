@@ -60,8 +60,8 @@ Yii::app()->clientScript->registerScript(uniqid('sh_presenter_js'), "
 					optional : []
 				}
 			},
-			function(stream) { inst.onScreenStreamCaptured(inst, stream) },
-			inst.onError
+			function(stream) { inst.onScreenStreamCaptured(inst, stream); },
+			function(error) { /* inst.onError(error); // Preventing redundant error when clicking 'No' in confirmation dialog */ }
 		);
 	}
 	
@@ -90,9 +90,13 @@ Yii::app()->clientScript->registerScript(uniqid('sh_presenter_js'), "
 			this.screenStream = null;
 		}
 		
+		var activeClientIds = [];
+		
 		for (var i = 0; i < this.clients.length; i++)
 		{
 			var client = this.clients[i];
+			
+			activeClientIds.push(client.id);
 			
 			var pc = client.peerConnection;
 			
@@ -105,7 +109,7 @@ Yii::app()->clientScript->registerScript(uniqid('sh_presenter_js'), "
 		
 		this.clients = [];
 		
-		this.onScreenCaptureFinishCallback();
+		this.onScreenCaptureFinishCallback(activeClientIds);
 	}
 	
 	ScreenSharingPresenter.prototype.createPeerConnection = function(clientId)

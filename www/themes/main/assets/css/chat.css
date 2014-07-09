@@ -435,6 +435,9 @@ body > div.container[role="main"] {
 #messages .screenSharing video.own_video {
 	border: 1px solid #eb9316;
 }
+#messages .screenSharing video.incoming_video {
+	border: 1px solid #eb9316;
+}
 #btnShareScreen[started] span._caption {
 	color: #990000;
 }

@@ -752,7 +752,6 @@ Yii::app()->clientScript->registerScript(uniqid('chat_gui'), "
 				var newMessage = new InternalChatMessage(
 					ChatGUI.openedRoom.type,
 					new Date(),
-					MethodsForDateTime.dateToString(new Date()),
 					Chat.currentUser.bareJid,
 					Chat.currentUser.fullName,
 					msg);
@@ -785,7 +784,6 @@ Yii::app()->clientScript->registerScript(uniqid('chat_gui'), "
 			var newMessage = new InternalChatMessage(
 				MessageType.VIDEO_CALL,
 				new Date(),
-				MethodsForDateTime.dateToString(new Date()),
 				Chat.currentUser.bareJid,
 				Chat.currentUser.fullName,
 				msg);
@@ -920,38 +918,19 @@ Yii::app()->clientScript->registerScript(uniqid('chat_gui'), "
 		acceptScreenSharing : function()
 		{
 			$('#screenSharingInvitationControls').hide(400);
-//			ChatGUI.openedRoom.screenSharing = false;
 			
-			Chat.onAcceptScreenSharingCall();
-			
-//			var recipientJid = ChatGUI.openedRoom.id;
-//			var msg = 'Video Call invitation sent to ' + recipientJid;
-//			
-//			msg = MethodsForStrings.escapeHtml(msg);
-//			msg = msg.replace('\\n', '<br/>');
-//			
-//			var newMessage = new InternalChatMessage(
-//				MessageType.VIDEO_CALL,
-//				new Date(),
-//				MethodsForDateTime.dateToString(new Date()),
-//				Chat.currentUser.bareJid,
-//				Chat.currentUser.fullName,
-//				msg);
-//			
-//			ChatGUI.addChatMessage(newMessage);
-//			
-////			console.log('showVideoCallInvitationSentMessage');
-////			Chat.sendMessage(recipientJid, newMessage);
+			Chat.onScreenSharingViewerInviteAccepted();
 		},
 		
 		declineScreenSharing : function()
 		{
 			$('#screenSharingInvitationControls').hide(400);
+			
 			ChatGUI.openedRoom.screenSharing = false;
 			ChatGUI.openedRoom.screenSharingInviteFrom = false;
 		},
 		
-		onScreenCaptureStart : function(stream)
+		onScreenSharingPresenterCaptureStarted : function(stream)
 		{
 			var jBtnShareScreen = $('#btnShareScreen');
 			var jBtnShareScreenCaptionSpan = jBtnShareScreen.find('span._caption');
@@ -983,7 +962,7 @@ Yii::app()->clientScript->registerScript(uniqid('chat_gui'), "
 			Chat.sendScreenSharingCall();
 		},
 		
-		onScreenCaptureFinish : function()
+		onScreenSharingPresenterCaptureFinished : function()
 		{
 			var jBtnShareScreen = $('#btnShareScreen');
 			var jBtnShareScreenCaptionSpan = jBtnShareScreen.find('span._caption');
@@ -1004,8 +983,56 @@ Yii::app()->clientScript->registerScript(uniqid('chat_gui'), "
 			
 			var isAnyVideoDisplayed = (jVideo.outerHeight() > 5 || jScreenSharing.outerHeight() > 5);
 			
-//			console.log('h1: ' + jVideo.outerHeight());
-//			console.log('h2: ' + jScreenSharing.outerHeight());
+			if (!isAnyVideoDisplayed)
+			{
+				jVideo.css('display', 'none');
+				jScreenSharing.css('display', 'none');
+				jVideoToggle.css('display', 'none');
+			}
+			
+			ChatGUI.resizeChatTextDiv();
+		},
+		
+		onScreenSharingViewerSharingEstablished : function(stream)
+		{
+			var msgContainerId = 'msg_'+ Strophe.getNodeFromJid(ChatGUI.openedRoom.id);
+			
+			var jMsgContainer = $('#' + msgContainerId);
+			var jVideo = jMsgContainer.find('.video');
+			var jScreenSharing = jMsgContainer.find('.screenSharing');
+			var jVideoToggle = jMsgContainer.find('.video-toggle');
+			var screenSharingIncomingVideoId = msgContainerId + '_sh_incoming';
+			
+			jScreenSharing.append('<video id=\"' + screenSharingIncomingVideoId + '\" class=\"incoming_video\" controls=\"true\" autoplay=\"true\"></video>');
+			
+			var jIncomingVideo = $('#' + screenSharingIncomingVideoId);
+			var videoElement = jIncomingVideo.get(0);
+			videoElement.src = window.URL.createObjectURL(stream);
+			
+			jVideo.css('display', 'block');
+			jScreenSharing.css('display', 'block');
+			jVideoToggle.css('display', 'block');
+			
+			ChatGUI.resizeChatTextDiv();
+		},
+		
+		onScreenSharingViewerSharingFinished : function()
+		{
+			ChatGUI.openedRoom.screenSharing = false;
+			ChatGUI.openedRoom.screenSharingInviteFrom = false;
+			
+			var msgContainerId = 'msg_'+ Strophe.getNodeFromJid(ChatGUI.openedRoom.id);
+			
+			var jMsgContainer = $('#' + msgContainerId);
+			var jVideo = jMsgContainer.find('.video');
+			var jScreenSharing = jMsgContainer.find('.screenSharing');
+			var jVideoToggle = jMsgContainer.find('.video-toggle');
+			var screenSharingIncomingVideoId = msgContainerId + '_sh_incoming';
+			
+			var jIncomingVideo = $('#' + screenSharingIncomingVideoId);
+			jIncomingVideo.remove();
+			
+			var isAnyVideoDisplayed = (jVideo.outerHeight() > 5 || jScreenSharing.outerHeight() > 5);
 			
 			if (!isAnyVideoDisplayed)
 			{
@@ -1164,10 +1191,6 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 	
 	$('#btnDeclineVideoCall').on('click', function(e)
 	{
-//		Chat.sendMessage(ChatGUI.openedRoom.id, '', MessageType.VIDEO_CALL_DECLINED);
-//		
-//		Chat.sendMessage(ChatGUI.openedRoom.id, '".Yii::t('general','Video/audio call declined')."', 'chat');
-		
 		$('#videoChatInviteButtons').hide(400);
 	});
 	
@@ -1223,14 +1246,14 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 			}
 		});
 		
-		var msg = Chat.currentUser.fullName + ' joined whiteboard.';
+		var text = Chat.currentUser.fullName + ' joined whiteboard.';
+		
 		var newMessage = new InternalChatMessage(
 			MessageType.SYSTEM,
 			new Date(),
-			MethodsForDateTime.dateToString(new Date()),
 			ChatGUI.openedRoom.id,
 			ChatGUI.openedRoom.fullName,
-			msg);
+			text);
 		
 		Chat.sendMessage(ChatGUI.openedRoom.id, newMessage);
 		
@@ -1241,15 +1264,14 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 	{
 		$('#whiteboardInviteButtons').hide(400);
 		
-		var msg = Chat.currentUser.fullName + ' declined your invitation.';
+		var text = Chat.currentUser.fullName + ' declined your invitation.';
 		
 		var newMessage = new InternalChatMessage(
 			MessageType.SYSTEM,
 			new Date(),
-			MethodsForDateTime.dateToString(new Date()),
 			ChatGUI.openedRoom.id,
 			ChatGUI.openedRoom.fullName,
-			msg);
+			text);
 			
 			Chat.sendMessage(ChatGUI.openedRoom.id, newMessage);
 		return false;
@@ -1259,15 +1281,14 @@ Yii::app()->clientScript->registerScript(uniqid(), "
 	{
 		jQuery('#whiteboard-container').hide(400);
 		
-		var msg = Chat.currentUser.fullName + ' leaved whiteboard.';
+		var text = Chat.currentUser.fullName + ' leaved whiteboard.';
 		
 		var newMessage = new InternalChatMessage(
 			MessageType.SYSTEM,
 			new Date(),
-			MethodsForDateTime.dateToString(new Date()),
 			ChatGUI.openedRoom.id,
 			ChatGUI.openedRoom.fullName,
-			msg);
+			text);
 		
 		Chat.sendMessage(ChatGUI.openedRoom.id, newMessage);
 		return true;

@@ -6,6 +6,11 @@ Yii::app()->clientScript->registerScript(uniqid('chat_classes'), "
 		ROOM : 1
 	};
 	
+	var RoomType = {
+		CHAT : 'chat',
+		GROUP_CHAT : 'groupchat'
+	};
+	
 	var MessageType = {
 		CHAT : 'chat',
 		GROUP_CHAT : 'groupchat',
@@ -19,7 +24,8 @@ Yii::app()->clientScript->registerScript(uniqid('chat_classes'), "
 		SCREEN_SHARING_INVITE_ACCEPTED : 'screenSharingInviteAccepted',
 		SCREEN_SHARING_OFFER : 'screenSharingOffer',
 		SCREEN_SHARING_ANSWER : 'screenSharingAnswer',
-		SCREEN_SHARING_ESTABLISHED : 'screenSharingEstablished'
+		SCREEN_SHARING_ESTABLISHED : 'screenSharingEstablished',
+		SCREEN_SHARING_FINISHED : 'screenSharingFinished'
 	};
 	
 	var PresenceType = {
@@ -173,13 +179,13 @@ Yii::app()->clientScript->registerScript(uniqid('chat_classes'), "
 	
 	InternalChatMessage.prototype = new Object();
 	
-	function InternalChatMessage(type, dateTime, time, senderJid, senderFullName, text, roomJid)
+	function InternalChatMessage(type, dateTime, senderJid, senderFullName, text, roomJid)
 	{
 		roomJid = (typeof(roomJid) == 'undefined' ? null : roomJid);
 		
 		this.type = type;
 		this.dateTime = dateTime;
-		this.time = time;
+		this.time = MethodsForDateTime.dateToString(dateTime);
 		this.senderJid = senderJid;
 		this.senderFullName = senderFullName;
 		this.text = text;
