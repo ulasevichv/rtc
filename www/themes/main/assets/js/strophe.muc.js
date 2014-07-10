@@ -203,6 +203,42 @@
 			this._connection.send(msg);
 			return msgid;
 		},
+		
+		advancedMessage : function(room, nick, subtype, message, html_message, type) {
+			var msg, msgid, parent, room_nick;
+			room_nick = this.test_append_nick(room, nick);
+			type = type || (nick != null ? "chat" : "groupchat");
+			msgid = this._connection.getUniqueId();
+			msg = $msg({
+				to: room_nick,
+				from: this._connection.jid,
+				type: type,
+				subtype : subtype,
+				id: msgid
+			}).c("body", {
+				xmlns: Strophe.NS.CLIENT
+			}).t(message);
+			msg.up();
+			if (html_message != null) {
+				msg.c("html", {
+					xmlns: Strophe.NS.XHTML_IM
+				}).c("body", {
+					xmlns: Strophe.NS.XHTML
+				}).h(html_message);
+				if (msg.node.childNodes.length === 0) {
+					parent = msg.node.parentNode;
+					msg.up().up();
+					msg.node.removeChild(parent);
+				} else {
+					msg.up().up();
+				}
+			}
+			msg.c("x", {
+				xmlns: "jabber:x:event"
+			}).c("composing");
+			this._connection.send(msg);
+			return msgid;
+		},
 
 		VideoCallInviteMessage: function(room, nick, message, html_message, type) {
 			var msg, msgid, parent, room_nick;

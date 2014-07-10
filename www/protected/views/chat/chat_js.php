@@ -155,6 +155,7 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 			ChatGUI.refreshRooms();
 			
 			// NOTICE: don't forget to return true at the end of all handlers!
+			// NOTICE: for groupchat messages of custom types check Chat.onMessage.
 			
 			Chat.conn.addHandler(Chat.onMessage, null, 'message', MessageType.CHAT);
 			Chat.conn.addHandler(Chat.onMessage, null, 'message', MessageType.GROUP_CHAT);
@@ -164,7 +165,7 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 			Chat.conn.addHandler(Chat.onVideoCallDeclined, null, 'message', MessageType.VIDEO_CALL_DECLINED);
 			Chat.conn.addHandler(Chat.onDrawingCall, null, 'message', MessageType.DRAWING_CALL);
 			Chat.conn.addHandler(Chat.onDrawingContent, null, 'message', MessageType.DRAWING_CONTENT);
-			Chat.conn.addHandler(Chat.onScreenSharingViewerInviteMsg, null, 'message', MessageType.SCREEN_SHARING_INVITE);
+			Chat.conn.addHandler(Chat.onScreenSharingViewerInviteMsg, null, 'message', MessageType.SCREEN_SHARING_INVITE); // Presents in groupchat.
 			Chat.conn.addHandler(Chat.onScreenSharingPresenterInviteAcceptedMsg, null, 'message', MessageType.SCREEN_SHARING_INVITE_ACCEPTED);
 			Chat.conn.addHandler(Chat.onScreenSharingViewerOfferMsg, null, 'message', MessageType.SCREEN_SHARING_OFFER);
 			Chat.conn.addHandler(Chat.onScreenSharingPresenterAnswerMsg, null, 'message', MessageType.SCREEN_SHARING_ANSWER);
@@ -518,6 +519,22 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 			}
 			else if (type == MessageType.GROUP_CHAT)
 			{
+				var subtype = $(stanza).attr('subtype');
+				
+				if (subtype != null)
+				{
+					switch (subtype)
+					{
+						case MessageType.SCREEN_SHARING_INVITE:
+						{
+							Chat.onScreenSharingViewerInviteMsg(stanza);
+							break;
+						}
+					}
+					
+					return true;
+				}
+				
 				if ($(stanza).attr('drawingcontent'))
 				{
 					Chat.onDrawingContent(stanza);
@@ -817,12 +834,8 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 				case RoomType.GROUP_CHAT:
 				{
 					var xmppRoom = Chat.conn.muc.rooms[ChatGUI.openedRoom.id];
-					
-//					Chat.conn.muc.WhiteboardDrawingContentMessage(xmppRoom.name, null, '', json, MessageType.GROUP_CHAT);
-					Chat.conn.muc.message(xmppRoom.name, null, 'AAA', null, MessageType.SCREEN_SHARING_INVITE);
-					
-					console.log('AAAAAAAAAAAAAA');
-					
+					Chat.conn.muc.advancedMessage(xmppRoom.name, null, MessageType.SCREEN_SHARING_INVITE, '');
+						
 					break;
 				}
 			}
@@ -830,33 +843,28 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 		
 		onScreenSharingViewerInviteMsg : function(msg)
 		{
-			console.log('ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ');
-			
-			var to = $(msg).attr('to');
 			var from = $(msg).attr('from');
-			var type = $(msg).attr('type');
-			var jBody = $(msg).find('body');
 			
-			if (from != Chat.currentUser.fullJid)
-			{
-				var sender = ChatGUI.getUserByBareJid(Strophe.getBareJidFromJid(from));
-				
-				var text = sender.fullName + ' ' + '".Yii::t('general', 'wants to share screen with you')."';
-				
-				var newMessage = new InternalChatMessage(
-					MessageType.VIDEO_CALL,
-					new Date(),
-					sender.bareJid,
-					sender.fullName,
-					text);
-				
-				ChatGUI.addChatMessage(newMessage);
-				
-				targetRoom = ChatGUI.getRoomById(sender.bareJid);
-				targetRoom.screenSharingInviteFrom = sender.bareJid;
-				
-				ChatGUI.addScreenSharingInvitationControls(sender.bareJid);
-			}
+			var sender = ChatGUI.getUserByFromAttribute(from);
+			var fromBareJid = Strophe.getBareJidFromJid(from);
+			
+			if (sender == Chat.currentUser) return true;
+			
+			var text = sender.fullName + ' ' + '".Yii::t('general', 'wants to share screen with you')."';
+			
+			var newMessage = new InternalChatMessage(
+				MessageType.SCREEN_SHARING_INVITE,
+				new Date(),
+				fromBareJid,
+				sender.fullName,
+				text);
+			
+			ChatGUI.addChatMessage(newMessage);
+			
+			targetRoom = ChatGUI.getRoomById(fromBareJid);
+			targetRoom.screenSharingInviteFrom = sender.bareJid;
+			
+			ChatGUI.addScreenSharingInvitationControls(fromBareJid);
 			
 			return true;
 		},
@@ -1397,6 +1405,19 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 								break;
 							}
 						}
+					}
+				}
+				
+				// Removing empty (system) history messages.
+				
+				for (var i = 0; i < room.historyMessages.length; i++)
+				{
+					var historyMessage = room.historyMessages[i];
+					
+					if (historyMessage.text == '')
+					{
+						room.historyMessages.splice(i, 1);
+						i--;
 					}
 				}
 				
