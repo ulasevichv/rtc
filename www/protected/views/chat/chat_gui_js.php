@@ -1055,6 +1055,9 @@ Yii::app()->clientScript->registerScript(uniqid('chat_gui'), "
 		
 		onScreenSharingViewerSharingFinished : function()
 		{
+			console.log('TURNING OFF');
+			console.log(ChatGUI.openedRoom.screenSharingInviteFrom);
+			
 			ChatGUI.openedRoom.screenSharingInvite = false;
 			ChatGUI.openedRoom.screenSharingInviteFrom = false;
 			

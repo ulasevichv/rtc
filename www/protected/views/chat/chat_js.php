@@ -14,6 +14,7 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 		),
 		disconnecting : false,
 		loginDateTime : new Date(),
+		sendMessagesIntervalId : -1,
 		screenSharingPresenter : null,
 		screenSharingViewer : null,
 		
@@ -236,17 +237,6 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 			{
 				$.ionSound.play('button_push');
 			}
-			
-//			if (message.type == MessageType.CHAT)
-//			{
-//				Chat.conn.send(\$msg({
-//					to : recipientJid,
-//					type : message.type,
-//					}).c('body').t(message.text).up()
-//					.c('active', {xmlns: 'http://jabber.org/protocol/chatstates'})
-//				);
-//			}
-//			else ...
 			
 			if (message.type == MessageType.GROUP_CHAT)
 			{
@@ -1009,6 +999,9 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 		
 		onScreenSharingPresenterCaptureFinished : function(activeClientIds)
 		{
+			console.log('activeClientIds');
+			console.log(activeClientIds);
+			
 			ChatGUI.onScreenSharingPresenterCaptureFinished();
 			
 			for (var i = 0; i < activeClientIds.length; i++)
@@ -1022,7 +1015,9 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 					Chat.currentUser.fullName,
 					'');
 				
-				Chat.sendMessage(clientId, newMessage);
+//				Chat.sendMessage(clientId, newMessage);
+				
+				(i == 0 ? Chat.sendMessage(clientId, newMessage) : setTimeout(function() { Chat.sendMessage(clientId, newMessage); }, 50 * i));
 			}
 		},
 		
@@ -1040,6 +1035,20 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 			Chat.screenSharingViewer.disconnect();
 			Chat.screenSharingViewer = null;
 		},
+		
+//		// Delay between messages is required.
+//		//
+//		sendSeveralMessages(internalChatMessages)
+//		{
+//			
+//			
+//			Chat.sendMessagesIntervalId = setInterval(function() { Chat.sendSeveralMessagesStep(); }, 50);
+//		},
+//		
+//		sendSeveralMessagesStep(internalChatMessage)
+//		{
+//			clearInterval(myVar);
+//		}
 		
 		//==================================================
 		// Other.
