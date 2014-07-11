@@ -10,8 +10,10 @@ return CMap::mergeArray(
 			'xmppServerIP' => '192.237.219.76',
 			'xmppAdminUsername' => 'admin',
 			'xmppAdminPassword' => 'zxasqw12',
-			'opentok_api_key' => '44781472',
-			'opentok_api_secret' => '9c61ccfa9474404e8a6cd5daee02f2bf59e876b0',
+//			'opentok_api_key' => '44781472',
+//			'opentok_api_secret' => '9c61ccfa9474404e8a6cd5daee02f2bf59e876b0',
+			'opentok_api_key' => '44889622',
+			'opentok_api_secret' => '2a4cd0242ecd8a1bc815765a1940d4ae214692e9',
 		),
 		
 		// preloading 'log' component
