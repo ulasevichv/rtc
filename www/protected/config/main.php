@@ -7,7 +7,8 @@ return CMap::mergeArray(
 		'params' => array(
 			'adminEmail' => 'admin@rtc.com',
 			'adminEmailName' => 'RTC',
-			'xmppServerIP' => '192.237.219.76',
+//			'xmppServerIP' => '192.237.219.76',
+			'xmppServerIP' => 'teqcomm.ddns.net',
 			'xmppAdminUsername' => 'admin',
 			'xmppAdminPassword' => 'zxasqw12',
 //			'opentok_api_key' => '44781472',
