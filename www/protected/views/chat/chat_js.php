@@ -7,7 +7,7 @@ Yii::app()->clientScript->registerScript(uniqid('chat_js'), "
 		boshAddress : '".$boshAddress."',
 		currentUser : new InternalChatUser(
 			'',
-			'".$xmppUserName."' + '@192.237.219.76',
+			'".$xmppUserName."' + '@' + '".$xmppAddress."',
 			'".$xmppUserName."',
 			'".Yii::app()->user->fullName."',
 			'".$xmppUserPassword."'
